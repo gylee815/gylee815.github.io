@@ -2100,8 +2100,175 @@ topk(5, avg(rate(cilium_bpf_map_ops_total{k8s_app=&quot;cilium&quot;, pod=~&quot
 </p></li></ul><ul id="23bb8b2c-1c23-80ae-99bf-e2776cdbfdca" class="bulleted-list"><li style="list-style-type:disc"><strong>그라파나</strong> 해당 대시보드 편집 → Variables<ul id="23bb8b2c-1c23-8060-b87f-ec02e6c88c75" class="bulleted-list"><li style="list-style-type:circle">pod=~&quot;<code>$pod</code>&quot; 변수 사용</li></ul><figure id="23cb8b2c-1c23-8059-b055-c734b1e5ebd3" class="image"><a href="images/image%205.png"><img style="width:480px" src="images/image%205.png"/></a></figure><figure id="23bb8b2c-1c23-807c-bd1a-ddbeb5dfb70a" class="image"><a href="images/CleanShot_2025-07-20_at_15.07.33.png"><img style="width:864px" src="images/CleanShot_2025-07-20_at_15.07.33.png"/></a></figure></li></ul><p id="23bb8b2c-1c23-80e4-971a-ccbb0099afa1" class="">
 </p></details></li></ul><ul id="23bb8b2c-1c23-8076-b1be-c1f2227467ca" class="bulleted-list"><li style="list-style-type:circle"><strong>Cilium Operator 대시보드</strong> : IPAM</li></ul><ul id="23bb8b2c-1c23-80fd-ba82-e339f6934e16" class="bulleted-list"><li style="list-style-type:circle"><strong>Hubble 대시보드</strong> : General Processing, Network, Network Policy, HTTP, DNS<figure id="23bb8b2c-1c23-8033-97f4-d449f8040290" class="image"><a href="images/CleanShot_2025-07-20_at_15.11.50.png"><img style="width:912px" src="images/CleanShot_2025-07-20_at_15.11.50.png"/></a></figure><p id="23bb8b2c-1c23-80b1-a976-ca87cedcda67" class="">
 </p></li></ul><ul id="23bb8b2c-1c23-8011-be6b-f291d1a4deea" class="bulleted-list"><li style="list-style-type:circle"><strong>Hubble L7 HTTP Metrics by Workload 대시보드</strong> : General, Requests by Source, Requests by Destination</li></ul></li></ul><p id="23bb8b2c-1c23-8087-8939-d59023e904e9" class="">
-</p></details></li></ul><ul id="23bb8b2c-1c23-80d4-889e-f777b8d1c6e5" class="bulleted-list"><li style="list-style-type:disc"><code>도전과제3</code> <strong>프로메테우스-스택</strong>을 설치하고 ‘Cilium, Hubble, Cilium Operator’ 수집 설정 후, 그라파나 대시보드 검색 후 추가해보기.</li></ul></li></ol><p id="23cb8b2c-1c23-802b-b8ec-ee363eac1f0d" class="">
-</p><ol type="1" id="23cb8b2c-1c23-80d1-89bd-d109091f3a0d" class="numbered-list" start="3"><li><strong>Monitoring &amp; Metrics</strong></li></ol><ul id="23cb8b2c-1c23-80d7-960f-d428a5553bde" class="bulleted-list"><li style="list-style-type:disc">eCHO Episode 170: Cilium <strong>Metrics</strong> Review - <a href="https://www.youtube.com/watch?v=aOm1YUO2Vmo">Link</a></li></ul><ul id="23cb8b2c-1c23-80cd-be5c-c7f489942631" class="toggle"><li><details open=""><summary><strong>3.1. Cilium Metrics</strong> 설정 및 수집 방법 - <a href="https://docs.cilium.io/en/stable/observability/metrics/#cilium-metrics">Docs</a></summary><ul id="23cb8b2c-1c23-8053-8e2a-f94c13207256" class="bulleted-list"><li style="list-style-type:disc">Cilium metrics은 Cilium 자체의 상태, 즉 Cilium Agent, Cilium envoy, Cilium operator 프로세스에 대한 인사이트를 제공합니다. </li></ul><ul id="23cb8b2c-1c23-80b1-98ef-ec13db575f37" class="bulleted-list"><li style="list-style-type:disc">프로메테우스 메트릭이 활성화된 Cilium을 실행하려면 <code>prometheus.enabled=true</code> Helm 값 집합을 사용하여 Cilium을 배포하세요.</li></ul><ul id="23cb8b2c-1c23-8038-969a-d2f09f4a513d" class="bulleted-list"><li style="list-style-type:disc">Cilium metrics are exported under the <code>cilium_</code> Prometheus namespace. </li></ul><ul id="23cb8b2c-1c23-80b7-82ea-db0d0b63996f" class="bulleted-list"><li style="list-style-type:disc">Envoy metrics are exported under the <code>envoy_</code> Prometheus namespace, of which the Cilium-defined metrics are exported under the <code>envoy_cilium_</code> namespace. </li></ul><ul id="23cb8b2c-1c23-8059-a2b4-d0e8398f989c" class="bulleted-list"><li style="list-style-type:disc">Kubernetes에서 실행 및 수집할 때 포드 이름과 네임스페이스로 태그가 지정됩니다.</li></ul><ul id="23cb8b2c-1c23-804d-bcdd-c7257063a658" class="bulleted-list"><li style="list-style-type:disc"><strong>설정 → 이미 되어 있음</strong><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="23cb8b2c-1c23-80e6-bf2f-e77c7ea5901b" class="code"><code class="language-Bash">#
+</p></details></li></ul><p id="23cb8b2c-1c23-8008-bf73-cc88ccc39105" class="">
+</p><p id="23bb8b2c-1c23-80d4-889e-f777b8d1c6e5" class=""><strong>2.3. prometheus-stack을 통한 </strong>Cilium, Hubble, Cilium Operator Monitoring 구축</p><ul id="23cb8b2c-1c23-8055-a5c2-f48ae4f62c75" class="toggle"><li><details open=""><summary>prometheus-stack 설치</summary><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="23cb8b2c-1c23-8087-84e9-d5cff8b15533" class="code"><code class="language-Shell"># 모니터링
+watch kubectl get pod,pvc,svc,ingress -n monitoring
+
+# repo 추가
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo update
+
+# 파라미터 파일 생성
+cat &lt;&lt;EOT &gt; monitor-values.yaml
+prometheus:
+  service:
+    type: NodePort
+    nodePort: 30001
+    
+  prometheusSpec:
+    scrapeInterval: &quot;15s&quot;
+    evaluationInterval: &quot;15s&quot;
+    podMonitorSelectorNilUsesHelmValues: false
+    serviceMonitorSelectorNilUsesHelmValues: false
+    retention: 5d
+    retentionSize: &quot;10GiB&quot;
+
+grafana:
+  defaultDashboardsTimezone: Asia/Seoul
+  adminPassword: prom-operator
+  service:
+    type: NodePort
+    nodePort: 30002
+
+defaultRules:
+  create: false
+prometheus-windows-exporter:
+  prometheus:
+    monitor:
+      enabled: false
+alertmanager:
+  enabled: false
+EOT
+cat monitor-values.yaml
+
+# helm으로 prometheus-stack 설치
+helm install kube-prometheus-stack prometheus-community/kube-prometheus-stack --version 75.15.0 \
+-f monitor-values.yaml --create-namespace --namespace monitoring
+
+# servicemonitors라는 cr을 꼭 확인!
+# prometheus operator가 serviceMonitor를 통해서 service discovery를 하여 target을 등록한다!!
+helm list -n monitoring
+kubectl get pod,svc,ingress,pvc -n monitoring
+kubectl get prometheus,servicemonitors -n monitoring
+kubectl get crd | grep monitoring
+
+NAME                    NAMESPACE       REVISION        UPDATED                                 STATUS          CHART                           APP VERSION
+kube-prometheus-stack   monitoring      1               2025-07-26 23:32:31.024344142 +0900 KST deployed        kube-prometheus-stack-75.15.0   v0.83.0    
+NAME                                                            READY   STATUS    RESTARTS   AGE
+pod/kube-prometheus-stack-grafana-7d9c86798d-xg2f4              3/3     Running   0          21m
+pod/kube-prometheus-stack-kube-state-metrics-684f8c7558-m8vxt   1/1     Running   0          21m
+pod/kube-prometheus-stack-operator-798b86ddb7-tt58h             1/1     Running   0          21m
+pod/kube-prometheus-stack-prometheus-node-exporter-jvfvv        1/1     Running   0          21m
+pod/kube-prometheus-stack-prometheus-node-exporter-pk4vx        1/1     Running   0          21m
+pod/kube-prometheus-stack-prometheus-node-exporter-z2t4h        1/1     Running   0          21m
+pod/prometheus-kube-prometheus-stack-prometheus-0               2/2     Running   0          21m
+
+NAME                                                     TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)                         AGE
+service/kube-prometheus-stack-grafana                    NodePort    10.96.231.94   &lt;none&gt;        80:30002/TCP                    21m
+service/kube-prometheus-stack-kube-state-metrics         ClusterIP   10.96.88.59    &lt;none&gt;        8080/TCP                        21m
+service/kube-prometheus-stack-operator                   ClusterIP   10.96.72.196   &lt;none&gt;        443/TCP                         21m
+service/kube-prometheus-stack-prometheus                 NodePort    10.96.56.74    &lt;none&gt;        9090:30001/TCP,8080:30482/TCP   21m
+service/kube-prometheus-stack-prometheus-node-exporter   ClusterIP   10.96.25.191   &lt;none&gt;        9100/TCP                        21m
+service/prometheus-operated                              ClusterIP   None           &lt;none&gt;        9090/TCP                        21m
+
+NAME                                                                VERSION   DESIRED   READY   RECONCILED   AVAILABLE   AGE
+prometheus.monitoring.coreos.com/kube-prometheus-stack-prometheus   v3.5.0    1         1       True         True        21m
+
+NAME                                                                                  AGE
+servicemonitor.monitoring.coreos.com/kube-prometheus-stack-apiserver                  21m
+servicemonitor.monitoring.coreos.com/kube-prometheus-stack-coredns                    21m
+servicemonitor.monitoring.coreos.com/kube-prometheus-stack-grafana                    21m
+
+# promehtues &amp; grafana 접속
+open http://192.168.10.100:30001 # prometheus
+open http://192.168.10.100:30002 # grafana id:admin/ pw:prom-operator
+
+# grafana pw 확인
+kubectl --namespace monitoring get secrets kube-prometheus-stack-grafana -o jsonpath=&quot;{.data.admin-password}&quot; | base64 -d ; echo</code></pre><ul id="23cb8b2c-1c23-80cd-9cd7-d99b343ac391" class="bulleted-list"><li style="list-style-type:disc">현재는 cilium, hubble, cilium operator의 serviceMonitor가 생성되지 않아서 target에 cilium 관련 endpoint가 아무것도 보이지 않는다!!</li></ul></details></li></ul><ul id="23cb8b2c-1c23-80cd-a651-d9552cda09b9" class="toggle"><li><details open=""><summary>cilium helm chart upgrade &amp; serviceMonitor 생성 확인</summary><ul id="23cb8b2c-1c23-80c6-b15d-ec720d13adee" class="bulleted-list"><li style="list-style-type:disc">prometheus-stack의 prometheus-stack-operator를 통해서 cilium, hubble, cilium operator의 endpoint를 target으로 등록하려면 serviceMonitor가 필요하다.</li></ul><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="23cb8b2c-1c23-80b1-a718-fee0e99e6665" class="code"><code class="language-Shell"># helm upgrade
+# 각 cilium agent, cilium operator, hubble을 위한 serviceMonitor를 enable 시킨다.
+helm upgrade cilium cilium/cilium --namespace kube-system --reuse-values \
+ --set prometheus.serviceMonitor.enabled=true
+ --set operator.prometheus.serviceMonitor.enabled=true
+ --set hubble.metrics.serviceMonitor.enabled=true
+ 
+# upgrade 완료 후 cilium helm chart에 적용된 values.yaml를 확인하면 아래와 같다
+helm get values cilium -n kube-system
+USER-SUPPLIED VALUES:
+autoDirectNodeRoutes: true
+bpf:
+  masquerade: true
+debug:
+  enabled: true
+endpointHealthChecking:
+  enabled: false
+endpointRoutes:
+  enabled: true
+healthChecking: false
+hubble:
+  enabled: true
+  export:
+    dynamic:
+      config:
+        content:
+        - filePath: /var/run/cilium/hubble/events-system.log
+          includeFilters:
+          - source_pod:
+            - kube_system/
+          - destination_pod:
+            - kube_system/
+          name: system
+      enabled: true
+    static:
+      enabled: false
+      filePath: /var/run/cilium/hubble/events.log
+  metrics:
+    enableOpenMetrics: true
+    enabled:
+    - dns
+    - drop
+    - tcp
+    - flow
+    - port-distribution
+    - icmp
+    - httpV2:exemplars=true;labelsContext=source_ip,source_namespace,source_workload,destination_ip,destination_namespace,destination_workload,traffic_direction
+    serviceMonitor:
+      enabled: true
+  relay:
+    enabled: true
+  ui:
+    enabled: true
+    service:
+      nodePort: 31234
+      type: NodePort
+installNoConntrackIptablesRules: true
+ipam:
+  mode: cluster-pool
+  operator:
+    clusterPoolIPv4PodCIDRList:
+    - 172.20.0.0/16
+ipv4NativeRoutingCIDR: 172.20.0.0/16
+k8sServiceHost: 192.168.10.100
+k8sServicePort: 6443
+kubeProxyReplacement: true
+operator:
+  prometheus:
+    enabled: true
+    serviceMonitor:
+      enabled: true
+  replicas: 1
+prometheus:
+  enabled: true
+  serviceMonitor:
+    enabled: true
+routingMode: native
+
+# cilium 관련 serviceMonitor 확인
+kubectl get servicemonitors.monitoring.coreos.com -n kube-system
+NAME              AGE
+cilium-agent      22m
+cilium-operator   20m
+hubble            20m</code></pre><ul id="23cb8b2c-1c23-80f8-b626-e68d3678bc51" class="bulleted-list"><li style="list-style-type:disc">이제 prometheus에 들어가서 target health를 확인해보면 아래와 같이 cilium agent, cilium operator, hubble 의 endpoint가 등록된것을 확인 할 수 있다.</li></ul><figure id="23cb8b2c-1c23-80f8-9832-fcbaa3652339" class="image"><a href="images/image%206.png"><img style="width:1408.984375px" src="images/image%206.png"/></a></figure></details></li></ul><ul id="23cb8b2c-1c23-804c-962a-e79854e26c59" class="toggle"><li><details open=""><summary>Grafana dashboard 생성</summary><ul id="23cb8b2c-1c23-809d-be8f-e3278c0e5f04" class="bulleted-list"><li style="list-style-type:disc">grafana dashboard를 생성하고 dashboard의 데이터가 정상적으로 표시되는지 확인해본다.<table id="23cb8b2c-1c23-80c0-a10e-d1f5f64784d3" class="simple-table"><thead class="simple-table-header"><tr id="23cb8b2c-1c23-8075-918b-e16e78598852"><th id="Gvp&lt;" class="simple-table-header-color simple-table-header" style="width:284px"><strong>Dashboard 명칭</strong></th><th id="|KwC" class="simple-table-header-color simple-table-header" style="width:181.375px"><strong>Grafana Dashboard ID</strong></th></tr></thead><tbody><tr id="23cb8b2c-1c23-8053-ab5f-cb4c8ef4d62b"><td id="Gvp&lt;" class="" style="width:284px">grafana-cilium-dashboard</td><td id="|KwC" class="" style="width:181.375px"><strong>16611</strong></td></tr><tr id="23cb8b2c-1c23-802f-9c43-ef246ef7b79d"><td id="Gvp&lt;" class="" style="width:284px">grafana-cilium-operator-dashboard</td><td id="|KwC" class="" style="width:181.375px"><strong>16612</strong></td></tr><tr id="23cb8b2c-1c23-8088-84be-d1a675dc51b1"><td id="Gvp&lt;" class="" style="width:284px">grafana-hubble-dashboard</td><td id="|KwC" class="" style="width:181.375px"><strong>16613</strong></td></tr></tbody></table><figure id="23cb8b2c-1c23-80a8-94f6-fded2e5359c9" class="image"><a href="images/image%207.png"><img style="width:864px" src="images/image%207.png"/></a></figure></li></ul><ul id="23cb8b2c-1c23-8042-9dc7-caaa2b0646d3" class="bulleted-list"><li style="list-style-type:disc">grafana-cilium-dashboard(cilium agent)<figure id="23cb8b2c-1c23-80e2-9909-cbc60ab9ad31" class="image"><a href="images/image%208.png"><img style="width:960px" src="images/image%208.png"/></a></figure></li></ul><ul id="23cb8b2c-1c23-80db-98d2-dbe7c0d6935b" class="bulleted-list"><li style="list-style-type:disc">grafana-cilium-operator-dashboard(cilium operator)<figure id="23cb8b2c-1c23-806c-aa06-f1f2c8402da6" class="image"><a href="images/image%209.png"><img style="width:960px" src="images/image%209.png"/></a></figure></li></ul><ul id="23cb8b2c-1c23-8068-b630-e6cd05314e62" class="bulleted-list"><li style="list-style-type:disc">grafana-hubble-dashboard(hubble relay)<figure id="23cb8b2c-1c23-80a3-901e-d78613834b1c" class="image"><a href="images/image%2010.png"><img style="width:960px" src="images/image%2010.png"/></a></figure><p id="23cb8b2c-1c23-8097-b6ba-c90bc9510446" class="">
+</p></li></ul></details></li></ul></li></ol><ol type="1" id="23cb8b2c-1c23-80d1-89bd-d109091f3a0d" class="numbered-list" start="3"><li><strong>Monitoring &amp; Metrics</strong></li></ol><ul id="23cb8b2c-1c23-80d7-960f-d428a5553bde" class="bulleted-list"><li style="list-style-type:disc">eCHO Episode 170: Cilium <strong>Metrics</strong> Review - <a href="https://www.youtube.com/watch?v=aOm1YUO2Vmo">Link</a></li></ul><ul id="23cb8b2c-1c23-80cd-be5c-c7f489942631" class="toggle"><li><details open=""><summary><strong>3.1. Cilium Metrics</strong> 설정 및 수집 방법 - <a href="https://docs.cilium.io/en/stable/observability/metrics/#cilium-metrics">Docs</a></summary><ul id="23cb8b2c-1c23-8053-8e2a-f94c13207256" class="bulleted-list"><li style="list-style-type:disc">Cilium metrics은 Cilium 자체의 상태, 즉 Cilium Agent, Cilium envoy, Cilium operator 프로세스에 대한 인사이트를 제공합니다. </li></ul><ul id="23cb8b2c-1c23-80b1-98ef-ec13db575f37" class="bulleted-list"><li style="list-style-type:disc">프로메테우스 메트릭이 활성화된 Cilium을 실행하려면 <code>prometheus.enabled=true</code> Helm 값 집합을 사용하여 Cilium을 배포하세요.</li></ul><ul id="23cb8b2c-1c23-8038-969a-d2f09f4a513d" class="bulleted-list"><li style="list-style-type:disc">Cilium metrics are exported under the <code>cilium_</code> Prometheus namespace. </li></ul><ul id="23cb8b2c-1c23-80b7-82ea-db0d0b63996f" class="bulleted-list"><li style="list-style-type:disc">Envoy metrics are exported under the <code>envoy_</code> Prometheus namespace, of which the Cilium-defined metrics are exported under the <code>envoy_cilium_</code> namespace. </li></ul><ul id="23cb8b2c-1c23-8059-a2b4-d0e8398f989c" class="bulleted-list"><li style="list-style-type:disc">Kubernetes에서 실행 및 수집할 때 포드 이름과 네임스페이스로 태그가 지정됩니다.</li></ul><ul id="23cb8b2c-1c23-804d-bcdd-c7257063a658" class="bulleted-list"><li style="list-style-type:disc"><strong>설정 → 이미 되어 있음</strong><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="23cb8b2c-1c23-80e6-bf2f-e77c7ea5901b" class="code"><code class="language-Bash">#
 helm install cilium cilium/cilium --version 1.17.6 \
   --namespace kube-system \
   --set prometheus.enabled=true \
@@ -2368,7 +2535,7 @@ Jul 26 10:00:38.399: default/curl-pod:37494 (ID:1294) &lt;- default/webpod-697b5
 &quot;status&quot;: 200</code></pre></li></ul><ul id="23cb8b2c-1c23-80db-81bd-d878bcec230a" class="bulleted-list"><li style="list-style-type:square">예시) 설정 후 : <code><strong>--set extraArgs=&quot;{--hubble-redact-http-urlquery}”</strong></code><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="23cb8b2c-1c23-80b5-a888-d2802ae0d74f" class="code"><code class="language-Bash">&quot;method&quot;: &quot;GET&quot;,
 &quot;url&quot;: &quot;/user/profile&quot;, # 쿼리 문자열이 제거되어 출력, 민감 정보 보호됨
 &quot;status&quot;: 200</code></pre><p id="23cb8b2c-1c23-804d-98d7-ec01713976c2" class="">
-</p></li></ul></li></ul><ul id="23cb8b2c-1c23-80a3-abcb-e7d7a6ad2222" class="bulleted-list"><li style="list-style-type:circle">For <strong>HTTP</strong>: <strong>redacting URL user info</strong> (for example, <strong>password</strong> used in basic auth) (<code>-hubble-redact-http-userinfo</code>)<p id="23cb8b2c-1c23-80a2-9a9a-ff0519839cf1" class=""><em>⇒ URL의 </em><em><code>user:pass@</code></em><em> 부분 제거</em></p></li></ul><ul id="23cb8b2c-1c23-80fd-acea-c4f493f079aa" class="bulleted-list"><li style="list-style-type:circle">For <strong>Kafka</strong>: <strong>redacting API key</strong> (<code>-hubble-redact-kafka-apikey</code>)</li></ul><ul id="23cb8b2c-1c23-801d-bac0-e09eb2855167" class="bulleted-list"><li style="list-style-type:circle">For <strong>HTTP headers</strong>: redacting all headers except those defined in the <code>-hubble-redact-http-headers-allow</code> list or redacting only the headers defined in the <code>-hubble-redact-http-headers-deny</code> list</li></ul></li></ul><ul id="23cb8b2c-1c23-802a-9a63-e32bf81fb40f" class="bulleted-list"><li style="list-style-type:disc">hubble-ui 상에서는 민감정보가 제거된 상태로 아래와 같이 보인다.<figure id="23cb8b2c-1c23-800f-bccb-ee44789d57eb" class="image"><a href="images/image%206.png"><img style="width:960px" src="images/image%206.png"/></a></figure></li></ul></details></li></ul><p id="23cb8b2c-1c23-8039-829f-cfb3f4ea9eea" class="">
+</p></li></ul></li></ul><ul id="23cb8b2c-1c23-80a3-abcb-e7d7a6ad2222" class="bulleted-list"><li style="list-style-type:circle">For <strong>HTTP</strong>: <strong>redacting URL user info</strong> (for example, <strong>password</strong> used in basic auth) (<code>-hubble-redact-http-userinfo</code>)<p id="23cb8b2c-1c23-80a2-9a9a-ff0519839cf1" class=""><em>⇒ URL의 </em><em><code>user:pass@</code></em><em> 부분 제거</em></p></li></ul><ul id="23cb8b2c-1c23-80fd-acea-c4f493f079aa" class="bulleted-list"><li style="list-style-type:circle">For <strong>Kafka</strong>: <strong>redacting API key</strong> (<code>-hubble-redact-kafka-apikey</code>)</li></ul><ul id="23cb8b2c-1c23-801d-bac0-e09eb2855167" class="bulleted-list"><li style="list-style-type:circle">For <strong>HTTP headers</strong>: redacting all headers except those defined in the <code>-hubble-redact-http-headers-allow</code> list or redacting only the headers defined in the <code>-hubble-redact-http-headers-deny</code> list</li></ul></li></ul><ul id="23cb8b2c-1c23-802a-9a63-e32bf81fb40f" class="bulleted-list"><li style="list-style-type:disc">hubble-ui 상에서는 민감정보가 제거된 상태로 아래와 같이 보인다.<figure id="23cb8b2c-1c23-800f-bccb-ee44789d57eb" class="image"><a href="images/image%2011.png"><img style="width:960px" src="images/image%2011.png"/></a></figure></li></ul></details></li></ul><p id="23cb8b2c-1c23-8039-829f-cfb3f4ea9eea" class="">
 </p><ol type="1" id="23cb8b2c-1c23-80d0-bee2-f9f5504f1bde" class="numbered-list" start="5"><li><strong>pwru</strong><ul id="23cb8b2c-1c23-80e6-bd96-e0cb88c6dfbc" class="bulleted-list"><li style="list-style-type:disc">Packet, where are you?<strong> eBPF-based Linux kernel networking debugger</strong> : <a href="https://github.com/cilium/pwru">https://github.com/cilium/pwru</a></li></ul><ul id="23cb8b2c-1c23-80a7-8000-ced1d04bfbbd" class="bulleted-list"><li style="list-style-type:disc"><a href="https://nuguni.tistory.com/97">https://nuguni.tistory.com/97</a></li></ul><ul id="23cb8b2c-1c23-80da-85c5-c134187e1bfe" class="bulleted-list"><li style="list-style-type:disc"><a href="https://cilium.io/blog/2023/03/22/packet-where-are-you/">https://cilium.io/blog/2023/03/22/packet-where-are-you/</a></li></ul><ul id="23cb8b2c-1c23-8071-a567-de68c4c61b50" class="toggle"><li><details open=""><summary><a href="https://medium.com/@Nikhil690/debugging-packet-drops-and-kernel-flows-with-pwru-fc03f3d479a4">https://medium.com/@Nikhil690/debugging-packet-drops-and-kernel-flows-with-pwru-fc03f3d479a4</a><em><mark class="highlight-red"> → mac M1(arm64 CPU)에서 pwru make(or 컨테이너 이미지도) 실패함…</mark></em></summary><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="23cb8b2c-1c23-8086-94ab-c93d23add185" class="code"><code class="language-Bash"># Prerequisites
 sudo apt update
 sudo apt install -y clang llvm gcc make flex bison byacc yacc libpcap-dev golang
