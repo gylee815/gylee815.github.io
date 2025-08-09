@@ -1,0 +1,2457 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>4주차 - Networking: 노드에 파드들간 통신 2 &amp; K8S 외부 노출</title><style>
+/* cspell:disable-file */
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 3px;
+	padding: 1rem;
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.column-list {
+	display: flex;
+	justify-content: space-between;
+}
+
+.column {
+	padding: 0 1em;
+}
+
+.column:first-child {
+	padding-left: 0;
+}
+
+.column:last-child {
+	padding-right: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding: 0.125rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+	border-collapse: collapse;
+}
+
+table {
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	padding-inline-start: 0;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.page-description {
+	margin-bottom: 2em;
+}
+
+.simple-table {
+	margin-top: 1em;
+	font-size: 0.875rem;
+	empty-cells: show;
+}
+.simple-table td {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table th {
+	height: 29px;
+	min-width: 120px;
+}
+
+.simple-table-header-color {
+	background: rgb(247, 246, 243);
+	color: black;
+}
+.simple-table-header {
+	font-weight: 500;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-block;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	max-height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	transform: scale(1.5);
+	margin-right: 0.6em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1.25em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.sans { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, ui-serif, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK JP'; }
+.pdf:lang(zh-CN) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC'; }
+.pdf:lang(zh-TW) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK TC'; }
+.pdf:lang(ko-KR) .sans { font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK KR'; }
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .code { font-family: Source Code Pro, "SFMono-Regular", Menlo, Consolas, "PT Mono", "Liberation Mono", Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK JP'; }
+.pdf:lang(zh-CN) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK SC'; }
+.pdf:lang(zh-TW) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK TC'; }
+.pdf:lang(ko-KR) .serif { font-family: PT Serif, Lyon-Text, Georgia, ui-serif, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Serif CJK KR'; }
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK JP'; }
+.pdf:lang(zh-CN) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC'; }
+.pdf:lang(zh-TW) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK TC'; }
+.pdf:lang(ko-KR) .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK KR'; }
+.highlight-default {
+	color: rgba(50, 48, 44, 1);
+}
+.highlight-gray {
+	color: rgba(115, 114, 110, 1);
+	fill: rgba(115, 114, 110, 1);
+}
+.highlight-brown {
+	color: rgba(159, 107, 83, 1);
+	fill: rgba(159, 107, 83, 1);
+}
+.highlight-orange {
+	color: rgba(217, 115, 13, 1);
+	fill: rgba(217, 115, 13, 1);
+}
+.highlight-yellow {
+	color: rgba(203, 145, 47, 1);
+	fill: rgba(203, 145, 47, 1);
+}
+.highlight-teal {
+	color: rgba(68, 131, 97, 1);
+	fill: rgba(68, 131, 97, 1);
+}
+.highlight-blue {
+	color: rgba(51, 126, 169, 1);
+	fill: rgba(51, 126, 169, 1);
+}
+.highlight-purple {
+	color: rgba(144, 101, 176, 1);
+	fill: rgba(144, 101, 176, 1);
+}
+.highlight-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.highlight-red {
+	color: rgba(205, 60, 58, 1);
+	fill: rgba(205, 60, 58, 1);
+}
+.highlight-default_background {
+	color: rgba(50, 48, 44, 1);
+}
+.highlight-gray_background {
+	background: rgba(248, 248, 247, 1);
+}
+.highlight-brown_background {
+	background: rgba(244, 238, 238, 1);
+}
+.highlight-orange_background {
+	background: rgba(251, 236, 221, 1);
+}
+.highlight-yellow_background {
+	background: rgba(251, 243, 219, 1);
+}
+.highlight-teal_background {
+	background: rgba(237, 243, 236, 1);
+}
+.highlight-blue_background {
+	background: rgba(231, 243, 248, 1);
+}
+.highlight-purple_background {
+	background: rgba(248, 243, 252, 1);
+}
+.highlight-pink_background {
+	background: rgba(252, 241, 246, 1);
+}
+.highlight-red_background {
+	background: rgba(253, 235, 236, 1);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(115, 114, 110, 1);
+	fill: rgba(115, 114, 110, 1);
+}
+.block-color-brown {
+	color: rgba(159, 107, 83, 1);
+	fill: rgba(159, 107, 83, 1);
+}
+.block-color-orange {
+	color: rgba(217, 115, 13, 1);
+	fill: rgba(217, 115, 13, 1);
+}
+.block-color-yellow {
+	color: rgba(203, 145, 47, 1);
+	fill: rgba(203, 145, 47, 1);
+}
+.block-color-teal {
+	color: rgba(68, 131, 97, 1);
+	fill: rgba(68, 131, 97, 1);
+}
+.block-color-blue {
+	color: rgba(51, 126, 169, 1);
+	fill: rgba(51, 126, 169, 1);
+}
+.block-color-purple {
+	color: rgba(144, 101, 176, 1);
+	fill: rgba(144, 101, 176, 1);
+}
+.block-color-pink {
+	color: rgba(193, 76, 138, 1);
+	fill: rgba(193, 76, 138, 1);
+}
+.block-color-red {
+	color: rgba(205, 60, 58, 1);
+	fill: rgba(205, 60, 58, 1);
+}
+.block-color-default_background {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray_background {
+	background: rgba(248, 248, 247, 1);
+}
+.block-color-brown_background {
+	background: rgba(244, 238, 238, 1);
+}
+.block-color-orange_background {
+	background: rgba(251, 236, 221, 1);
+}
+.block-color-yellow_background {
+	background: rgba(251, 243, 219, 1);
+}
+.block-color-teal_background {
+	background: rgba(237, 243, 236, 1);
+}
+.block-color-blue_background {
+	background: rgba(231, 243, 248, 1);
+}
+.block-color-purple_background {
+	background: rgba(248, 243, 252, 1);
+}
+.block-color-pink_background {
+	background: rgba(252, 241, 246, 1);
+}
+.block-color-red_background {
+	background: rgba(253, 235, 236, 1);
+}
+.select-value-color-default { background-color: rgba(84, 72, 49, 0.08); }
+.select-value-color-gray { background-color: rgba(84, 72, 49, 0.15); }
+.select-value-color-brown { background-color: rgba(210, 162, 141, 0.35); }
+.select-value-color-orange { background-color: rgba(224, 124, 57, 0.27); }
+.select-value-color-yellow { background-color: rgba(236, 191, 66, 0.39); }
+.select-value-color-green { background-color: rgba(123, 183, 129, 0.27); }
+.select-value-color-blue { background-color: rgba(93, 165, 206, 0.27); }
+.select-value-color-purple { background-color: rgba(168, 129, 197, 0.27); }
+.select-value-color-pink { background-color: rgba(225, 136, 179, 0.27); }
+.select-value-color-red { background-color: rgba(244, 171, 159, 0.4); }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+	
+</style></head><body><article id="249b8b2c-1c23-800e-925e-c0f8b6e155a9" class="page sans"><header><h1 class="page-title">4주차 - Networking: 노드에 파드들간 통신 2 &amp; K8S 외부 노출</h1><p class="page-description"></p></header><div class="page-body"><ol type="1" id="249b8b2c-1c23-80f4-8cbf-d6827b8a7228" class="numbered-list" start="0"><li><strong>실습 환경 구성</strong><ul id="249b8b2c-1c23-80ce-9627-c26e940de64a" class="bulleted-list"><li style="list-style-type:disc"><strong>실습 환경 소개</strong><figure id="249b8b2c-1c23-8019-a622-ed19686f09b9" class="image"><a href="images/cilium-4w.png"><img style="width:768px" src="images/cilium-4w.png"/></a></figure><ul id="249b8b2c-1c23-80d5-b265-e2ab3ae33217" class="bulleted-list"><li style="list-style-type:circle">기본 배포 가상 머신 : k8s-ctr(=192.168.10.100), k8s-w1(=192.168.10.101), k8s-w0, router</li></ul><ul id="249b8b2c-1c23-80ce-98ee-f19557171280" class="bulleted-list"><li style="list-style-type:circle"><strong>router</strong> : 192.168.<mark class="highlight-red"><strong>10</strong></mark>.0/24 ↔ 192.168.<mark class="highlight-red"><strong>20</strong></mark>.0/24 대역 <strong>라우팅 역할</strong>, k8s 에 join 되지 않은 서버, loop1/loop2 dump 인터페이스 배치</li></ul><ul id="249b8b2c-1c23-8023-9548-e25da6a46e61" class="bulleted-list"><li style="list-style-type:circle"><strong>k8s-w0</strong> : k8s-ctr/w1 노드와 다른 네트워크 대역에 배치</li></ul><ul id="249b8b2c-1c23-80ba-bb6c-dac5df56d5bc" class="bulleted-list"><li style="list-style-type:circle">실습 동작에 필요한 static routing 설정 됨 with vagrant script file</li></ul><ul id="249b8b2c-1c23-80d4-8bd4-c2abd4340253" class="toggle"><li><details open=""><summary>Cilium CNI <strong>v1.18</strong> 설치 상태로 배포 완료됨 - <a href="https://github.com/cilium/cilium/releases/tag/v1.18.0">Release</a> , <a href="https://gitlab.com/ycheol76/cilium-study/-/blob/main/3nd-week/000.%20cilium%201.18.0%20values.yaml%20%EB%B3%80%EA%B2%BD%EC%82%AC%ED%95%AD%20%EC%A0%95%EB%A6%AC.md">KrLink</a> ← <strong>박용철</strong>님이 한글로 정리해주셨습니다</summary><ul id="249b8b2c-1c23-80da-8899-d1c95bf74e51" class="bulleted-list"><li style="list-style-type:disc"><strong>Minimum Linux Requirements</strong>: The minimum kernel version for this release series is Linux <strong>v5.10</strong> or similar, such as RHEL 8.6</li></ul><ul id="249b8b2c-1c23-8028-8e26-fd49644df4f9" class="bulleted-list"><li style="list-style-type:disc"><strong>Scale Test Results</strong>: Cilium implements policies and <strong>services</strong> up to <strong>45% faster</strong> in higher scale environments<ul id="249b8b2c-1c23-807a-a49e-f6974faa711b" class="bulleted-list"><li style="list-style-type:circle"><strong>Scale Test</strong> : 버전 마다 1000개 노드(‘3만개 파드 or 2.5개 Service / 40만개 백엔드)에서 성능 테스트 - <a href="https://github.com/cilium/cilium/pull/40227">Link</a></li></ul></li></ul><ul id="249b8b2c-1c23-8087-ba0c-ec2be26415ad" class="bulleted-list"><li style="list-style-type:disc"><strong>Image Size Reduction</strong>: Docker image sizes are reduced by 32% on arm64 architecture images</li></ul><ul id="249b8b2c-1c23-805f-8f1a-e55b8b107f31" class="bulleted-list"><li style="list-style-type:disc"><strong>CRD Promotion to Stable</strong>: Promote <strong>CiliumCIDRGroup</strong>, <strong>CiliumLoadBalancerIPPool</strong> and all <strong>BGP</strong> CRDs to stable AP</li></ul><ul id="249b8b2c-1c23-8000-8834-c1c4129542af" class="bulleted-list"><li style="list-style-type:disc"><strong>Multi-Pool Tunnel Routing</strong>: Add support for tunnel routing in multi-pool IPAM mode</li></ul><ul id="249b8b2c-1c23-8004-8f7a-df1da2c613ab" class="bulleted-list"><li style="list-style-type:disc"><strong>Policy Names in Hubble-CLI</strong>: Show the names of (C)CNPs that allowed or denied traffic when monitoring flows in Hubble</li></ul><ul id="249b8b2c-1c23-80b4-bfff-f90066807eff" class="bulleted-list"><li style="list-style-type:disc"><strong>Encapsulated Traffic Decoding</strong>: Hubble decodes encapsulated traffic for deeper introspection into traffic flows </li></ul><ul id="249b8b2c-1c23-803b-8cdd-c83ecd79fdcb" class="bulleted-list"><li style="list-style-type:disc"><strong>Route Aggregation</strong>: Add support for BGP route aggregation in the control plane</li></ul></details></li></ul><ul id="249b8b2c-1c23-8044-beb1-c1f5f3df02c2" class="bulleted-list"><li style="list-style-type:circle"><strong>조하은</strong>님이 Cilium CNI <strong>v1.18</strong> 달라진점을 상세히 정리해주셨습니다 - <a href="https://nuguni.tistory.com/122">Blog</a></li></ul></li></ul><p id="249b8b2c-1c23-8088-99a4-d52c50f27df7" class="">
+</p><ul id="249b8b2c-1c23-80d0-9656-f25bd14e284b" class="toggle"><li><details open=""><summary><strong>실습 환경 배포 파일 작성</strong></summary><ul id="249b8b2c-1c23-80c0-8b80-cbba681bcb1b" class="toggle"><li><details open=""><summary>Vagrantfile : 가상머신 정의, 부팅 시 초기 프로비저닝 설정</summary><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="249b8b2c-1c23-8074-b0f2-dea5b3eb9144" class="code code-wrap"><code class="language-Shell" style="white-space:pre-wrap;word-break:break-all"># Variables
+K8SV = &#x27;1.33.2-1.1&#x27; # Kubernetes Version : apt list -a kubelet , ex) 1.32.5-1.1
+CONTAINERDV = &#x27;1.7.27-1&#x27; # Containerd Version : apt list -a containerd.io , ex) 1.6.33-1
+CILIUMV = &#x27;1.18.0&#x27; # Cilium CNI Version : https://github.com/cilium/cilium/tags
+N = 1 # max number of worker nodes
+
+# Base Image  https://portal.cloud.hashicorp.com/vagrant/discover/bento/ubuntu-24.04
+BOX_IMAGE = &quot;bento/ubuntu-24.04&quot;
+BOX_VERSION = &quot;202502.21.0&quot;
+
+Vagrant.configure(&quot;2&quot;) do |config|
+#-ControlPlane Node
+    config.vm.define &quot;k8s-ctr&quot; do |subconfig|
+      subconfig.vm.box = BOX_IMAGE
+      
+      subconfig.vm.box_version = BOX_VERSION
+      subconfig.vm.provider &quot;virtualbox&quot; do |vb|
+        vb.customize [&quot;modifyvm&quot;, :id, &quot;--groups&quot;, &quot;/Cilium-Lab&quot;]
+        vb.customize [&quot;modifyvm&quot;, :id, &quot;--nicpromisc2&quot;, &quot;allow-all&quot;]
+        vb.name = &quot;k8s-ctr&quot;
+        vb.cpus = 2
+        vb.memory = 2560
+        vb.linked_clone = true
+      end
+      subconfig.vm.host_name = &quot;k8s-ctr&quot;
+      subconfig.vm.network &quot;private_network&quot;, ip: &quot;192.168.10.100&quot;
+      subconfig.vm.network &quot;forwarded_port&quot;, guest: 22, host: 60000, auto_correct: true, id: &quot;ssh&quot;
+      subconfig.vm.synced_folder &quot;./&quot;, &quot;/vagrant&quot;, disabled: true
+      subconfig.vm.provision &quot;shell&quot;, path: &quot;https://raw.githubusercontent.com/gasida/vagrant-lab/refs/heads/main/cilium-study/4w/init_cfg.sh&quot;, args: [ K8SV, CONTAINERDV ]
+      subconfig.vm.provision &quot;shell&quot;, path: &quot;https://raw.githubusercontent.com/gasida/vagrant-lab/refs/heads/main/cilium-study/4w/k8s-ctr.sh&quot;, args: [ N, CILIUMV, K8SV ]
+      subconfig.vm.provision &quot;shell&quot;, path: &quot;https://raw.githubusercontent.com/gasida/vagrant-lab/refs/heads/main/cilium-study/4w/route-add1.sh&quot;
+    end
+
+#-Worker Nodes Subnet1
+  (1..N).each do |i|
+    config.vm.define &quot;k8s-w#{i}&quot; do |subconfig|
+      subconfig.vm.box = BOX_IMAGE
+      subconfig.vm.box_version = BOX_VERSION
+      subconfig.vm.provider &quot;virtualbox&quot; do |vb|
+        vb.customize [&quot;modifyvm&quot;, :id, &quot;--groups&quot;, &quot;/Cilium-Lab&quot;]
+        vb.customize [&quot;modifyvm&quot;, :id, &quot;--nicpromisc2&quot;, &quot;allow-all&quot;]
+        vb.name = &quot;k8s-w#{i}&quot;
+        vb.cpus = 2
+        vb.memory = 1536
+        vb.linked_clone = true
+      end
+      subconfig.vm.host_name = &quot;k8s-w#{i}&quot;
+      subconfig.vm.network &quot;private_network&quot;, ip: &quot;192.168.10.10#{i}&quot;
+      subconfig.vm.network &quot;forwarded_port&quot;, guest: 22, host: &quot;6000#{i}&quot;, auto_correct: true, id: &quot;ssh&quot;
+      subconfig.vm.synced_folder &quot;./&quot;, &quot;/vagrant&quot;, disabled: true
+      subconfig.vm.provision &quot;shell&quot;, path: &quot;https://raw.githubusercontent.com/gasida/vagrant-lab/refs/heads/main/cilium-study/4w/init_cfg.sh&quot;, args: [ K8SV, CONTAINERDV]
+      subconfig.vm.provision &quot;shell&quot;, path: &quot;https://raw.githubusercontent.com/gasida/vagrant-lab/refs/heads/main/cilium-study/4w/k8s-w.sh&quot;
+      subconfig.vm.provision &quot;shell&quot;, path: &quot;https://raw.githubusercontent.com/gasida/vagrant-lab/refs/heads/main/cilium-study/4w/route-add1.sh&quot;
+    end
+  end
+
+#-Router Node
+    config.vm.define &quot;router&quot; do |subconfig|
+      subconfig.vm.box = BOX_IMAGE
+      subconfig.vm.box_version = BOX_VERSION
+      subconfig.vm.provider &quot;virtualbox&quot; do |vb|
+        vb.customize [&quot;modifyvm&quot;, :id, &quot;--groups&quot;, &quot;/Cilium-Lab&quot;]
+        vb.name = &quot;router&quot;
+        vb.cpus = 1
+        vb.memory = 768
+        vb.linked_clone = true
+      end
+      subconfig.vm.host_name = &quot;router&quot;
+      subconfig.vm.network &quot;private_network&quot;, ip: &quot;192.168.10.200&quot;
+      subconfig.vm.network &quot;forwarded_port&quot;, guest: 22, host: 60009, auto_correct: true, id: &quot;ssh&quot;
+      subconfig.vm.network &quot;private_network&quot;, ip: &quot;192.168.20.200&quot;, auto_config: false
+      subconfig.vm.synced_folder &quot;./&quot;, &quot;/vagrant&quot;, disabled: true
+      subconfig.vm.provision &quot;shell&quot;, path: &quot;https://raw.githubusercontent.com/gasida/vagrant-lab/refs/heads/main/cilium-study/4w/router.sh&quot;
+    end
+
+#-Worker Nodes Subnet2
+    config.vm.define &quot;k8s-w0&quot; do |subconfig|
+      subconfig.vm.box = BOX_IMAGE
+      subconfig.vm.box_version = BOX_VERSION
+      subconfig.vm.provider &quot;virtualbox&quot; do |vb|
+        vb.customize [&quot;modifyvm&quot;, :id, &quot;--groups&quot;, &quot;/Cilium-Lab&quot;]
+        vb.customize [&quot;modifyvm&quot;, :id, &quot;--nicpromisc2&quot;, &quot;allow-all&quot;]
+        vb.name = &quot;k8s-w0&quot;
+        vb.cpus = 2
+        vb.memory = 1536
+        vb.linked_clone = true
+      end
+      subconfig.vm.host_name = &quot;k8s-w0&quot;
+      subconfig.vm.network &quot;private_network&quot;, ip: &quot;192.168.20.100&quot;
+      subconfig.vm.network &quot;forwarded_port&quot;, guest: 22, host: 60010, auto_correct: true, id: &quot;ssh&quot;
+      subconfig.vm.synced_folder &quot;./&quot;, &quot;/vagrant&quot;, disabled: true
+      subconfig.vm.provision &quot;shell&quot;, path: &quot;https://raw.githubusercontent.com/gasida/vagrant-lab/refs/heads/main/cilium-study/4w/init_cfg.sh&quot;, args: [ K8SV, CONTAINERDV]
+      subconfig.vm.provision &quot;shell&quot;, path: &quot;https://raw.githubusercontent.com/gasida/vagrant-lab/refs/heads/main/cilium-study/4w/k8s-w.sh&quot;
+      subconfig.vm.provision &quot;shell&quot;, path: &quot;https://raw.githubusercontent.com/gasida/vagrant-lab/refs/heads/main/cilium-study/4w/route-add2.sh&quot;
+    end
+
+end
+</code></pre><p id="249b8b2c-1c23-80d0-9a87-cbecc5bdbeb5" class="">
+</p></details></li></ul><ul id="249b8b2c-1c23-80f4-a656-c1f20d54e6ea" class="toggle"><li><details open=""><summary>init_cfg.sh : args 참고하여 설치</summary><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="249b8b2c-1c23-8010-bfb5-faa68b9c912a" class="code code-wrap"><code class="language-Shell" style="white-space:pre-wrap;word-break:break-all">#!/usr/bin/env bash
+
+echo &quot;&gt;&gt;&gt;&gt; Initial Config Start &lt;&lt;&lt;&lt;&quot;
+
+echo &quot;[TASK 1] Setting Profile &amp; Bashrc&quot;
+echo &#x27;alias vi=vim&#x27; &gt;&gt; /etc/profile
+echo &quot;sudo su -&quot; &gt;&gt; /home/vagrant/.bashrc
+ln -sf /usr/share/zoneinfo/Asia/Seoul /etc/localtime # Change Timezone
+
+
+echo &quot;[TASK 2] Disable AppArmor&quot;
+systemctl stop ufw &amp;&amp; systemctl disable ufw &gt;/dev/null 2&gt;&amp;1
+systemctl stop apparmor &amp;&amp; systemctl disable apparmor &gt;/dev/null 2&gt;&amp;1
+
+
+echo &quot;[TASK 3] Disable and turn off SWAP&quot;
+swapoff -a &amp;&amp; sed -i &#x27;/swap/s/^/#/&#x27; /etc/fstab
+
+
+echo &quot;[TASK 4] Install Packages&quot;
+apt update -qq &gt;/dev/null 2&gt;&amp;1
+apt-get install apt-transport-https ca-certificates curl gpg -y -qq &gt;/dev/null 2&gt;&amp;1
+
+# Download the public signing key for the Kubernetes package repositories.
+mkdir -p -m 755 /etc/apt/keyrings
+K8SMMV=$(echo $1 | sed -En &#x27;s/^([0-9]+\.[0-9]+)\..*/\1/p&#x27;)
+curl -fsSL https://pkgs.k8s.io/core:/stable:/v$K8SMMV/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+echo &quot;deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v$K8SMMV/deb/ /&quot; &gt;&gt; /etc/apt/sources.list.d/kubernetes.list
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+echo &quot;deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu $(. /etc/os-release &amp;&amp; echo &quot;$VERSION_CODENAME&quot;) stable&quot; | tee /etc/apt/sources.list.d/docker.list &gt; /dev/null
+
+# packets traversing the bridge are processed by iptables for filtering
+echo 1 &gt; /proc/sys/net/ipv4/ip_forward
+echo &quot;net.ipv4.ip_forward = 1&quot; &gt;&gt; /etc/sysctl.d/k8s.conf
+
+# enable br_netfilter for iptables 
+modprobe br_netfilter
+modprobe overlay
+echo &quot;br_netfilter&quot; &gt;&gt; /etc/modules-load.d/k8s.conf
+echo &quot;overlay&quot; &gt;&gt; /etc/modules-load.d/k8s.conf
+
+
+echo &quot;[TASK 5] Install Kubernetes components (kubeadm, kubelet and kubectl)&quot;
+# Update the apt package index, install kubelet, kubeadm and kubectl, and pin their version
+apt update &gt;/dev/null 2&gt;&amp;1
+
+# apt list -a kubelet ; apt list -a containerd.io
+apt-get install -y kubelet=$1 kubectl=$1 kubeadm=$1 containerd.io=$2 &gt;/dev/null 2&gt;&amp;1
+apt-mark hold kubelet kubeadm kubectl &gt;/dev/null 2&gt;&amp;1
+
+# containerd configure to default and cgroup managed by systemd
+containerd config default &gt; /etc/containerd/config.toml
+sed -i &#x27;s/SystemdCgroup = false/SystemdCgroup = true/g&#x27; /etc/containerd/config.toml
+
+# avoid WARN&amp;ERRO(default endpoints) when crictl run  
+cat &lt;&lt;EOF &gt; /etc/crictl.yaml
+runtime-endpoint: unix:///run/containerd/containerd.sock
+image-endpoint: unix:///run/containerd/containerd.sock
+EOF
+
+# ready to install for k8s 
+systemctl restart containerd &amp;&amp; systemctl enable containerd
+systemctl enable --now kubelet
+
+
+echo &quot;[TASK 6] Install Packages &amp; Helm&quot;
+export DEBIAN_FRONTEND=noninteractive
+apt-get install -y bridge-utils sshpass net-tools conntrack ngrep tcpdump ipset arping wireguard jq yq tree bash-completion unzip kubecolor termshark &gt;/dev/null 2&gt;&amp;1
+curl -s https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash &gt;/dev/null 2&gt;&amp;1
+
+
+echo &quot;&gt;&gt;&gt;&gt; Initial Config End &lt;&lt;&lt;&lt;&quot;
+</code></pre><p id="249b8b2c-1c23-8039-b598-c2def4e8f67e" class="">
+</p></details></li></ul><ul id="249b8b2c-1c23-801c-8a5d-e012a99aecd7" class="toggle"><li><details open=""><summary>k8s-ctr.sh : kubeadm init, Cilium CNI 설치, 편리성 설정(k, kc), k9s, local-path-sc, metrics-server</summary><ul id="249b8b2c-1c23-8063-b29a-f5263d0d10c2" class="toggle"><li><details open=""><summary>kubeadm-init-ctr-config.yaml</summary><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="249b8b2c-1c23-8048-b59c-e1a650035ae2" class="code code-wrap"><code class="language-Shell" style="white-space:pre-wrap;word-break:break-all">apiVersion: kubeadm.k8s.io/v1beta4
+kind: InitConfiguration
+bootstrapTokens:
+- token: &quot;123456.1234567890123456&quot;
+  ttl: &quot;0s&quot;
+  usages:
+  - signing
+  - authentication
+localAPIEndpoint:
+  advertiseAddress: &quot;192.168.10.100&quot;
+nodeRegistration:
+  kubeletExtraArgs:
+    - name: node-ip
+      value: &quot;192.168.10.100&quot;
+  criSocket: &quot;unix:///run/containerd/containerd.sock&quot;
+---
+apiVersion: kubeadm.k8s.io/v1beta4
+kind: ClusterConfiguration
+kubernetesVersion: &quot;K8S_VERSION_PLACEHOLDER&quot;
+networking:
+  podSubnet: &quot;10.244.0.0/16&quot;
+  serviceSubnet: &quot;10.96.0.0/16&quot;</code></pre><p id="249b8b2c-1c23-80bb-b600-dce450e1e2c2" class="">
+</p></details></li></ul><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="249b8b2c-1c23-80f4-821b-fefbc68b8758" class="code code-wrap"><code class="language-Shell" style="white-space:pre-wrap;word-break:break-all">#!/usr/bin/env bash
+
+echo &quot;&gt;&gt;&gt;&gt; K8S Controlplane config Start &lt;&lt;&lt;&lt;&quot;
+
+echo &quot;[TASK 1] Initial Kubernetes&quot;
+curl --silent -o /root/kubeadm-init-ctr-config.yaml https://raw.githubusercontent.com/gasida/vagrant-lab/refs/heads/main/cilium-study/kubeadm-init-ctr-config.yaml
+K8SMMV=$(echo $3 | sed -En &#x27;s/^([0-9]+\.[0-9]+\.[0-9]+).*/\1/p&#x27;)
+sed -i &quot;s/K8S_VERSION_PLACEHOLDER/v${K8SMMV}/g&quot; /root/kubeadm-init-ctr-config.yaml
+kubeadm init --config=&quot;/root/kubeadm-init-ctr-config.yaml&quot;  &gt;/dev/null 2&gt;&amp;1
+
+
+echo &quot;[TASK 2] Setting kube config file&quot;
+mkdir -p /root/.kube
+cp -i /etc/kubernetes/admin.conf /root/.kube/config
+chown $(id -u):$(id -g) /root/.kube/config
+
+
+echo &quot;[TASK 3] Source the completion&quot;
+echo &#x27;source &lt;(kubectl completion bash)&#x27; &gt;&gt; /etc/profile
+echo &#x27;source &lt;(kubeadm completion bash)&#x27; &gt;&gt; /etc/profile
+
+
+echo &quot;[TASK 4] Alias kubectl to k&quot;
+echo &#x27;alias k=kubectl&#x27; &gt;&gt; /etc/profile
+echo &#x27;alias kc=kubecolor&#x27; &gt;&gt; /etc/profile
+echo &#x27;complete -F __start_kubectl k&#x27; &gt;&gt; /etc/profile
+
+
+echo &quot;[TASK 5] Install Kubectx &amp; Kubens&quot;
+git clone https://github.com/ahmetb/kubectx /opt/kubectx &gt;/dev/null 2&gt;&amp;1
+ln -s /opt/kubectx/kubens /usr/local/bin/kubens
+ln -s /opt/kubectx/kubectx /usr/local/bin/kubectx
+
+
+echo &quot;[TASK 6] Install Kubeps &amp; Setting PS1&quot;
+git clone https://github.com/jonmosco/kube-ps1.git /root/kube-ps1 &gt;/dev/null 2&gt;&amp;1
+cat &lt;&lt;&quot;EOT&quot; &gt;&gt; /root/.bash_profile
+source /root/kube-ps1/kube-ps1.sh
+KUBE_PS1_SYMBOL_ENABLE=true
+function get_cluster_short() {
+  echo &quot;$1&quot; | cut -d . -f1
+}
+KUBE_PS1_CLUSTER_FUNCTION=get_cluster_short
+KUBE_PS1_SUFFIX=&#x27;) &#x27;
+PS1=&#x27;$(kube_ps1)&#x27;$PS1
+EOT
+kubectl config rename-context &quot;kubernetes-admin@kubernetes&quot; &quot;HomeLab&quot; &gt;/dev/null 2&gt;&amp;1
+
+
+echo &quot;[TASK 7] Install Cilium CNI&quot;
+NODEIP=$(ip -4 addr show eth1 | grep -oP &#x27;(?&lt;=inet\s)\d+(\.\d+){3}&#x27;)
+helm repo add cilium https://helm.cilium.io/ &gt;/dev/null 2&gt;&amp;1
+helm repo update &gt;/dev/null 2&gt;&amp;1
+helm install cilium cilium/cilium --version $2 --namespace kube-system \
+--set k8sServiceHost=192.168.10.100 --set k8sServicePort=6443 \
+--set ipam.mode=&quot;cluster-pool&quot; --set ipam.operator.clusterPoolIPv4PodCIDRList={&quot;172.20.0.0/16&quot;} --set ipv4NativeRoutingCIDR=172.20.0.0/16 \
+--set routingMode=native --set autoDirectNodeRoutes=true \
+--set kubeProxyReplacement=true --set bpf.masquerade=true --set installNoConntrackIptablesRules=true \
+--set endpointHealthChecking.enabled=false --set healthChecking=false \
+--set hubble.enabled=true --set hubble.relay.enabled=true --set hubble.ui.enabled=true \
+--set hubble.ui.service.type=NodePort --set hubble.ui.service.nodePort=30003 \
+--set prometheus.enabled=true --set operator.prometheus.enabled=true --set hubble.metrics.enableOpenMetrics=true \
+--set hubble.metrics.enabled=&quot;{dns,drop,tcp,flow,port-distribution,icmp,httpV2:exemplars=true;labelsContext=source_ip\,source_namespace\,source_workload\,destination_ip\,destination_namespace\,destination_workload\,traffic_direction}&quot; \
+--set operator.replicas=1 --set debug.enabled=true &gt;/dev/null 2&gt;&amp;1
+
+
+echo &quot;[TASK 8] Install Cilium / Hubble CLI&quot;
+CILIUM_CLI_VERSION=$(curl -s https://raw.githubusercontent.com/cilium/cilium-cli/main/stable.txt)
+CLI_ARCH=amd64
+if [ &quot;$(uname -m)&quot; = &quot;aarch64&quot; ]; then CLI_ARCH=arm64; fi
+curl -L --fail --remote-name-all https://github.com/cilium/cilium-cli/releases/download/${CILIUM_CLI_VERSION}/cilium-linux-${CLI_ARCH}.tar.gz &gt;/dev/null 2&gt;&amp;1
+tar xzvfC cilium-linux-${CLI_ARCH}.tar.gz /usr/local/bin
+rm cilium-linux-${CLI_ARCH}.tar.gz
+
+HUBBLE_VERSION=$(curl -s https://raw.githubusercontent.com/cilium/hubble/master/stable.txt)
+HUBBLE_ARCH=amd64
+if [ &quot;$(uname -m)&quot; = &quot;aarch64&quot; ]; then HUBBLE_ARCH=arm64; fi
+curl -L --fail --remote-name-all https://github.com/cilium/hubble/releases/download/$HUBBLE_VERSION/hubble-linux-${HUBBLE_ARCH}.tar.gz &gt;/dev/null 2&gt;&amp;1
+tar xzvfC hubble-linux-${HUBBLE_ARCH}.tar.gz /usr/local/bin
+rm hubble-linux-${HUBBLE_ARCH}.tar.gz
+
+
+echo &quot;[TASK 9] Remove node taint&quot;
+kubectl taint nodes k8s-ctr node-role.kubernetes.io/control-plane-
+
+
+echo &quot;[TASK 10] local DNS with hosts file&quot;
+echo &quot;192.168.10.100 k8s-ctr&quot; &gt;&gt; /etc/hosts
+echo &quot;192.168.10.200 router&quot; &gt;&gt; /etc/hosts
+echo &quot;192.168.20.100 k8s-w0&quot; &gt;&gt; /etc/hosts
+for (( i=1; i&lt;=$1; i++  )); do echo &quot;192.168.10.10$i k8s-w$i&quot; &gt;&gt; /etc/hosts; done
+
+
+echo &quot;[TASK 11] Dynamically provisioning persistent local storage with Kubernetes&quot;
+kubectl apply -f https://raw.githubusercontent.com/rancher/local-path-provisioner/v0.0.31/deploy/local-path-storage.yaml &gt;/dev/null 2&gt;&amp;1
+kubectl patch storageclass local-path -p &#x27;{&quot;metadata&quot;: {&quot;annotations&quot;:{&quot;storageclass.kubernetes.io/is-default-class&quot;:&quot;true&quot;}}}&#x27; &gt;/dev/null 2&gt;&amp;1
+
+
+echo &quot;[TASK 12] Install Prometheus &amp; Grafana&quot;
+kubectl apply -f https://raw.githubusercontent.com/cilium/cilium/1.18.0/examples/kubernetes/addons/prometheus/monitoring-example.yaml &gt;/dev/null 2&gt;&amp;1
+kubectl patch svc -n cilium-monitoring prometheus -p &#x27;{&quot;spec&quot;: {&quot;type&quot;: &quot;NodePort&quot;, &quot;ports&quot;: [{&quot;port&quot;: 9090, &quot;targetPort&quot;: 9090, &quot;nodePort&quot;: 30001}]}}&#x27; &gt;/dev/null 2&gt;&amp;1
+kubectl patch svc -n cilium-monitoring grafana -p &#x27;{&quot;spec&quot;: {&quot;type&quot;: &quot;NodePort&quot;, &quot;ports&quot;: [{&quot;port&quot;: 3000, &quot;targetPort&quot;: 3000, &quot;nodePort&quot;: 30002}]}}&#x27; &gt;/dev/null 2&gt;&amp;1
+
+# echo &quot;[TASK 12] Install Prometheus Stack&quot;
+# helm repo add prometheus-community https://prometheus-community.github.io/helm-charts  &gt;/dev/null 2&gt;&amp;1
+# cat &lt;&lt;EOT &gt; monitor-values.yaml
+# prometheus:
+#   prometheusSpec:
+#     scrapeInterval: &quot;15s&quot;
+#     evaluationInterval: &quot;15s&quot;
+#   service:
+#     type: NodePort
+#     nodePort: 30001
+
+# grafana:
+#   defaultDashboardsTimezone: Asia/Seoul
+#   adminPassword: prom-operator
+#   service:
+#     type: NodePort
+#     nodePort: 30002
+
+# alertmanager:
+#   enabled: false
+# defaultRules:
+#   create: false
+# prometheus-windows-exporter:
+#   prometheus:
+#     monitor:
+#       enabled: false
+# EOT
+# helm install kube-prometheus-stack prometheus-community/kube-prometheus-stack --version 75.15.1 \
+#   -f monitor-values.yaml --create-namespace --namespace monitoring  &gt;/dev/null 2&gt;&amp;1
+
+
+echo &quot;[TASK 13] Install Metrics-server&quot;
+helm repo add metrics-server https://kubernetes-sigs.github.io/metrics-server/  &gt;/dev/null 2&gt;&amp;1
+helm upgrade --install metrics-server metrics-server/metrics-server --set &#x27;args[0]=--kubelet-insecure-tls&#x27; -n kube-system  &gt;/dev/null 2&gt;&amp;1
+
+
+echo &quot;[TASK 14] Install k9s&quot;
+CLI_ARCH=amd64
+if [ &quot;$(uname -m)&quot; = &quot;aarch64&quot; ]; then CLI_ARCH=arm64; fi
+wget https://github.com/derailed/k9s/releases/latest/download/k9s_linux_${CLI_ARCH}.deb -O /tmp/k9s_linux_${CLI_ARCH}.deb  &gt;/dev/null 2&gt;&amp;1
+apt install /tmp/k9s_linux_${CLI_ARCH}.deb  &gt;/dev/null 2&gt;&amp;1
+
+
+echo &quot;&gt;&gt;&gt;&gt; K8S Controlplane Config End &lt;&lt;&lt;&lt;&quot;</code></pre><p id="249b8b2c-1c23-80e9-87fc-e193ebdfa8dd" class="">
+</p></details></li></ul><ul id="249b8b2c-1c23-80e5-93ec-e1894fc7cb94" class="toggle"><li><details open=""><summary>k8s-w.sh : kubeadm join</summary><ul id="249b8b2c-1c23-80f2-a31e-c4239683dd85" class="toggle"><li><details open=""><summary>kubeadm-join-worker-config.yaml</summary><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="249b8b2c-1c23-80db-b346-d4917fc81c26" class="code code-wrap"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all">apiVersion: kubeadm.k8s.io/v1beta4
+kind: JoinConfiguration
+discovery:
+  bootstrapToken:
+    token: &quot;123456.1234567890123456&quot;
+    apiServerEndpoint: &quot;192.168.10.100:6443&quot;
+    unsafeSkipCAVerification: true
+nodeRegistration:
+  criSocket: &quot;unix:///run/containerd/containerd.sock&quot;
+  kubeletExtraArgs:
+    - name: node-ip
+      value: &quot;NODE_IP_PLACEHOLDER&quot;</code></pre><p id="249b8b2c-1c23-805c-b29d-f3221149207b" class="">
+</p></details></li></ul><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="249b8b2c-1c23-8026-9d8f-c722e66f6f24" class="code code-wrap"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all">#!/usr/bin/env bash
+
+echo &quot;&gt;&gt;&gt;&gt; K8S Node config Start &lt;&lt;&lt;&lt;&quot;
+
+
+echo &quot;[TASK 1] K8S Controlplane Join&quot;
+curl --silent -o /root/kubeadm-join-worker-config.yaml https://raw.githubusercontent.com/gasida/vagrant-lab/refs/heads/main/cilium-study/2w/kubeadm-join-worker-config.yaml
+NODEIP=$(ip -4 addr show eth1 | grep -oP &#x27;(?&lt;=inet\s)\d+(\.\d+){3}&#x27;)
+sed -i &quot;s/NODE_IP_PLACEHOLDER/${NODEIP}/g&quot; /root/kubeadm-join-worker-config.yaml
+kubeadm join --config=&quot;/root/kubeadm-join-worker-config.yaml&quot; &gt; /dev/null 2&gt;&amp;1
+
+
+echo &quot;&gt;&gt;&gt;&gt; K8S Node config End &lt;&lt;&lt;&lt;&quot;
+</code></pre><p id="249b8b2c-1c23-803f-9cd5-e2e71494506b" class="">
+</p></details></li></ul><ul id="249b8b2c-1c23-80e4-8f6e-ee2521b7aa74" class="toggle"><li><details open=""><summary>route-add1.sh : k8s node 들이 내부망과 통신을 위한 route 설정</summary><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="249b8b2c-1c23-8047-bd51-f51ad063630d" class="code code-wrap"><code class="language-Shell" style="white-space:pre-wrap;word-break:break-all">#!/usr/bin/env bash
+
+echo &quot;&gt;&gt;&gt;&gt; Route Add Config Start &lt;&lt;&lt;&lt;&quot;
+
+chmod 600 /etc/netplan/01-netcfg.yaml
+chmod 600 /etc/netplan/50-vagrant.yaml
+
+cat &lt;&lt;EOT&gt;&gt; /etc/netplan/50-vagrant.yaml
+      routes:
+      - to: 192.168.20.0/24
+        via: 192.168.10.200
+      - to: 172.20.0.0/16
+        via: 192.168.10.200
+      - to: 10.10.0.0/16
+        via: 192.168.10.200
+EOT
+
+netplan apply
+
+echo &quot;&gt;&gt;&gt;&gt; Route Add Config End &lt;&lt;&lt;&lt;&quot;</code></pre><p id="249b8b2c-1c23-80cf-a386-d92663775be3" class="">
+</p></details></li></ul><ul id="249b8b2c-1c23-8043-b30b-c70244886bc9" class="toggle"><li><details open=""><summary>route-add2.sh : k8s node 들이 내부망과 통신을 위한 route 설정</summary><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="249b8b2c-1c23-80d8-bd53-c7a683ff01a7" class="code code-wrap"><code class="language-Shell" style="white-space:pre-wrap;word-break:break-all">#!/usr/bin/env bash
+
+echo &quot;&gt;&gt;&gt;&gt; Route Add Config Start &lt;&lt;&lt;&lt;&quot;
+
+chmod 600 /etc/netplan/01-netcfg.yaml
+chmod 600 /etc/netplan/50-vagrant.yaml
+
+cat &lt;&lt;EOT&gt;&gt; /etc/netplan/50-vagrant.yaml
+      routes:
+      - to: 192.168.10.0/24
+        via: 192.168.20.200
+      - to: 172.20.0.0/16
+        via: 192.168.20.200
+      - to: 10.10.0.0/16
+        via: 192.168.20.200
+EOT
+
+netplan apply
+
+echo &quot;&gt;&gt;&gt;&gt; Route Add Config End &lt;&lt;&lt;&lt;&quot;</code></pre><p id="249b8b2c-1c23-809d-aa51-e98e2aa53939" class="">
+</p></details></li></ul><ul id="249b8b2c-1c23-80d5-9d06-e07b134fd7cd" class="toggle"><li><details open=""><summary>router.sh : router 역할의 (웹) 서버</summary><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="249b8b2c-1c23-8073-9ca1-da060d96cf14" class="code code-wrap"><code class="language-Shell" style="white-space:pre-wrap;word-break:break-all">#!/usr/bin/env bash
+
+echo &quot;&gt;&gt;&gt;&gt; Initial Config Start &lt;&lt;&lt;&lt;&quot;
+
+
+echo &quot;[TASK 0] Setting eth2&quot;
+chmod 600 /etc/netplan/01-netcfg.yaml
+chmod 600 /etc/netplan/50-vagrant.yaml
+
+cat &lt;&lt; EOT &gt;&gt; /etc/netplan/50-vagrant.yaml
+    eth2:
+      addresses:
+      - 192.168.20.200/24
+EOT
+
+netplan apply
+
+
+echo &quot;[TASK 1] Setting Profile &amp; Bashrc&quot;
+echo &#x27;alias vi=vim&#x27; &gt;&gt; /etc/profile
+echo &quot;sudo su -&quot; &gt;&gt; /home/vagrant/.bashrc
+ln -sf /usr/share/zoneinfo/Asia/Seoul /etc/localtime
+
+
+echo &quot;[TASK 2] Disable AppArmor&quot;
+systemctl stop ufw &amp;&amp; systemctl disable ufw &gt;/dev/null 2&gt;&amp;1
+systemctl stop apparmor &amp;&amp; systemctl disable apparmor &gt;/dev/null 2&gt;&amp;1
+
+
+echo &quot;[TASK 3] Add Kernel setting - IP Forwarding&quot;
+sed -i &#x27;s/#net.ipv4.ip_forward=1/net.ipv4.ip_forward=1/g&#x27; /etc/sysctl.conf
+sysctl -p &gt;/dev/null 2&gt;&amp;1
+
+
+echo &quot;[TASK 4] Setting Dummy Interface&quot;
+modprobe dummy
+ip link add loop1 type dummy
+ip link set loop1 up
+ip addr add 10.10.1.200/24 dev loop1
+
+ip link add loop2 type dummy
+ip link set loop2 up
+ip addr add 10.10.2.200/24 dev loop2
+
+
+echo &quot;[TASK 5] Install Packages&quot;
+export DEBIAN_FRONTEND=noninteractive
+apt update -qq &gt;/dev/null 2&gt;&amp;1
+apt-get install net-tools jq yq tree ngrep tcpdump arping termshark -y -qq &gt;/dev/null 2&gt;&amp;1
+
+
+echo &quot;[TASK 6] Install Apache&quot;
+apt install apache2 -y &gt;/dev/null 2&gt;&amp;1
+echo -e &quot;&lt;h1&gt;Web Server : $(hostname)&lt;/h1&gt;&quot; &gt; /var/www/html/index.html
+
+
+echo &quot;&gt;&gt;&gt;&gt; Initial Config End &lt;&lt;&lt;&lt;&quot;
+</code></pre><p id="249b8b2c-1c23-8043-b18d-cf7854d5f9a4" class="">
+</p></details></li></ul><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="249b8b2c-1c23-805d-abcc-f51940fdba0c" class="code code-wrap"><code class="language-Shell" style="white-space:pre-wrap;word-break:break-all">mkdir cilium-lab &amp;&amp; cd cilium-lab
+
+curl -O https://raw.githubusercontent.com/gasida/vagrant-lab/refs/heads/main/cilium-study/4w/Vagrantfile
+
+vagrant up</code></pre><p id="249b8b2c-1c23-80f3-848c-dbf6b6b1dcda" class="">
+</p></details></li></ul><ul id="249b8b2c-1c23-8074-a8b8-e121919f1489" class="toggle"><li><details open=""><summary><strong>실습 환경 배포</strong> : <code><strong>vagrant up</strong></code></summary><ul id="249b8b2c-1c23-8091-8b8c-f03b34bc0841" class="bulleted-list"><li style="list-style-type:disc">[k8s-ctr] 접속 후 기본 정보 확인<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="249b8b2c-1c23-8032-b280-f65bb0bb18c2" class="code code-wrap"><code class="language-Shell" style="white-space:pre-wrap;word-break:break-all"># k9s 설치되어 있음
+CLI_ARCH=amd64
+if [ &quot;$(uname -m)&quot; = &quot;aarch64&quot; ]; then CLI_ARCH=arm64; fi
+wget https://github.com/derailed/k9s/releases/latest/download/k9s_linux_${CLI_ARCH}.deb -O /tmp/k9s_linux_${CLI_ARCH}.deb
+apt install /tmp/k9s_linux_${CLI_ARCH}.deb
+k9s # node/pod 정보 확인 - metrics-server 설치되어 있어서, cpu/mem 확인 가능
+
+
+#
+cat /etc/hosts
+sshpass -p &#x27;vagrant&#x27; ssh -o StrictHostKeyChecking=no vagrant@k8s-w0 hostname
+sshpass -p &#x27;vagrant&#x27; ssh -o StrictHostKeyChecking=no vagrant@k8s-w1 hostname
+sshpass -p &#x27;vagrant&#x27; ssh -o StrictHostKeyChecking=no vagrant@router hostname
+
+# 클러스터 정보 확인
+kubectl cluster-info
+kubectl cluster-info dump | grep -m 2 -E &quot;cluster-cidr|service-cluster-ip-range&quot;
+                           
+kubectl describe cm -n kube-system kubeadm-config
+kubectl describe cm -n kube-system kubelet-config
+
+# 노드 정보 : 상태, INTERNAL-IP 확인
+ifconfig | grep -iEA1 &#x27;eth[0-9]:&#x27;
+kubectl get node -owide
+
+# 파드 정보 : 상태, 파드 IP 확인
+kubectl get nodes -o jsonpath=&#x27;{range .items[*]}{.metadata.name}{&quot;\t&quot;}{.spec.podCIDR}{&quot;\n&quot;}{end}&#x27;
+kubectl get ciliumnode -o json | grep podCIDRs -A2
+kubectl get pod -A -owide
+kubectl get ciliumendpoints -A
+
+# ipam 모드 확인
+cilium config view | grep ^ipam
+
+# iptables 확인
+iptables-save
+iptables -t nat -S
+iptables -t filter -S
+iptables -t mangle -S
+iptables -t raw -S</code></pre><p id="249b8b2c-1c23-80d0-993e-fd28b9f42796" class="">
+</p></li></ul><ul id="249b8b2c-1c23-80e8-a9be-c8adc047e3fb" class="bulleted-list"><li style="list-style-type:disc">[k8s-ctr] cilium 설치 정보 확인<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="249b8b2c-1c23-806b-b840-faecc6790bef" class="code code-wrap"><code class="language-Shell" style="white-space:pre-wrap;word-break:break-all"># cilium 상태 확인
+kubectl get cm -n kube-system cilium-config -o json | jq
+cilium status
+cilium config view
+
+#
+kubectl exec -n kube-system -c cilium-agent -it ds/cilium -- cilium-dbg status --verbose
+kubectl exec -n kube-system -c cilium-agent -it ds/cilium -- cilium-dbg metrics list
+
+# monitor
+kubectl exec -n kube-system -c cilium-agent -it ds/cilium -- cilium-dbg monitor
+kubectl exec -n kube-system -c cilium-agent -it ds/cilium -- cilium-dbg monitor -v
+kubectl exec -n kube-system -c cilium-agent -it ds/cilium -- cilium-dbg monitor -v -v
+
+## Filter for only the events related to endpoint
+kubectl exec -n kube-system -c cilium-agent -it ds/cilium -- cilium-dbg monitor --related-to=&lt;id&gt;
+
+## Show notifications only for dropped packet events
+kubectl exec -n kube-system -c cilium-agent -it ds/cilium -- cilium-dbg monitor --type drop
+
+## Don’t dissect packet payload, display payload in hex information
+kubectl exec -n kube-system -c cilium-agent -it ds/cilium -- cilium-dbg monitor -v -v --hex
+
+## Layer7
+kubectl exec -n kube-system -c cilium-agent -it ds/cilium -- cilium-dbg monitor -v --type l7</code></pre></li></ul><p id="249b8b2c-1c23-80c3-a9b3-eaf633f8d8ad" class="">
+</p></details></li></ul><ul id="249b8b2c-1c23-8025-b977-f283fb512a4f" class="toggle"><li><details open=""><summary>네트워크 정보 확인 : <code>autoDirectNodeRoutes=true</code> 동작 이해</summary><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="249b8b2c-1c23-80f1-b1fa-fb12d7ee463f" class="code code-wrap"><code class="language-Shell" style="white-space:pre-wrap;word-break:break-all"># router 네트워크 인터페이스 정보 확인
+sshpass -p &#x27;vagrant&#x27; ssh vagrant@router ip -br -c -4 addr
+lo               UNKNOWN        127.0.0.1/8 
+eth0             UP             10.0.2.15/24 metric 100 
+eth1             UP             192.168.10.200/24 
+eth2             UP             192.168.20.200/24 
+loop1            UNKNOWN        10.10.1.200/24 
+loop2            UNKNOWN        10.10.2.200/24
+
+# k8s node 네트워크 인터페이스 정보 확인
+ip -c -4 addr show dev eth1
+sshpass -p &#x27;vagrant&#x27; ssh vagrant@k8s-w1 ip -c -4 addr show dev eth1
+sshpass -p &#x27;vagrant&#x27; ssh vagrant@k8s-w0 ip -c -4 addr show dev eth1
+
+
+# 라우팅 정보 확인
+sshpass -p &#x27;vagrant&#x27; ssh vagrant@router ip -c route
+ip -c route | grep static
+
+## --set routingMode=native --set autoDirectNodeRoutes=true 동작을 정확히 이해해보자!
+ip -c route
+sshpass -p &#x27;vagrant&#x27; ssh vagrant@k8s-w1 ip -c route
+sshpass -p &#x27;vagrant&#x27; ssh vagrant@k8s-w0 ip -c route
+
+
+# 통신 확인
+ping -c 1 10.10.1.200     # router loop1 
+ping -c 1 192.168.20.100  # k8s-w0 eth1
+
+# 목적지까지 경우하는 라우팅 정보 제공
+## Path MTU (pmtu): 출발지에서 목적지까지 모든 네트워크 경로 상에서 통과할 수 있는 최대 패킷 크기(Byte), IP fragmentation 없이 전송 가능한 가장 큰 패킷 크기를 의미.
+## pmtu 1500: 전체 경로의 최소 MTU는 1500 , hops 2: 총 2단계 라우터/노드를 거쳐서 도달 , back 2: 응답도 동일한 hop 수로 돌아옴 
+tracepath -n 192.168.20.100
+ 1?: [LOCALHOST]                      pmtu 1500
+ 1:  192.168.10.200                                        1.222ms 
+ 1:  192.168.10.200                                        0.980ms 
+ 2:  192.168.20.100                                        1.620ms reached
+     Resume: pmtu 1500 hops 2 back 2 </code></pre><p id="249b8b2c-1c23-8007-98cc-d1948a4bc331" class="">
+</p></details></li></ul><p id="249b8b2c-1c23-809d-89db-e15e8bc93f49" class=""><code>도전과제0</code> Cilium <strong>1.17.6</strong> 버전을 배포 후 Live 상태에서 Cilium <strong>1.18.0</strong> <strong>업그레이드</strong> 및 <strong>고려사항</strong> 정리 - <a href="https://docs.cilium.io/en/stable/operations/upgrade/">Docs</a><div class="indented"><ul id="249b8b2c-1c23-801a-8a36-f22efcc9c289" class="bulleted-list"><li style="list-style-type:disc"><strong>박용철</strong>님이 공식 문서 Cilium 업그레이드 가이드 내용을 한글로 정리해주셨습니다 - <a href="https://gitlab.com/ycheol76/cilium-study/-/blob/main/3nd-week/000.%20v1.18.0%20%EC%97%85%EA%B7%B8%EB%A0%88%EC%9D%B4%EB%93%9C%20%EA%B0%80%EC%9D%B4%EB%93%9C.md">Link</a></li></ul></div></p></li></ol><p id="249b8b2c-1c23-8006-8119-dc38e84142e1" class="">
+</p><ol type="1" id="249b8b2c-1c23-8068-946b-c41c2db6b2e4" class="numbered-list" start="1"><li><strong>Native Routing mode</strong><ul id="249b8b2c-1c23-80d0-9728-e16140a7f2b3" class="toggle"><li><details open=""><summary><mark class="highlight-blue"><strong>1.1. 샘플 애플리케이션 배포 및 확인</strong></mark> : <code>cilium-dbg</code></summary><ul id="249b8b2c-1c23-80b9-aec6-e61278583ffb" class="bulleted-list"><li style="list-style-type:disc">샘플 애플리케이션 배포<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="249b8b2c-1c23-8023-880e-ecd8cb2dc7b3" class="code code-wrap"><code class="language-Shell" style="white-space:pre-wrap;word-break:break-all"># 샘플 애플리케이션 배포
+cat &lt;&lt; EOF | kubectl apply -f -
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: webpod
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: webpod
+  template:
+    metadata:
+      labels:
+        app: webpod
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - sample-app
+            topologyKey: &quot;kubernetes.io/hostname&quot;
+      containers:
+      - name: webpod
+        image: traefik/whoami
+        ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: webpod
+  labels:
+    app: webpod
+spec:
+  selector:
+    app: webpod
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 80
+  type: ClusterIP
+EOF
+
+
+# k8s-ctr 노드에 curl-pod 파드 배포
+cat &lt;&lt;EOF | kubectl apply -f -
+apiVersion: v1
+kind: Pod
+metadata:
+  name: curl-pod
+  labels:
+    app: curl
+spec:
+  nodeName: k8s-ctr
+  containers:
+  - name: curl
+    image: nicolaka/netshoot
+    command: [&quot;tail&quot;]
+    args: [&quot;-f&quot;, &quot;/dev/null&quot;]
+  terminationGracePeriodSeconds: 0
+EOF</code></pre><p id="249b8b2c-1c23-800e-8025-f52c079744f3" class="">
+</p></li></ul><ul id="249b8b2c-1c23-80da-b586-f3ec0afd0e1c" class="bulleted-list"><li style="list-style-type:disc">확인 : <code>cilium-dbg</code><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="249b8b2c-1c23-80a6-8299-cbf3262bab2a" class="code code-wrap"><code class="language-Shell" style="white-space:pre-wrap;word-break:break-all"># 배포 확인
+kubectl get deploy,svc,ep webpod -owide
+NAME                     READY   UP-TO-DATE   AVAILABLE   AGE   CONTAINERS   IMAGES           SELECTOR
+deployment.apps/webpod   3/3     3            3           22s   webpod       traefik/whoami   app=webpod
+
+NAME             TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)   AGE   SELECTOR
+service/webpod   ClusterIP   10.96.112.15   &lt;none&gt;        80/TCP    22s   app=webpod
+
+NAME               ENDPOINTS                                       AGE
+endpoints/webpod   172.20.0.91:80,172.20.1.50:80,172.20.2.199:80   22s
+
+kubectl get endpointslices -l app=webpod
+
+kubectl get ciliumendpoints # IP 확인
+NAME                      SECURITY IDENTITY   ENDPOINT STATE   IPV4           IPV6
+curl-pod                  3131                ready            172.20.0.20    
+webpod-697b545f57-ftrx9   15436               ready            172.20.1.50    
+webpod-697b545f57-rskf8   15436               ready            172.20.2.199   
+webpod-697b545f57-vbtsx   15436               ready            172.20.0.91
+
+#
+kubectl exec -n kube-system ds/cilium -- cilium-dbg ip list
+kubectl exec -n kube-system ds/cilium -- cilium-dbg endpoint list
+
+# webpod deploy pod들의 ip
+kubectl exec -n kube-system ds/cilium -- cilium-dbg service list
+20   10.96.112.15:80/TCP     ClusterIP      1 =&gt; 172.20.0.91:80/TCP (active)        
+                                            2 =&gt; 172.20.1.50:80/TCP (active)        
+                                            3 =&gt; 172.20.2.199:80/TCP (active) 
+
+kubectl exec -n kube-system ds/cilium -- cilium-dbg bpf lb list
+kubectl exec -n kube-system ds/cilium -- cilium-dbg bpf lb list | grep 10.96.112.15
+10.96.112.15:80/TCP (1)        172.20.0.91:80/TCP (20) (1)                                   
+10.96.112.15:80/TCP (0)        0.0.0.0:0 (20) (0) [ClusterIP, non-routable]                  
+10.96.112.15:80/TCP (3)        172.20.2.199:80/TCP (20) (3)                                  
+10.96.112.15:80/TCP (2)        172.20.1.50:80/TCP (20) (2) 
+
+kubectl exec -n kube-system ds/cilium -- cilium-dbg bpf nat list
+
+# map
+kubectl exec -n kube-system ds/cilium -- cilium-dbg map list | grep -v &#x27;0             0&#x27;
+Name                           Num entries   Num errors   Cache enabled
+cilium_lb4_backends_v3         16            0            true
+cilium_lb4_reverse_nat         20            0            true
+cilium_runtime_config          256           0            true
+cilium_policy_v2_01061         3             0            true
+cilium_lb4_services_v2         45            0            true
+cilium_ipcache_v2              22            0            true
+cilium_lxc                     1             0            true
+cilium_policy_v2_01990         2             0            true
+
+kubectl exec -n kube-system ds/cilium -- cilium-dbg map get cilium_lb4_services_v2
+kubectl exec -n kube-system ds/cilium -- cilium-dbg map get cilium_lb4_services_v2 | grep 10.96.112.15
+10.96.112.15:80/TCP (2)        15 0[0] (20) [0x0 0x0]            
+10.96.112.15:80/TCP (1)        14 0[0] (20) [0x0 0x0]            
+10.96.112.15:80/TCP (3)        16 0[0] (20) [0x0 0x0]            
+10.96.112.15:80/TCP (0)        0 3[0] (20) [0x0 0x0] 
+
+kubectl exec -n kube-system ds/cilium -- cilium-dbg map get cilium_lb4_backends_v3
+kubectl exec -n kube-system ds/cilium -- cilium-dbg map get cilium_lb4_reverse_nat
+kubectl exec -n kube-system ds/cilium -- cilium-dbg map get cilium_ipcache_v2
+</code></pre></li></ul><p id="249b8b2c-1c23-80d1-bcf9-db57b3f565bb" class="">
+</p></details></li></ul><ul id="249b8b2c-1c23-80de-9ae4-cbcc5fa32a21" class="toggle"><li><details open=""><summary><strong>1.2. 통신 확인 &amp; hubble</strong> → 문제를 해결하려먼 어떻게 해야 될까? 방안1 (라우팅 설정 - 수동 or 자동 <strong>BGP</strong>), 방안2 (Overlay Network)</summary><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="249b8b2c-1c23-803f-80b9-c9d74049143c" class="code code-wrap"><code class="language-Shell" style="white-space:pre-wrap;word-break:break-all"># 통신 확인 : 문제 확인
+kubectl exec -it curl-pod -- curl webpod | grep Hostname
+kubectl exec -it curl-pod -- sh -c &#x27;while true; do curl -s --connect-timeout 1 webpod | grep Hostname; echo &quot;---&quot; ; sleep 1; done&#x27;
+
+
+# k8s-w0 노드에 배포된 webpod 파드 IP 지정
+export WEBPOD=$(kubectl get pod -l app=webpod --field-selector spec.nodeName=k8s-w0 -o jsonpath=&#x27;{.items[0].status.podIP}&#x27;)
+echo $WEBPOD
+
+# 신규 터미널 [router]
+tcpdump -i any icmp -nn
+
+# 
+kubectl exec -it curl-pod -- ping -c 2 -w 1 -W 1 $WEBPOD
+
+# 신규 터미널 [router] : 라우팅이 어떻게 되는가?
+tcpdump -i any icmp -nn
+02:30:10.329084 eth1  In  IP 172.20.0.20 &gt; 172.20.2.199: ICMP echo request, id 157, seq 1, length 64
+02:30:10.329091 eth0  Out IP 172.20.0.20 &gt; 172.20.2.199: ICMP echo request, id 157, seq 1, length 64
+
+# 신규 터미널 [router]
+ip -c route
+ip route get 172.20.2.199
+172.20.2.199 via 10.0.2.2 dev eth0 src 10.0.2.15 uid 0 
+
+kubectl get po -o wide
+NAME                      READY   STATUS    RESTARTS   AGE   IP             NODE      NOMINATED NODE   READINESS GATES
+curl-pod                  1/1     Running   0          29m   172.20.0.20    k8s-ctr   &lt;none&gt;           &lt;none&gt;
+webpod-697b545f57-ftrx9   1/1     Running   0          29m   172.20.1.50    k8s-w1    &lt;none&gt;           &lt;none&gt;
+webpod-697b545f57-rskf8   1/1     Running   0          29m   172.20.2.199   k8s-w0    &lt;none&gt;           &lt;none&gt;
+webpod-697b545f57-vbtsx   1/1     Running   0          29m   172.20.0.91    k8s-ctr   &lt;none&gt;           &lt;none&gt;
+(⎈|HomeLab:N/A) root@k8s-ctr:~# 
+
+# 현재 curl pod에서 webpod service로 curl을 하면 k8s-w0에 있는 pod로는 정상적으로 통신되지 않는다.
+# cilium이 native routeing mode이고 k8s-w0는 다른 network에 있으므로 curl-pod가 있는 k8s-ctr node에 static route를 잡아주지 않는이상 통신이 안됨!!
+kubectl exec -it curl-pod -- sh -c &#x27;while true; do curl -s --connect-timeout 1 webpod | grep Hostname; echo &quot;---&quot; ; sleep 1; done&#x27;
+---
+Hostname: webpod-697b545f57-ftrx9
+---
+Hostname: webpod-697b545f57-ftrx9
+---
+Hostname: webpod-697b545f57-vbtsx
+---
+Hostname: webpod-697b545f57-vbtsx
+---
+---
+
+# 신규 터미널 [router]
+ip -br -c -4 addr
+lo               UNKNOWN        127.0.0.1/8 
+eth0             UP             10.0.2.15/24 metric 100 
+eth1             UP             192.168.10.200/24 
+eth2             UP             192.168.20.200/24 
+loop1            UNKNOWN        10.10.1.200/24 
+loop2            UNKNOWN        10.10.2.200/24 
+
+# curl-pod에서 k8s-w0 node의 pod가는 packet이 보인다.
+# k8s-ctr은 자신의 네트워크가 아니므로 linux route설정대로 router node의 eth1로 보냄
+# router node에 172.20.2.199.80에 대한 경로가 없으므로 default인 eth0로 Out하고 packet은 drop된다.(아무런 route 경로가 없기 떄문에)
+tcpdump -i any tcp port 80 -nn
+02:39:38.917691 eth1  In  IP 172.20.0.20.54336 &gt; 172.20.2.199.80: Flags [S], seq 2753410462, win 64240, options [mss 1460,sackOK,TS val 637432381 ecr 0,nop,wscale 7], length 0
+02:39:38.917703 eth0  Out IP 172.20.0.20.54336 &gt; 172.20.2.199.80: Flags [S], seq 2753410462, win 64240, options [mss 1460,sackOK,TS val 637432381 ecr 0,nop,wscale 7], length 0
+02:39:44.944920 eth1  In  IP 172.20.0.20.41878 &gt; 172.20.2.199.80: Flags [S], seq 2633310556, win 64240, options [mss 1460,sackOK,TS val 637438408 ecr 0,nop,wscale 7], length 0
+02:39:44.944932 eth0  Out IP 172.20.0.20.41878 &gt; 172.20.2.199.80: Flags [S], seq 2633310556, win 64240, options [mss 1460,sackOK,TS val 637438408 ecr 0,nop,wscale 7], length 0
+
+# hubble 확인
+# hubble ui 웹 접속 주소 확인 : default 네임스페이스 확인
+NODEIP=$(ip -4 addr show eth1 | grep -oP &#x27;(?&lt;=inet\s)\d+(\.\d+){3}&#x27;)
+echo -e &quot;http://$NODEIP:30003&quot;
+
+# hubble relay 포트 포워딩 실행
+cilium hubble port-forward&amp;
+hubble status
+
+# flow log 모니터링
+hubble observe -f --protocol tcp --pod curl-pod
+</code></pre><p id="249b8b2c-1c23-80c2-9c08-c895e63e01d6" class="">
+</p></details></li></ul><p id="249b8b2c-1c23-80f2-858d-c6b37747320c" class=""><code>도전과제1</code> 직접 <strong>router</strong> 에 <strong>static route</strong> 설정해서 문제 해결 후 트래픽 확인해보세요. 실습 완료 후 해당 설정은 다시 삭제해주세요.<div class="indented"><ul id="249b8b2c-1c23-808f-b1eb-e34df836ab8d" class="bulleted-list"><li style="list-style-type:disc">현재는 노드가 총 3대이지만, 노드가 100대 이상되고, PodCIDR가 변경될때는 어떻게 해야 될까요?</li></ul></div></p><ul id="249b8b2c-1c23-8015-ab7e-d083ecdf5e82" class="toggle"><li><details open=""><summary>1.3. (참고) <strong>Calico 라우팅 모드 : Direct vs. IPIP</strong></summary><figure id="249b8b2c-1c23-805b-b4e3-e68f75f6e11d" class="image"><a href="images/image.png"><img style="width:1152px" src="images/image.png"/></a></figure><p id="249b8b2c-1c23-80c4-8490-e1fa35b77fc1" class="">
+</p><ul id="249b8b2c-1c23-80a1-9530-fa2d86d2a55f" class="bulleted-list"><li style="list-style-type:disc"><strong>Calico Direct 모드</strong></li></ul><figure id="249b8b2c-1c23-80f5-b3fc-f49d4cb36e25" class="image"><a href="images/image%201.png"><img style="width:1056px" src="images/image%201.png"/></a></figure><figure id="249b8b2c-1c23-80d6-a414-eaee8d26d5d4" class="image"><a href="images/image%202.png"><img style="width:1344px" src="images/image%202.png"/></a></figure><p id="249b8b2c-1c23-8056-a93c-d2f990df0e24" class="">
+</p><ul id="249b8b2c-1c23-8086-a73d-ee5dc9da5539" class="bulleted-list"><li style="list-style-type:disc"><strong>Calico IPIP mode</strong></li></ul><figure id="249b8b2c-1c23-807d-976d-cd4ac3b90e2e" class="image"><a href="images/CleanShot_2025-08-03_at_08.20.48.png"><img style="width:1200px" src="images/CleanShot_2025-08-03_at_08.20.48.png"/></a></figure><figure id="249b8b2c-1c23-8082-8176-e4c2e9961906" class="image"><a href="images/image%203.png"><img style="width:864px" src="images/image%203.png"/></a></figure><p id="249b8b2c-1c23-80b8-8690-ef2ea4ef79a7" class="">
+</p></details></li></ul></li></ol><p id="24ab8b2c-1c23-809c-a1b8-cd0b715f7d07" class="">
+</p><ol type="1" id="24ab8b2c-1c23-8056-8089-e68fe49826e4" class="numbered-list" start="2"><li><strong>Overlay Network (Encapsulation) mode</strong><ul id="24ab8b2c-1c23-8078-acaa-d5204730c91e" class="toggle"><li><details open=""><summary>2.1. Encapsulation <strong>VXLAN</strong> 설정 - <a href="https://docs.cilium.io/en/stable/network/concepts/routing/">Docs</a></summary><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="24ab8b2c-1c23-8079-a3e4-e039fb0583c1" class="code code-wrap"><code class="language-Shell" style="white-space:pre-wrap;word-break:break-all"># [커널 구성 옵션] Requirements for Tunneling and Routing
+grep -E &#x27;CONFIG_VXLAN=y|CONFIG_VXLAN=m|CONFIG_GENEVE=y|CONFIG_GENEVE=m|CONFIG_FIB_RULES=y&#x27; /boot/config-$(uname -r)
+CONFIG_FIB_RULES=y # 커널에 내장됨
+CONFIG_VXLAN=m # 모듈로 컴파일됨 → 커널에 로드해서 사용
+CONFIG_GENEVE=m # 모듈로 컴파일됨 → 커널에 로드해서 사용
+
+#  커널 로드
+lsmod | grep -E &#x27;vxlan|geneve&#x27;
+modprobe vxlan # modprobe geneve
+lsmod | grep -E &#x27;vxlan|geneve&#x27;
+vxlan                 147456  0
+ip6_udp_tunnel         16384  1 vxlan
+udp_tunnel             36864  1 vxlan
+
+for i in w1 w0 ; do echo &quot;&gt;&gt; node : k8s-$i &lt;&lt;&quot;; sshpass -p &#x27;vagrant&#x27; ssh vagrant@k8s-$i sudo modprobe vxlan ; echo; done
+for i in w1 w0 ; do echo &quot;&gt;&gt; node : k8s-$i &lt;&lt;&quot;; sshpass -p &#x27;vagrant&#x27; ssh vagrant@k8s-$i sudo lsmod | grep -E &#x27;vxlan|geneve&#x27; ; echo; done
+
+
+# k8s-w1 노드에 배포된 webpod 파드 IP 지정
+export WEBPOD1=$(kubectl get pod -l app=webpod --field-selector spec.nodeName=k8s-w1 -o jsonpath=&#x27;{.items[0].status.podIP}&#x27;)
+echo $WEBPOD1
+
+# 반복 ping 실행해두기
+# 중간에 vxlan mode로 변경되면서 순단이 발생!!
+kubectl exec -it curl-pod -- ping $WEBPOD1
+64 bytes from 172.20.1.50: icmp_seq=87 ttl=62 time=0.319 ms
+64 bytes from 172.20.1.50: icmp_seq=88 ttl=62 time=0.486 ms
+64 bytes from 172.20.1.50: icmp_seq=89 ttl=62 time=0.538 ms
+From 172.20.0.97 icmp_seq=90 Time to live exceeded
+64 bytes from 172.20.1.50: icmp_seq=103 ttl=63 time=0.401 ms
+64 bytes from 172.20.1.50: icmp_seq=104 ttl=63 time=0.816 ms
+64 bytes from 172.20.1.50: icmp_seq=105 ttl=63 time=0.537 ms
+
+# 업그레이드
+# native routing을 비활성화하고 vxlan routing을 활성화시킴!!
+helm upgrade cilium cilium/cilium --namespace kube-system --version 1.18.0 --reuse-values \
+  --set routingMode=tunnel --set tunnelProtocol=vxlan \
+  --set autoDirectNodeRoutes=false --set installNoConntrackIptablesRules=false
+
+kubectl rollout restart -n kube-system ds/cilium
+
+
+# 설정 확인
+cilium features status
+cilium features status | grep datapath_network
+Yes      cilium_feature_datapath_network                                         mode=overlay-vxlan                                1        1       1       
+
+kubectl exec -it -n kube-system ds/cilium -- cilium status | grep ^Routing
+Routing:                 Network: Tunnel [vxlan]   Host: BPF
+
+cilium config view | grep tunnel
+routing-mode                                      tunnel
+tunnel-protocol                                   vxlan
+tunnel-source-port-range                          0-0
+
+# cilium_vxlan 확인
+ip -c addr show dev cilium_vxlan
+26: cilium_vxlan: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc noqueue state UNKNOWN group default 
+    link/ether 26:40:12:9b:72:e6 brd ff:ff:ff:ff:ff:ff
+    inet6 fe80::2440:12ff:fe9b:72e6/64 scope link 
+       valid_lft forever preferred_lft forever
+
+# 모든 node에 clilum_vxlan이라는 virtual interface가 생성됨       
+for i in w1 w0 ; do echo &quot;&gt;&gt; node : k8s-$i &lt;&lt;&quot;; sshpass -p &#x27;vagrant&#x27; ssh vagrant@k8s-$i ip -c addr show dev cilium_vxlan ; echo; done
+&gt;&gt; node : k8s-w1 &lt;&lt;
+8: cilium_vxlan: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc noqueue state UNKNOWN group default 
+    link/ether 72:2e:b1:91:d7:1d brd ff:ff:ff:ff:ff:ff
+    inet6 fe80::702e:b1ff:fe91:d71d/64 scope link 
+       valid_lft forever preferred_lft forever
+
+&gt;&gt; node : k8s-w0 &lt;&lt;
+8: cilium_vxlan: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc noqueue state UNKNOWN group default 
+    link/ether a6:99:e3:01:bd:b2 brd ff:ff:ff:ff:ff:ff
+    inet6 fe80::a499:e3ff:fe01:bdb2/64 scope link 
+       valid_lft forever preferred_lft forever
+       
+# 라우팅 정보 확인 : k8s node 간 다른 네트워크 대역에 있더라도, 파드의 네트워크 대역 정보가 라우팅에 올라왔다!
+# k8s-w0 노드는 원래 다른 네트워크에 있었으므로, native routing의 경우에는 routing 정보를 static하게 추가해주지 않는이상 알수가 없었다.
+# 현재 vxlan mode에서는 cilium-agent에 의해서 자동적으로 routing 정보에 k8s-w0 노드의 pod ip대역이 추가되어있는것을 볼 수 있다.
+# 모든 pod ip range에 대한 통신은 cilium_host를 통해서 통신이 이루어진다.
+# cilium_agent pod에 의해서 추가되는 if 및 ip(cilum ipam에서 관리)로 실제로 pod가 생성되지는 않고 routing만 추가된다.
+ip -c route | grep cilium_host
+172.20.0.0/24 via 172.20.0.97 dev cilium_host proto kernel src 172.20.0.97 
+172.20.0.97 dev cilium_host proto kernel scope link 
+172.20.1.0/24 via 172.20.0.97 dev cilium_host proto kernel src 172.20.0.97 mtu 1450 
+172.20.2.0/24 via 172.20.0.97 dev cilium_host proto kernel src 172.20.0.97 mtu 1450
+
+ip route get 172.20.1.10
+ip route get 172.20.2.10
+
+# 마찬가지로 나머지 두 worker node에도 cilium_host라는 interface가 생성되어있다.
+for i in w1 w0 ; do echo &quot;&gt;&gt; node : k8s-$i &lt;&lt;&quot;; sshpass -p &#x27;vagrant&#x27; ssh vagrant@k8s-$i ip -c route | grep cilium_host ; echo; done
+&gt;&gt; node : k8s-w1 &lt;&lt;
+172.20.0.0/24 via 172.20.1.141 dev cilium_host proto kernel src 172.20.1.141 mtu 1450 
+172.20.1.0/24 via 172.20.1.141 dev cilium_host proto kernel src 172.20.1.141 
+172.20.1.141 dev cilium_host proto kernel scope link 
+172.20.2.0/24 via 172.20.1.141 dev cilium_host proto kernel src 172.20.1.141 mtu 1450 
+
+&gt;&gt; node : k8s-w0 &lt;&lt;
+172.20.0.0/24 via 172.20.2.198 dev cilium_host proto kernel src 172.20.2.198 mtu 1450 
+172.20.1.0/24 via 172.20.2.198 dev cilium_host proto kernel src 172.20.2.198 mtu 1450 
+172.20.2.0/24 via 172.20.2.198 dev cilium_host proto kernel src 172.20.2.198 
+172.20.2.198 dev cilium_host proto kernel scope link 
+
+# cilium 파드 이름 지정
+export CILIUMPOD0=$(kubectl get -l k8s-app=cilium pods -n kube-system --field-selector spec.nodeName=k8s-ctr -o jsonpath=&#x27;{.items[0].metadata.name}&#x27;)
+export CILIUMPOD1=$(kubectl get -l k8s-app=cilium pods -n kube-system --field-selector spec.nodeName=k8s-w1  -o jsonpath=&#x27;{.items[0].metadata.name}&#x27;)
+export CILIUMPOD2=$(kubectl get -l k8s-app=cilium pods -n kube-system --field-selector spec.nodeName=k8s-w0  -o jsonpath=&#x27;{.items[0].metadata.name}&#x27;)
+echo $CILIUMPOD0 $CILIUMPOD1 $CILIUMPOD2
+
+# router 역할 IP 확인
+kubectl exec -it $CILIUMPOD0 -n kube-system -c cilium-agent -- cilium status --all-addresses | grep router
+kubectl exec -it $CILIUMPOD1 -n kube-system -c cilium-agent -- cilium status --all-addresses | grep router
+kubectl exec -it $CILIUMPOD2 -n kube-system -c cilium-agent -- cilium status --all-addresses | grep router
+  172.20.0.97 (router)
+  172.20.1.141 (router)
+  172.20.2.198 (router)
+  
+#
+kubectl exec -n kube-system ds/cilium -- cilium-dbg bpf ipcache list
+kubectl exec -n kube-system $CILIUMPOD0 -- cilium-dbg bpf ipcache list
+IP PREFIX/ADDRESS   IDENTITY
+192.168.10.100/32   identity=1 encryptkey=0 tunnelendpoint=0.0.0.0 flags=&lt;none&gt;                 
+0.0.0.0/0           identity=2 encryptkey=0 tunnelendpoint=0.0.0.0 flags=&lt;none&gt;                 
+172.20.0.7/32       identity=1710 encryptkey=0 tunnelendpoint=0.0.0.0 flags=&lt;none&gt;              
+172.20.0.133/32     identity=21124 encryptkey=0 tunnelendpoint=0.0.0.0 flags=&lt;none&gt;             
+172.20.0.236/32     identity=9107 encryptkey=0 tunnelendpoint=0.0.0.0 flags=&lt;none&gt;              
+172.20.1.0/24       identity=2 encryptkey=0 tunnelendpoint=192.168.10.101 flags=hastunnel       # w1의 pod ip range에 대해서 tunneling
+172.20.2.198/32     identity=6 encryptkey=0 tunnelendpoint=192.168.20.100 flags=hastunnel       # w0의 cilium_host ip tunneling
+172.20.2.199/32     identity=15436 encryptkey=0 tunnelendpoint=192.168.20.100 flags=hastunnel   # w0의 webpod ip tunneling
+172.20.2.0/24       identity=2 encryptkey=0 tunnelendpoint=192.168.20.100 flags=hastunnel       # w0의 pod ip range tunneling
+10.0.2.15/32        identity=1 encryptkey=0 tunnelendpoint=0.0.0.0 flags=&lt;none&gt;                 
+172.20.0.20/32      identity=3131 encryptkey=0 tunnelendpoint=0.0.0.0 flags=&lt;none&gt;              
+172.20.0.23/32      identity=15335 encryptkey=0 tunnelendpoint=0.0.0.0 flags=&lt;none&gt;             
+172.20.0.97/32      identity=1 encryptkey=0 tunnelendpoint=0.0.0.0 flags=&lt;none&gt;                 
+172.20.0.244/32     identity=9107 encryptkey=0 tunnelendpoint=0.0.0.0 flags=&lt;none&gt;              # w1의 cilium_host ip tunneling
+172.20.1.141/32     identity=6 encryptkey=0 tunnelendpoint=192.168.10.101 flags=hastunnel       
+172.20.0.21/32      identity=2073 encryptkey=0 tunnelendpoint=0.0.0.0 flags=&lt;none&gt;              
+172.20.0.38/32      identity=8300 encryptkey=0 tunnelendpoint=0.0.0.0 flags=&lt;none&gt;              
+172.20.0.91/32      identity=15436 encryptkey=0 tunnelendpoint=0.0.0.0 flags=&lt;none&gt;             
+172.20.1.50/32      identity=15436 encryptkey=0 tunnelendpoint=192.168.10.101 flags=hastunnel   # w1의 webpod ip tunneling
+192.168.10.101/32   identity=6 encryptkey=0 tunnelendpoint=0.0.0.0 flags=&lt;none&gt;                 
+192.168.20.100/32   identity=6 encryptkey=0 tunnelendpoint=0.0.0.0 flags=&lt;none&gt;                 
+172.20.0.237/32     identity=19286 encryptkey=0 tunnelendpoint=0.0.0.0 flags=&lt;none&gt;
+
+kubectl exec -n kube-system $CILIUMPOD1 -- cilium-dbg bpf ipcache list
+kubectl exec -n kube-system $CILIUMPOD2 -- cilium-dbg bpf ipcache list
+
+#
+kubectl exec -n kube-system ds/cilium -- cilium-dbg bpf socknat list
+kubectl exec -n kube-system $CILIUMPOD0 -- cilium-dbg bpf socknat list
+kubectl exec -n kube-system $CILIUMPOD1 -- cilium-dbg bpf socknat list
+kubectl exec -n kube-system $CILIUMPOD2 -- cilium-dbg bpf socknat list
+</code></pre><p id="24ab8b2c-1c23-8086-953e-d93b2698e67d" class="">
+</p></details></li></ul><ul id="24ab8b2c-1c23-8089-8b5b-fcbee2b03b0b" class="toggle"><li><details open=""><summary><strong>2.2. 파드 간 통신 확인</strong></summary><figure id="24ab8b2c-1c23-8071-89e1-d21aa1b016f6" class="image"><a href="images/CleanShot_2025-08-03_at_09.00.35.png"><img style="width:1200px" src="images/CleanShot_2025-08-03_at_09.00.35.png"/></a></figure><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="24ab8b2c-1c23-8011-9f31-dd20960261d0" class="code code-wrap"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all"># node ip 확인
+kubectl get nodes -o wide
+NAME      STATUS   ROLES           AGE   VERSION   INTERNAL-IP      EXTERNAL-IP   OS-IMAGE             KERNEL-VERSION     CONTAINER-RUNTIME
+k8s-ctr   Ready    control-plane   13h   v1.33.2   192.168.10.100   &lt;none&gt;        Ubuntu 24.04.2 LTS   6.8.0-53-generic   containerd://1.7.27
+k8s-w0    Ready    &lt;none&gt;          13h   v1.33.2   192.168.20.100   &lt;none&gt;        Ubuntu 24.04.2 LTS   6.8.0-53-generic   containerd://1.7.27
+k8s-w1    Ready    &lt;none&gt;          13h   v1.33.2   192.168.10.101   &lt;none&gt;        Ubuntu 24.04.2 LTS   6.8.0-53-generic   containerd://1.7.27
+
+# 통신 확인
+kubectl exec -it curl-pod -- curl webpod | grep Hostname
+kubectl exec -it curl-pod -- sh -c &#x27;while true; do curl -s --connect-timeout 1 webpod | grep Hostname; echo &quot;---&quot; ; sleep 1; done&#x27;
+
+# k8s-w0 노드에 배포된 webpod 파드 IP 지정
+export WEBPOD=$(kubectl get pod -l app=webpod --field-selector spec.nodeName=k8s-w0 -o jsonpath=&#x27;{.items[0].status.podIP}&#x27;)
+echo $WEBPOD
+
+# 신규 터미널 [router]
+# Out traffic의 outer packet에 worker node의 ip가 찍혀있고[ curl-pod(=k8s-ctr) -&gt; webpod(=k8s-w0) ]
+# In trafficdml outer packet에도 역시 worker node의 ip가 찍혀있다
+# k8s-ctr과 k8s-w0는 다른 네트워크에 있음에도 불구하고 정상적으로 통신되는것을 볼 수 있다.
+tcpdump -i any udp port 8472 -nn
+tcpdump: data link type LINUX_SLL2
+tcpdump: verbose output suppressed, use -v[v]... for full protocol decode
+listening on any, link-type LINUX_SLL2 (Linux cooked v2), snapshot length 262144 bytes
+15:00:01.870071 eth1  Out IP 192.168.10.100.60861 &gt; 192.168.20.100.8472: OTV, flags [I] (0x08), overlay 0, instance 3131
+IP 172.20.0.20.52670 &gt; 172.20.2.199.80: Flags [S], seq 317725326, win 64860, options [mss 1410,sackOK,TS val 642134425 ecr 0,nop,wscale 7], length 0
+15:00:01.870869 eth1  In  IP 192.168.20.100.34406 &gt; 192.168.10.100.8472: OTV, flags [I] (0x08), overlay 0, instance 15436
+IP 172.20.2.199.80 &gt; 172.20.0.20.52670: Flags [S.], seq 2164305611, ack 317725327, win 64308, options [mss 1410,sackOK,TS val 3229590535 ecr 642134425,nop,wscale 7], length 0
+
+# 
+kubectl exec -it curl-pod -- ping -c 2 -w 1 -W 1 $WEBPOD
+
+# 신규 터미널 [router] : 라우팅이 어떻게 되는가?
+tcpdump -i any udp port 8472 -nn
+15:12:01.017829 IP 192.168.10.100.35960 &gt; 192.168.20.100.8472: OTV, flags [I] (0x08), overlay 0, instance 3131
+IP 172.20.0.20 &gt; 172.20.2.199: ICMP echo request, id 1333, seq 6, length 64
+15:12:01.018523 IP 192.168.20.100.56411 &gt; 192.168.10.100.8472: OTV, flags [I] (0x08), overlay 0, instance 15436
+IP 172.20.2.199 &gt; 172.20.0.20: ICMP echo reply, id 1333, seq 6, length 64
+
+# 아래처럼 하면 inner packet밖에 안보임!!
+tcpdump -i any icmp -nn
+
+# 반복 접속
+kubectl exec -it curl-pod -- curl webpod | grep Hostname
+kubectl exec -it curl-pod -- sh -c &#x27;while true; do curl -s --connect-timeout 1 webpod | grep Hostname; echo &quot;---&quot; ; sleep 1; done&#x27;
+
+# 신규 터미널 [router]
+tcpdump -i any udp port 8472 -w /tmp/vxlan.pcap
+tshark -r /tmp/vxlan.pcap -d udp.port==8472,vxlan
+termshark -r /tmp/vxlan.pcap
+termshark -r /tmp/vxlan.pcap -d udp.port==8472,vxlan
+
+# 신규 터미널 [k8s-ctr] hubble flow log 모니터링 : overlay 통신 모드 확인!
+hubble observe -f --protocol tcp --pod curl-pod
+Aug  9 06:31:29.317: default/curl-pod:40818 (ID:3131) &lt;- default/webpod-697b545f57-rskf8:80 (ID:15436) to-overlay FORWARDED (TCP Flags: ACK, PSH)
+Aug  9 06:31:29.319: default/curl-pod:40818 (ID:3131) -&gt; default/webpod-697b545f57-rskf8:80 (ID:15436) to-endpoint FORWARDED (TCP Flags: ACK, FIN)
+Aug  9 06:31:29.319: default/curl-pod:40818 (ID:3131) &lt;- default/webpod-697b545f57-rskf8:80 (ID:15436) to-overlay FORWARDED (TCP Flags: ACK, FIN)
+Aug  9 06:31:29.320: default/curl-pod:40818 (ID:3131) -&gt; default/webpod-697b545f57-rskf8:80 (ID:15436) to-endpoint FORWARDED (TCP Flags: ACK)
+</code></pre><figure id="24ab8b2c-1c23-80b7-8d93-ea56e8db601d" class="image"><a href="images/image%204.png"><img style="width:1056px" src="images/image%204.png"/></a></figure><p id="24ab8b2c-1c23-809a-bd67-c40f4d162e40" class="">
+</p><figure id="24ab8b2c-1c23-8018-ad23-e88075529bb8" class="image"><a href="images/cilium_bpf_egress.svg"><img style="width:1248px" src="images/cilium_bpf_egress.svg"/></a><figcaption>파드에서 빠져나갈때</figcaption></figure><figure id="24ab8b2c-1c23-80f9-8479-ce742edc15f9" class="image"><a href="images/cilium_bpf_ingress.svg"><img style="width:1392px" src="images/cilium_bpf_ingress.svg"/></a><figcaption>파드로 인입 시</figcaption></figure></details></li></ul><ul id="24ab8b2c-1c23-8096-8992-e7b60e7dd1f8" class="bulleted-list"><li style="list-style-type:disc">정리 : 노드 간 같은 네트워크 대역에 있어도, 모든 파드 들간 통신은 Overlay Network을 사용 (50바이트 헤더 추가, 처리를 위한 컴퓨팅 리소스)</li></ul><ul id="24ab8b2c-1c23-80e0-a0f5-d9906ac28ad6" class="bulleted-list"><li style="list-style-type:disc">참고: 통신 과정 (코드) 분석- <a href="https://velog.io/@_gyullbb/Cilium-Networking-1-IPAM-Routing-Masquerading">Blog</a></li></ul><p id="24ab8b2c-1c23-8044-808e-f5b2049ccbd3" class=""><code>도전과제2</code> VXLAN 대신 <strong>GENEVE</strong> 모드로 변경 설정 후 설정 상태와 통신 트래픽을 확인해보세요.</p><p id="24ab8b2c-1c23-800b-bb14-d7aad35f5131" class=""><strong>2.3. Overlay Network에서 MTU - </strong>(참고) MTU, MSS - <a href="https://aws.amazon.com/ko/blogs/tech/aws-mtu-mss-pmtud/">Blog</a><div class="indented"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="24ab8b2c-1c23-80cc-b991-f8574e390cc6" class="code code-wrap"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all">ip -c route | grep cilium_host
+172.20.0.0/24 via 172.20.0.97 dev cilium_host proto kernel src 172.20.0.97 
+172.20.0.97 dev cilium_host proto kernel scope link 
+172.20.1.0/24 via 172.20.0.97 dev cilium_host proto kernel src 172.20.0.97 mtu 1450 
+172.20.2.0/24 via 172.20.0.97 dev cilium_host proto kernel src 172.20.0.97 mtu 1450 </code></pre><p id="24ab8b2c-1c23-80eb-9dc7-c99b4567a803" class="">Linux에서 <code><strong>ip route</strong></code>나 <code><strong>ip link</strong></code> 등으로 확인할 수 있는 <strong>interface의 MTU 값이 1450</strong>으로 되어 있다는 것은, 그 네트워크 인터페이스(예: eth0, ens192, tun0 등)에서 한 번에 전송할 수 있는 최댓값(byte 단위의 크기)가 1,450 byte임을 의미합니다.</p><p id="24ab8b2c-1c23-8013-8047-d8eb599d2257" class="">
+</p><p id="24ab8b2c-1c23-806e-8c22-dfb75dcb1d0e" class=""><strong>2.3.1. MTU 1450 의미</strong></p><ul id="24ab8b2c-1c23-8022-8ae6-d56a03613d3b" class="bulleted-list"><li style="list-style-type:disc">MTU (Maximum Transmission Unit)는 하나의 네트워크 프레임(패킷)에서 <strong>최대 몇 바이트까지 데이터를 실을 수 있는지</strong>를 뜻합니다.</li></ul><ul id="24ab8b2c-1c23-807b-a82e-c44a11604740" class="bulleted-list"><li style="list-style-type:disc">MTU가 1,450이라면, 해당 인터페이스에서는 <strong>헤더 포함 1,450바이트를 초과하는 패킷은 한 번에 전송할 수 없습니다.</strong><ul id="24ab8b2c-1c23-80a8-8dd0-c25093862889" class="bulleted-list"><li style="list-style-type:circle"><mark class="highlight-red"><strong>네트워크에서 MTU가 1,500보다 작은 경우(특히 1,450)는 터널(예: VXLAN, GRE, VPN 등)을 통해 오버헤드(Encap header)만큼 미리 MTU를 줄여놓은 경우가 많습니다.</strong></mark></li></ul></li></ul><p id="24ab8b2c-1c23-80f7-8b54-d132401cc1c6" class=""><strong>2.3.2. cilium vxlan mode MTU 테스트</strong></p><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="24ab8b2c-1c23-800b-b5fb-f31103a2e7f9" class="code code-wrap"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all"># MTU가 1450인데 payload를 1500(-s 1500)로 설정했기 때문에 전송이 안됨
+kubectl exec -it curl-pod -- ping -M do -s 1500 $WEBPOD
+PING 172.20.2.199 (172.20.2.199) 1424(1452) bytes of data.
+ping: sendmsg: Message too large
+
+# MTU가 1450인데 payload를 1423(-s 1423)로 설정
+# 1450보다 낮기 때문에 되야 될것이라고 예상했는데 안됨... -&gt; -s 1424는 payload를 설정한것 header를 위한 추가 byte가 필요해서 실패!
+kubectl exec -it curl-pod -- ping -M do -s 1424 $WEBPOD
+PING 172.20.2.199 (172.20.2.199) 1424(1452) bytes of data.
+ping: sendmsg: Message too large
+
+# MTU가 1450인데 payload를 1422(-s 1422)로 설정 -&gt; 정상 통신됨!
+kubectl exec -it curl-pod -- ping -M do -s 1422 $WEBPOD
+PING 172.20.2.199 (172.20.2.199) 1422(1450) bytes of data.
+1430 bytes from 172.20.2.199: icmp_seq=1 ttl=63 time=1.12 ms
+1430 bytes from 172.20.2.199: icmp_seq=2 ttl=63 time=0.644 ms</code></pre><ul id="24ab8b2c-1c23-805b-8d02-efe700ddff1e" class="bulleted-list"><li style="list-style-type:disc"><strong>ping -s 1422는 되는데 1423 이상에서 &quot;Message too large&quot;가 나오는 이유</strong><p id="24ab8b2c-1c23-8073-9a4e-cba414d41a40" class=""><code><strong>ping</strong></code> 명령에서 <code><strong>-s</strong></code>로 지정하는 숫자는 <strong>ICMP payload의 크기</strong>입니다. 실제 네트워크로 전송될 때는 이 값에 ICMP 헤더(8바이트)와 IP 헤더(일반적으로 20바이트)가 추가됩니다.</p><ul id="24ab8b2c-1c23-8022-8014-e03fcf5787ca" class="bulleted-list"><li style="list-style-type:circle">즉,<mark class="highlight-red"><strong> 실제 패킷 크기 = 지정한 payload 크기 + 8(ICMP 헤더) + 20(IP 헤더)</strong></mark></li></ul><ul id="24ab8b2c-1c23-80e4-9db8-c8a4fd9009a3" class="bulleted-list"><li style="list-style-type:circle">MTU는 <em>IP 패킷 전체 크기</em> 기준입니다.</li></ul><p id="24ab8b2c-1c23-8059-bdd0-fac42fd5cac9" class=""><strong>계산:</strong></p><ul id="24ab8b2c-1c23-8087-9fbb-f23af9d29dfb" class="bulleted-list"><li style="list-style-type:circle">MTU: 1,450</li></ul><ul id="24ab8b2c-1c23-80fb-a6ae-f16d04051748" class="bulleted-list"><li style="list-style-type:circle"><strong>가장 큰 payload 크기: 1,450 - 20(IP 헤더) - 8(ICMP 헤더) = 1,422</strong></li></ul><p id="24ab8b2c-1c23-8004-b0f4-c5618c386595" class="">따라서,</p><ul id="24ab8b2c-1c23-8099-a335-cf3c6591f8c0" class="bulleted-list"><li style="list-style-type:circle"><code><strong>ping -s 1422</strong></code> ⇒ 1422 + 8 + 20 = 1,450 (MTU와 같으므로 정상 전송)</li></ul><ul id="24ab8b2c-1c23-800b-977f-d36c37f4653e" class="bulleted-list"><li style="list-style-type:circle"><code><strong>ping -s 1423</strong></code> ⇒ 1423 + 8 + 20 = 1,451 (MTU 초과 → 분할 불가, &quot;Message too large&quot; 오류)</li></ul><p id="24ab8b2c-1c23-80cc-8f5b-ca8ebe72463f" class="">이 경우, <strong>패킷이 MTU를 초과하면 IP fragmentation(분할)이 필요한데</strong>, ping 기본 동작(특히 -M do 옵션 등)에 따라 <em>fragmentation이 허용되지 않거나</em> 또는 터널 네트워크 환경에선 추가적인 분할이 차단되어 있기 때문에, <strong>MTU 초과 시 ping에서 바로 오류 메시지(Message too large)를 출력합니다</strong>.</p></li></ul><p id="24ab8b2c-1c23-802c-b02c-f14a88df4c8a" class=""><strong>2.3.3. 결론</strong></p><ul id="24ab8b2c-1c23-80e0-bfc2-eca69bed06bd" class="bulleted-list"><li style="list-style-type:disc"><strong>MTU 1450</strong>: 해당 인터페이스를 통해 한 번 전송 가능한 IP 패킷의 최대 크기.</li></ul><ul id="24ab8b2c-1c23-808d-85db-e46f4ee82a07" class="bulleted-list"><li style="list-style-type:disc"><strong>ping -s 1422 성공, 1423 오류</strong>: 1422는 헤더 포함 1,450(=MTU)로 허용, 1423부터는 1,451(=MTU 초과)로 오류.</li></ul><p id="24ab8b2c-1c23-80f9-9ee5-f99ab7166de5" class="">이건 정상 동작이며, 실제 통신에서 <code><strong>df</strong></code>(Don&#x27;t Fragment) 비트가 설정된 큰 패킷이 존재한다면 동일하게 &quot;Message too large&quot;가 발생할 수 있습니다.</p></div></p></li></ol><p id="24ab8b2c-1c23-8019-9973-c862d1df2e41" class="">
+</p><ol type="1" id="24ab8b2c-1c23-8073-bd90-d05915809832" class="numbered-list" start="3"><li><strong>K8S Service</strong><blockquote id="24ab8b2c-1c23-8034-a981-dcac5515872c" class="block-color-purple_background"><strong>클러스터 내부를 외부에 노출</strong> - <mark class="highlight-orange">발전 단계 </mark></blockquote><ol type="1" id="24ab8b2c-1c23-8062-944a-e79f89de7fb0" class="numbered-list" start="1"><li><mark class="highlight-orange">파드 생성</mark> : K8S 클러스터 내부에서만 접속<figure id="24ab8b2c-1c23-801e-9ed8-e43e25baab0a" class="image"><a href="images/Untitled.png"><img style="width:144px" src="images/Untitled.png"/></a></figure><p id="24ab8b2c-1c23-803a-8fd8-c4d6a4d51c02" class="">
+</p></li></ol><ol type="1" id="24ab8b2c-1c23-80e5-8afa-c76d80d01c3c" class="numbered-list" start="2"><li><mark class="highlight-orange">서비스(</mark><mark class="highlight-orange"><strong>Cluster</strong></mark><mark class="highlight-orange"> Type) 연결</mark> : K8S 클러스터 내부에서만 접속<ul id="24ab8b2c-1c23-809a-aa92-c85e7b92ebf8" class="bulleted-list"><li style="list-style-type:disc">동일한 애플리케이션의 다수의 파드의 접속을 용이하게 하기 위한 서비스에 접속</li></ul><ul id="24ab8b2c-1c23-807b-ae46-c92eabb81848" class="bulleted-list"><li style="list-style-type:disc"><strong>고정 접속(호출)</strong> 방법을 제공 : 흔히 말하는 ‘<strong>고정 VirtualIP</strong>’ 와 ‘<strong>Domain주소</strong>’ 생성</li></ul><figure id="24ab8b2c-1c23-8019-a70a-f2f343435b96" class="image"><a href="images/Untitled%201.png"><img style="width:384px" src="images/Untitled%201.png"/></a></figure><p id="24ab8b2c-1c23-8046-946c-e92e08875ee4" class="">
+</p></li></ol><ol type="1" id="24ab8b2c-1c23-8069-8df2-c48c127709e1" class="numbered-list" start="3"><li><mark class="highlight-orange">서비스(</mark><mark class="highlight-orange"><strong>NodePort</strong></mark><mark class="highlight-orange"> Type) 연결</mark> : 외부 클라이언트가 서비스를 통해서 클러스터 내부의 파드로 접속<ul id="24ab8b2c-1c23-8014-9fb6-d718367a4603" class="bulleted-list"><li style="list-style-type:disc">서비스(<strong>NodePort</strong> Type)의 일부 단점을 보완한 서비스(<strong>LoadBalancer</strong> Type) 도 있습니다!</li></ul><figure id="24ab8b2c-1c23-8049-be09-ff1b5bb6464d" class="image"><a href="images/Untitled%202.png"><img style="width:624px" src="images/Untitled%202.png"/></a></figure></li></ol><p id="24ab8b2c-1c23-806a-afb9-f77ba25ade5c" class="">
+</p><blockquote id="24ab8b2c-1c23-80ff-87ae-faf04951b271" class="block-color-purple_background"><strong>서비스 종류 </strong></blockquote><p id="24ab8b2c-1c23-808b-ac83-d72673e95966" class=""><code>ClusterIP</code><strong> 타입</strong><div class="indented"><figure id="24ab8b2c-1c23-8058-badc-c5bbab889f83" class="image"><a href="images/Untitled%203.png"><img style="width:960px" src="images/Untitled%203.png"/></a></figure></div></p><p id="24ab8b2c-1c23-8080-8f9c-d10fde113d8a" class="">
+</p><p id="24ab8b2c-1c23-8094-a52f-decddc2e80be" class=""><code>NodePort</code><strong> 타입</strong><div class="indented"><figure id="24ab8b2c-1c23-80a4-b363-e10afc7bb5a0" class="image"><a href="images/Untitled%204.png"><img style="width:960px" src="images/Untitled%204.png"/></a></figure></div></p><p id="24ab8b2c-1c23-80f2-af51-c8a2f9187b7a" class="">
+</p><p id="24ab8b2c-1c23-80bd-9c26-eac795d4c3e3" class=""><code>LoadBalancer</code><strong> 타입</strong><div class="indented"><figure id="24ab8b2c-1c23-80f4-ad7f-d42526da1296" class="image"><a href="images/Untitled%205.png"><img style="width:960px" src="images/Untitled%205.png"/></a></figure></div></p><ul id="24ab8b2c-1c23-8076-af5d-db2fde50ed5d" class="toggle"><li><details open=""><summary><code>약자 소개</code></summary><ul id="24ab8b2c-1c23-8020-ac1b-cbcf05b4df4b" class="bulleted-list"><li style="list-style-type:disc"><mark class="highlight-orange"><strong>S.IP</strong></mark> : Source IP , 출발지(소스) IP</li></ul><ul id="24ab8b2c-1c23-808e-bd96-e963f1c84eda" class="bulleted-list"><li style="list-style-type:disc"><mark class="highlight-orange"><strong>D.IP</strong></mark> : Destination IP, 도착치(목적지) IP</li></ul><ul id="24ab8b2c-1c23-80f9-8ea0-fde25be9dde3" class="bulleted-list"><li style="list-style-type:disc"><mark class="highlight-orange"><strong>S.Port</strong></mark> : Source Port , 출발지(소스) 포트</li></ul><ul id="24ab8b2c-1c23-80eb-96c9-ded89176ecce" class="bulleted-list"><li style="list-style-type:disc"><mark class="highlight-orange"><strong>D.Port</strong></mark> : Destination Port , 도착지(목적지) 포트</li></ul><ul id="24ab8b2c-1c23-80a8-8b9b-eea425530435" class="bulleted-list"><li style="list-style-type:disc"><mark class="highlight-orange"><strong>NAT</strong></mark> : Network Address Translation , 네트워크 주소 변환</li></ul><ul id="24ab8b2c-1c23-80d3-bae2-d0b42499125a" class="bulleted-list"><li style="list-style-type:disc"><mark class="highlight-orange"><strong>SNAT</strong></mark> : Source IP 를 NAT 처리, 일반적으로 출발지 IP를 변환</li></ul><ul id="24ab8b2c-1c23-800d-aec9-f5cfcb72a0b0" class="bulleted-list"><li style="list-style-type:disc"><mark class="highlight-orange"><strong>DNAT</strong></mark> : Destination IP 를 NAT 처리, 일반적으로 목적지 IP와 목적지 포트를 변환</li></ul><p id="24ab8b2c-1c23-80df-9b69-e4f7a656da08" class="">
+</p></details></li></ul><ul id="24ab8b2c-1c23-806a-a445-e043bed54b22" class="toggle"><li><details open=""><summary><code>k8s service 소개</code> : 원고 PDF</summary><figure id="24ab8b2c-1c23-8023-b300-df3a3b4f8197"><div class="source"><a href="images/%25E1%2584%258E%25E1%2585%25A2%25E1%2586%25A8-6%25E1%2584%258C%25E1%2585%25A1%25E1%2586%25BC-service-1.pdf">책-6장-service-1.pdf</a></div></figure><figure id="24ab8b2c-1c23-80b5-aaad-ef88ab48dbd2"><div class="source"><a href="images/%25E1%2584%258E%25E1%2585%25A2%25E1%2586%25A8-7%25E1%2584%258C%25E1%2585%25A1%25E1%2586%25BC-service-2.pdf">책-7장-service-2.pdf</a></div></figure><figure id="24ab8b2c-1c23-8040-ae4a-f8ac0bb4429e" class="image"><a href="images/CleanShot_2024-09-22_at_00.31.28.png"><img style="width:864px" src="images/CleanShot_2024-09-22_at_00.31.28.png"/></a></figure><figure id="24ab8b2c-1c23-8013-bab2-eb41074e5c9e" class="image"><a href="images/CleanShot_2024-09-22_at_00.31.37.png"><img style="width:864px" src="images/CleanShot_2024-09-22_at_00.31.37.png"/></a></figure><figure id="24ab8b2c-1c23-80d1-915c-c32c647ce589" class="image"><a href="images/CleanShot_2024-09-22_at_00.31.50.png"><img style="width:864px" src="images/CleanShot_2024-09-22_at_00.31.50.png"/></a></figure><figure id="24ab8b2c-1c23-80de-8e05-c4ad028dbf6c" class="image"><a href="images/CleanShot_2024-09-22_at_00.32.06.png"><img style="width:864px" src="images/CleanShot_2024-09-22_at_00.32.06.png"/></a></figure><figure id="24ab8b2c-1c23-808c-a2e5-d0d69466cdd0" class="image"><a href="images/CleanShot_2024-09-22_at_00.32.27.png"><img style="width:864px" src="images/CleanShot_2024-09-22_at_00.32.27.png"/></a></figure><figure id="24ab8b2c-1c23-80e4-aa7f-cb4ceb2d5897" class="image"><a href="images/CleanShot_2024-09-22_at_00.32.57.png"><img style="width:864px" src="images/CleanShot_2024-09-22_at_00.32.57.png"/></a></figure><figure id="24ab8b2c-1c23-80e2-8ae7-c39472cf77ef" class="image"><a href="images/CleanShot_2024-09-22_at_00.33.14.png"><img style="width:816px" src="images/CleanShot_2024-09-22_at_00.33.14.png"/></a></figure><p id="24ab8b2c-1c23-80c1-bb55-df85c5ae4dfe" class="">
+</p></details></li></ul><ul id="24ab8b2c-1c23-806b-997d-e84f0ce7bbc0" class="toggle"><li><details open=""><summary><code>K8S 서비스 소개</code> : kube-proxy 모드 - iptables, ipvs, nftables, eBPF - <a href="https://kubernetes.io/ko/docs/concepts/services-networking/service/#proxy-mode-userspace">링크</a> , <a href="https://medium.com/finda-tech/kubernetes-%EB%84%A4%ED%8A%B8%EC%9B%8C%ED%81%AC-%EC%A0%95%EB%A6%AC-fccd4fd0ae6">Finda</a> , <a href="https://coffeewhale.com/k8s/network/2019/05/11/k8s-network-02/">커피고래</a></summary><p id="24ab8b2c-1c23-803c-a3ab-d27f25e4eaad" class=""><strong>kube-proxy (optional, </strong>unless you have deployed your own alternative component in place of kube-proxy)<strong>) - </strong><strong><a href="https://kubernetes.io/docs/concepts/architecture/#kube-proxy">Docs</a></strong><div class="indented"><ul id="24ab8b2c-1c23-802b-a54d-ce08678a8cb0" class="bulleted-list"><li style="list-style-type:disc">kube-proxy is a network proxy that runs on each <a href="https://kubernetes.io/docs/concepts/architecture/nodes/">node</a> in your cluster, implementing part of the Kubernetes <a href="https://kubernetes.io/docs/concepts/services-networking/service/">Service</a> concept.</li></ul><ul id="24ab8b2c-1c23-8035-9a67-c3d6d564348d" class="bulleted-list"><li style="list-style-type:disc"><a href="https://kubernetes.io/docs/reference/command-line-tools-reference/kube-proxy/">kube-proxy</a> maintains network rules on nodes. These network rules allow network communication to your Pods from network sessions inside or outside of your cluster.</li></ul><ul id="24ab8b2c-1c23-8004-9cdd-c193265ac065" class="bulleted-list"><li style="list-style-type:disc">kube-proxy uses the operating system packet filtering layer if there is one and it&#x27;s available. Otherwise, kube-proxy forwards the traffic itself.</li></ul><ul id="24ab8b2c-1c23-80bb-acc6-eae55ee3bac3" class="bulleted-list"><li style="list-style-type:disc">If you use a <a href="https://kubernetes.io/docs/concepts/architecture/#network-plugins">network plugin</a> that implements packet forwarding for Services by itself, and providing equivalent behavior to kube-proxy, then you do not need to run kube-proxy on the nodes in your cluster.</li></ul><p id="24ab8b2c-1c23-8039-8179-c143c14dc764" class="">
+</p></div></p><p id="24ab8b2c-1c23-8036-b2c6-d190b4a35d21" class=""><strong>kube proxy</strong> - <a href="https://kubernetes.io/docs/concepts/cluster-administration/proxies/">Docs</a><div class="indented"><figure id="24ab8b2c-1c23-80e4-96ae-e896b76c621c" class="image"><a href="images/services-iptables-overview.svg"><img style="width:432px" src="images/services-iptables-overview.svg"/></a><figcaption><a href="https://kubernetes.io/docs/reference/networking/virtual-ips/">https://kubernetes.io/docs/reference/networking/virtual-ips/</a></figcaption></figure><ul id="24ab8b2c-1c23-804c-b677-de3c8c29cb9f" class="bulleted-list"><li style="list-style-type:disc">runs on each node <code>kubectl get ds -n kube-system kube-proxy</code></li></ul><ul id="24ab8b2c-1c23-8091-baa6-e28a551ba2e1" class="bulleted-list"><li style="list-style-type:disc">proxies <strong>UDP</strong>, <strong>TCP</strong> and SCTP</li></ul><ul id="24ab8b2c-1c23-805e-97f4-ca5db6a3ceac" class="bulleted-list"><li style="list-style-type:disc">does not understand HTTP</li></ul><ul id="24ab8b2c-1c23-80b0-a810-dd57f4ce8419" class="bulleted-list"><li style="list-style-type:disc">provides <strong>load balancing</strong></li></ul><ul id="24ab8b2c-1c23-80ad-9abf-d727bed0e8ea" class="bulleted-list"><li style="list-style-type:disc">is only used to reach services</li></ul><p id="24ab8b2c-1c23-80f6-8be5-eae91fbea920" class="">
+</p></div></p><ol type="1" id="24ab8b2c-1c23-8078-abd7-db896caf70db" class="numbered-list" start="1"><li><del><mark class="highlight-gray"><strong>User space 프록시 모드 → 현재는 미사용</strong></mark></del><ul id="24ab8b2c-1c23-807a-9089-e4bc97eb1669" class="bulleted-list"><li style="list-style-type:disc">Redirect, DNAT를 통해서 Service로 전송한 모든 요청 Packet은 kube-proxy로 전달 → 포트 하나 당 하나의 서비스가 맵핑</li></ul><ul id="24ab8b2c-1c23-80e9-9ca7-f895ac3ed370" class="bulleted-list"><li style="list-style-type:disc">즉 유저스페이스(kube-proxy)에서 커널 스페이스로 변환이 필요하여 그 만큼 비용이 듬!</li></ul><ul id="24ab8b2c-1c23-80c5-99c7-c75780ea6950" class="bulleted-list"><li style="list-style-type:disc">kube-proxy 프로세스가 문제 시 SPOF 발생! ← 대응이 어렵다!</li></ul><figure id="24ab8b2c-1c23-800d-9ffd-c5e26e76539e" class="image"><a href="images/Untitled%206.png"><img style="width:672px" src="images/Untitled%206.png"/></a><figcaption><a href="https://medium.com/finda-tech/kubernetes-%EB%84%A4%ED%8A%B8%EC%9B%8C%ED%81%AC-%EC%A0%95%EB%A6%AC-fccd4fd0ae6">https://medium.com/finda-tech/kubernetes-네트워크-정리-fccd4fd0ae6</a></figcaption></figure><figure id="24ab8b2c-1c23-803e-89c5-eccfb18dc9dd" class="image"><a href="images/image%205.png"><img style="width:864px" src="images/image%205.png"/></a><figcaption><a href="https://www.geeksforgeeks.org/understanding-kubernetes-kube-proxy-and-its-role-in-service-networking/">https://www.geeksforgeeks.org/understanding-kubernetes-kube-proxy-and-its-role-in-service-networking/</a></figcaption></figure><p id="24ab8b2c-1c23-8088-82c7-fee914471449" class="">
+</p></li></ol><ol type="1" id="24ab8b2c-1c23-80f5-9957-df2167d871d5" class="numbered-list" start="2"><li><strong>Iptables 프록시 모드 (iptables APIs → netfilter subsystem)</strong><ul id="24ab8b2c-1c23-80da-965a-e5ff578a5cb1" class="bulleted-list"><li style="list-style-type:disc"><em>In this mode, kube-proxy configures packet forwarding rules using the </em><em><strong>iptables API</strong></em><em> of the </em><em><strong>kernel netfilter</strong></em><em> subsystem.</em><ul id="24ab8b2c-1c23-80d8-b812-c58d848a7bac" class="bulleted-list"><li style="list-style-type:circle"><em>For each endpoint, it installs </em><em><strong>iptables rules</strong></em><em> which, by default, select a </em><em><strong>backend Pod</strong></em><em> at </em><em><strong>random</strong></em><em>.</em></li></ul></li></ul><ul id="24ab8b2c-1c23-80de-a04b-e97ce0e8a523" class="bulleted-list"><li style="list-style-type:disc">1번 방식인 kube-proxy가 직접 proxy의 역할을 수행하지 않고 그 역할을 전부 netfilter에게 맡긴다.</li></ul><ul id="24ab8b2c-1c23-8003-870d-dc407cd3eca4" class="bulleted-list"><li style="list-style-type:disc">이를 통해 service IP를 발견하고 그것을 실제 Pod로 전달하는 것은 모두 netfilter가 담당하게 되었고,</li></ul><ul id="24ab8b2c-1c23-80f7-b615-dd742c3ca55d" class="bulleted-list"><li style="list-style-type:disc">kube-proxy는 단순히 netfilter의 규칙을 알맞게 수정하는 것을 담당할 뿐이다. 즉 kube-proxy 는 rule 만 관리하고 실제 데이터 트래픽 처리를 직접 하지 않는다.</li></ul><ul id="24ab8b2c-1c23-8099-b186-e92c35a5eb45" class="bulleted-list"><li style="list-style-type:disc">kube-proxy 가 데몬셋으로 동작하여, SPOF 발생 시 자동으로 다시 띄워 동작한다! 혹시 문제가 생겨도 룰은 이미 설정되어 있으니 데이터 통신은 된다.<br/>물론 룰 추가 삭제는 안되지만..  결론은 &#x27;User space&#x27; 에 비해서 좀 더 안정적이고 성능 효율도 좋다!</li></ul><figure id="24ab8b2c-1c23-8081-abca-cb34ec940e85" class="image"><a href="images/Untitled%207.png"><img style="width:672px" src="images/Untitled%207.png"/></a><figcaption><a href="https://medium.com/finda-tech/kubernetes-%EB%84%A4%ED%8A%B8%EC%9B%8C%ED%81%AC-%EC%A0%95%EB%A6%AC-fccd4fd0ae6">https://medium.com/finda-tech/kubernetes-네트워크-정리-fccd4fd0ae6</a></figcaption></figure><figure id="24ab8b2c-1c23-8013-bd2c-d98ec69fd6e1" class="image"><a href="images/image%206.png"><img style="width:864px" src="images/image%206.png"/></a><figcaption><a href="https://www.geeksforgeeks.org/understanding-kubernetes-kube-proxy-and-its-role-in-service-networking/">https://www.geeksforgeeks.org/understanding-kubernetes-kube-proxy-and-its-role-in-service-networking/</a></figcaption></figure><p id="24ab8b2c-1c23-8044-b71c-f76d9586178f" class="">
+</p></li></ol><ol type="1" id="24ab8b2c-1c23-80e1-a65f-ca538ecbbbf8" class="numbered-list" start="3"><li><strong>IPVS 프록시 모드 (kernel IPVS</strong> , <strong>iptables APIs → netfilter subsystem) </strong><a href="http://www.linuxvirtualserver.org/software/ipvs.html">http://www.linuxvirtualserver.org/software/ipvs.html</a><ul id="24ab8b2c-1c23-80bd-b108-e9c05c8fd1a4" class="bulleted-list"><li style="list-style-type:disc">In ipvs mode, kube-proxy uses the<strong> kernel IPVS</strong> and <strong>iptables APIs</strong> to create rules to redirect traffic from Service IPs to endpoint IPs.<ul id="24ab8b2c-1c23-8098-948f-efbab808eb16" class="bulleted-list"><li style="list-style-type:circle">The IPVS proxy mode is based on <strong>netfilter hook</strong> function that is similar to iptables mode, but uses a <strong>hash table</strong> as the underlying data structure and works in the <strong>kernel space</strong>. That means kube-proxy in IPVS mode redirects traffic with<mark class="highlight-blue"><strong> lower latency than kube-proxy in iptables mode</strong></mark>, with <mark class="highlight-blue"><strong>much better performance when synchronizing proxy rules</strong></mark>. Compared to the iptables proxy mode, IPVS mode also supports a higher throughput of network traffic.</li></ul></li></ul><ul id="24ab8b2c-1c23-8030-8524-f2358ebd478c" class="bulleted-list"><li style="list-style-type:disc">IPVS Mode는 Linue Kernel에서 제공하는 L4 Load Balacner인 IPVS가 Service Proxy 역할을 수행하는 Mode이다.</li></ul><ul id="24ab8b2c-1c23-809a-aeac-de95aed27724" class="bulleted-list"><li style="list-style-type:disc">Packet Load Balancing 수행시 IPVS가 iptables보다 높은 성능을 보이기 때문에 IPVS Mode는 iptables Mode보다 높은 성능을 보여준다</li></ul><ul id="24ab8b2c-1c23-809b-92da-df81ff69afce" class="bulleted-list"><li style="list-style-type:disc">IPVS 프록시 모드는 iptables 모드와 유사한 넷필터 후크 기능을 기반으로 하지만, 해시 테이블을 기본 데이터 구조로 사용하고 <strong>커널 스페이스</strong>에서 동작한다.</li></ul><ul id="24ab8b2c-1c23-80c0-86c9-f4a2a25a5021" class="bulleted-list"><li style="list-style-type:disc">이는 IPVS 모드의 kube-proxy는 iptables 모드의 kube-proxy보다 지연 시간이 짧은 트래픽을 리다이렉션하고, 프록시 규칙을 동기화할 때 성능이 훨씬 향상됨을 의미한다.</li></ul><ul id="24ab8b2c-1c23-8078-9614-e5b54cbef054" class="bulleted-list"><li style="list-style-type:disc">다른 프록시 모드와 비교했을 때, IPVS 모드는 높은 네트워크 트래픽 처리량도 지원한다.</li></ul><figure id="24ab8b2c-1c23-8098-87c0-efe61a8c712a" class="image"><a href="images/Untitled%208.png"><img style="width:672px" src="images/Untitled%208.png"/></a><figcaption><a href="https://kubernetes.io/ko/docs/concepts/services-networking/service/#proxy-mode-ipvs">https://kubernetes.io/ko/docs/concepts/services-networking/service/#proxy-mode-ipvs</a></figcaption></figure><p id="24ab8b2c-1c23-80e2-b0f6-e4f0329fc297" class="">
+</p></li></ol><ol type="1" id="24ab8b2c-1c23-8074-8960-c02617c5240e" class="numbered-list" start="4"><li><strong>nftables 프록시 모드 (nftables API → netfilter subsystem) - </strong><a href="https://netfilter.org/projects/nftables/">https://netfilter.org/projects/nftables/</a><p id="24ab8b2c-1c23-803c-8681-fba3261ceeff" class=""><em>This proxy mode is only available on Linux nodes, and requires kernel 5.13 or later.</em></p><ul id="24ab8b2c-1c23-8041-a773-c28acb0e8d36" class="bulleted-list"><li style="list-style-type:disc">a mode where the kube-proxy configures packet forwarding rules using <strong>nftables</strong>.</li></ul><ul id="24ab8b2c-1c23-8077-9eff-da786504ec77" class="bulleted-list"><li style="list-style-type:disc">In this mode, kube-proxy configures packet forwarding rules using the <strong>nftables API </strong>of the kernel <strong>netfilter subsystem</strong>. For each endpoint, it installs nftables rules which, by default, select a backend Pod at random.</li></ul><ul id="24ab8b2c-1c23-807d-a20d-c4750398948c" class="bulleted-list"><li style="list-style-type:disc">The <strong>nftables API</strong> is the successor to the iptables API and is designed to provide better performance and scalability than iptables. The <code>nftables</code> proxy mode is able to process changes to service endpoints faster and more efficiently than the <code>iptables</code> mode, and is also able to more efficiently process packets in the kernel (though this only becomes noticeable in clusters with tens of thousands of services).</li></ul><ul id="24ab8b2c-1c23-80e5-bed8-d8680d15bb3f" class="bulleted-list"><li style="list-style-type:disc">As of Kubernetes 1.31, the <code>nftables</code> mode is still relatively new, and may not be compatible with all network plugins; consult the documentation for your network plugin.</li></ul><figure id="24ab8b2c-1c23-8021-aa2b-ff7e70dffca9"><a href="https://www.jacobbaek.com/430" class="bookmark source"><div class="bookmark-info"><div class="bookmark-text"><div class="bookmark-title">nftables</div><div class="bookmark-description">nftables 현대적인 Linux kernel packet 분류 프레임워크이다. 고전인 xtables( {ip,ip6,arp,eb}_tables ) 환경을 대신하여 새로운 코드가 사용되어진다. 즉, 리눅스 커널에서 새로운 패킷 필터링 / 방화벽 엔진으로 현재 iptables, ip6tables, arptables, ebtables 로 나뉘어서 사용되던 것을 nftables로 교체 및 통합 한다. https://wiki.nftables.org/wiki-nftables/index.php/What_is_nftables%3F nftables 동작을 위한 기반사항 Linux kernel since 3.13 이상 libmnl (minimalistic Netlink library) libnftnl (저수준 netl..</div></div><div class="bookmark-href"><img src="https://t1.daumcdn.net/tistory_admin/favicon/tistory_favicon_32x32.ico" class="icon bookmark-icon"/>https://www.jacobbaek.com/430</div></div><img src="https://img1.daumcdn.net/thumb/R800x0/?scode=mtistory2&amp;fname=https%3A%2F%2Ft1.daumcdn.net%2Ftistory_admin%2Fstatic%2Fimages%2FopenGraph%2Fopengraph.png" class="bookmark-image"/></a></figure><p id="24ab8b2c-1c23-80ec-95fc-ce89491b31ab" class=""><a href="https://developers.redhat.com/blog/2020/08/18/iptables-the-two-variants-and-their-relationship-with-nftables">https://developers.redhat.com/blog/2020/08/18/iptables-the-two-variants-and-their-relationship-with-nftables</a></p><p id="24ab8b2c-1c23-8012-a175-dc08da385cbd" class="">
+</p></li></ol><ol type="1" id="24ab8b2c-1c23-8084-9b74-e2ba8f1a7d51" class="numbered-list" start="5"><li><strong>eBPF 모드 + XDP</strong><ul id="24ab8b2c-1c23-80ff-ab55-cb540599f4c9" class="bulleted-list"><li style="list-style-type:disc">기존 netfilter/iptables 기반 통신</li></ul><figure id="24ab8b2c-1c23-807c-ae01-d7cc841a5f8e" class="image"><a href="images/Untitled%209.png"><img style="width:1056px" src="images/Untitled%209.png"/></a></figure><ul id="24ab8b2c-1c23-8040-b154-f6df65052d38" class="bulleted-list"><li style="list-style-type:disc">eBPF + XDP 네트워킹 모듈</li></ul><figure id="24ab8b2c-1c23-80c7-bed7-ec2d52f38091" class="image"><a href="images/Untitled%2010.png"><img style="width:1056px" src="images/Untitled%2010.png"/></a><figcaption><a href="https://deview.kr/data/deview/session/attach/1000_T3_%EC%86%A1%EC%9D%B8%EC%A3%BC_Kubernetes%20%ED%81%B4%EB%9F%AC%EC%8A%A4%ED%84%B0%EC%97%90%EC%84%9C%EC%9D%98%20%EA%B3%A0%EC%84%B1%EB%8A%A5&amp;%EA%B3%A0%EA%B0%80%EC%9A%A9%EC%84%B1%20NAT%20Networking%20%EC%8B%9C%EC%8A%A4%ED%85%9C.pdf">https://deview.kr/data/deview/session/attach/1000_T3_송인주_Kubernetes 클러스터에서의 고성능&amp;고가용성 NAT Networking 시스템.pdf</a></figcaption></figure></li></ol><p id="24ab8b2c-1c23-8008-8aef-fb1bcf06ef6e" class="">
+</p></details></li></ul></li></ol><p id="24ab8b2c-1c23-804c-8c27-f4eca124ada3" class="">
+</p><ol type="1" id="24ab8b2c-1c23-80ab-aeec-c897fbcd332b" class="numbered-list" start="4"><li><strong>Service LB-IPAM</strong><ul id="24ab8b2c-1c23-80d7-b67c-c2a7f87435d3" class="toggle"><li><details open=""><summary>4.1. LoadBalancer IP Address Management (<strong>LB IPAM</strong>) 소개<strong> : </strong>Service(<strong>LB</strong> Type)에 <strong>External-IP</strong>를 할당 - <a href="https://docs.cilium.io/en/stable/network/lb-ipam/">Docs</a> , <a href="https://www.youtube.com/watch?v=amC00re6-5k">Youtube</a></summary><figure id="24ab8b2c-1c23-806a-8ca8-f5cf0b6ac819" class="image"><a href="images/image%207.png"><img style="width:864px" src="images/image%207.png"/></a><figcaption><a href="https://isovalent.com/blog/post/migrating-from-metallb-to-cilium/#load-balancer-ipam">https://isovalent.com/blog/post/migrating-from-metallb-to-cilium/#load-balancer-ipam</a></figcaption></figure><ul id="24ab8b2c-1c23-8073-a974-c2e0a80efcc5" class="bulleted-list"><li style="list-style-type:disc"><strong>LB IPAM</strong>은 <strong>Cilium</strong>이 IP 주소를 <strong>LoadBalancer</strong> 유형의 <strong>서비스</strong>에 할<strong>당</strong>할 수 있게 해주는 기능입니다. 이 기능은 일반적으로 클라우드 제공업체에 맡겨지지만, 프라이빗 클라우드 환경에 배포할 때 이러한 기능을 항상 사용할 수 있는 것은 아닙니다.</li></ul><ul id="24ab8b2c-1c23-80f0-9333-e5648acd4e26" class="bulleted-list"><li style="list-style-type:disc">LB IPAM은 <code>Cilium BGP Control Plane</code> 및 <code>L2 Announcements </code>/ <code>L2 Aware LB</code>(베타)와 같은 기능과 함께 작동합니다. LB IPAM이 서비스 객체 및 기타 기능에 IP를 할당하고 할당하는 역할을 하는 곳은 이러한 IP의 <strong>로드 밸런싱</strong> 및/또는 <strong>광고</strong>를 담당합니다.</li></ul><ul id="24ab8b2c-1c23-8056-a86f-c92caffc9b3f" class="bulleted-list"><li style="list-style-type:disc">Cilium BGP Control Plane을 사용하여 LB IPAM이 할당한 IP 주소를 <code>BGP를 통해 광고</code>하고 L2 Announcements / L2 Aware LB(베타)를 통해 <code>로컬로 광고</code>합니다.</li></ul><ul id="24ab8b2c-1c23-80d3-bbde-cc49834310cd" class="bulleted-list"><li style="list-style-type:disc">LB IPAM은 항상 활성화되어 있지만 휴면 상태입니다. 첫 번째 IP 풀이 클러스터에 추가되면 컨트롤러가 활성화됩니다.</li></ul><ul id="24ab8b2c-1c23-8080-9cfd-f04eeb0010a9" class="bulleted-list"><li style="list-style-type:disc">기능<ul id="24ab8b2c-1c23-8026-9a09-e43d81c7af84" class="bulleted-list"><li style="list-style-type:circle">Service Selectors - <a href="https://docs.cilium.io/en/stable/network/lb-ipam/#service-selectors">Docs</a></li></ul><ul id="24ab8b2c-1c23-8039-887e-c655349691aa" class="bulleted-list"><li style="list-style-type:circle">Disabling a Pool - <a href="https://docs.cilium.io/en/stable/network/lb-ipam/#disabling-a-pool">Docs</a></li></ul><ul id="24ab8b2c-1c23-80ff-922b-caed75c8795c" class="bulleted-list"><li style="list-style-type:circle">Service 사용 확인 - <a href="https://docs.cilium.io/en/stable/network/lb-ipam/#services">Docs</a></li></ul><ul id="24ab8b2c-1c23-8053-bb67-ca214ac9beec" class="bulleted-list"><li style="list-style-type:circle">LoadBalancerClass : BGP or L2 지정 - <a href="https://docs.cilium.io/en/stable/network/lb-ipam/#loadbalancerclass">Docs</a></li></ul><ul id="24ab8b2c-1c23-80a9-b848-c7d111ae5b62" class="bulleted-list"><li style="list-style-type:circle">Requesting IPs : 특정 Service에 EX-IP를 직접 설정 - <a href="https://docs.cilium.io/en/stable/network/lb-ipam/#loadbalancerclass">Docs</a></li></ul><ul id="24ab8b2c-1c23-8035-a7f6-fae8be0b8092" class="bulleted-list"><li style="list-style-type:circle">Sharing Keys : EX-IP 1개를 각기 다른 Port 를 통해서 사용 - <a href="https://docs.cilium.io/en/stable/network/lb-ipam/#requesting-ips">Docs</a></li></ul></li></ul><p id="24ab8b2c-1c23-8093-8d77-d6600c345a97" class="">
+</p></details></li></ul><ul id="24ab8b2c-1c23-8008-a7bf-d8cc5ca3b149" class="toggle"><li><details open=""><summary>[k8s 클러스터 <strong>내부</strong>] <strong>webpod</strong> 서비스를 <strong>LoadBalancer</strong> Type 설정 with Cilium <strong>LB IPAM</strong></summary><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="24ab8b2c-1c23-8034-a6fd-c65720d35d59" class="code code-wrap"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all"># cilium ip pool 생성
+kubectl get CiliumLoadBalancerIPPool -A
+
+# 충돌나지 않는지 대역 확인 할 것!
+cat &lt;&lt; EOF | kubectl apply -f -
+apiVersion: &quot;cilium.io/v2&quot;  # v1.17 : cilium.io/v2alpha1
+kind: CiliumLoadBalancerIPPool
+metadata:
+  name: &quot;cilium-lb-ippool&quot;
+spec:
+  blocks:
+  - start: &quot;192.168.10.211&quot;
+    stop:  &quot;192.168.10.215&quot;
+EOF
+
+# CiliumLoadBalancerIPPool 축약어 : ippools,ippool,lbippool,lbippools
+kubectl api-resources | grep -i CiliumLoadBalancerIPPool
+ciliumloadbalancerippools           ippools,ippool,lbippool,lbippools   cilium.io/v2               false        CiliumLoadBalancerIPPool
+
+kubectl get ippools
+NAME               DISABLED   CONFLICTING   IPS AVAILABLE   AGE
+cilium-lb-ippool   false      False         5               20s
+
+
+# webpod 서비스를 LoadBalancer Type 변경 설정
+kubectl patch svc webpod -p &#x27;{&quot;spec&quot;:{&quot;type&quot;:&quot;LoadBalancer&quot;}}&#x27;
+
+# 확인
+kubectl get svc webpod
+NAME     TYPE           CLUSTER-IP     EXTERNAL-IP      PORT(S)        AGE
+webpod   LoadBalancer   10.96.112.15   192.168.10.211   80:31425/TCP   14h
+
+# LBIP로 curl 요청 확인 : k8s 노드들에서 LB EXIP로 통신 가능!
+kubectl get svc webpod -o jsonpath=&#x27;{.status.loadBalancer.ingress[0].ip}&#x27;
+LBIP=$(kubectl get svc webpod -o jsonpath=&#x27;{.status.loadBalancer.ingress[0].ip}&#x27;)
+
+curl -s $LBIP
+kubectl exec -it curl-pod -- curl -s $LBIP
+kubectl exec -it curl-pod -- curl -s $LBIP | grep Hostname   # 대상 파드 이름 출력
+kubectl exec -it curl-pod -- curl -s $LBIP | grep RemoteAddr # 대상 파드 입장에서 소스 IP 출력(Layer3)
+
+# 반복 접속 : 
+while true; do kubectl exec -it curl-pod -- curl -s $LBIP | grep Hostname; sleep 0.1; done
+for i in {1..100};  do kubectl exec -it curl-pod -- curl -s $LBIP | grep Hostname; done | sort | uniq -c | sort -nr
+
+# LBIP(192.168.10.211)가 webpod ip로 TRANSLATED되어 통신한다.
+hubble observe -f --protocol tcp --pod curl-pod
+Aug  9 07:53:54.052: default/curl-pod (ID:3131) &lt;&gt; 192.168.10.211:80 (world) pre-xlate-fwd TRACED (TCP)
+Aug  9 07:53:54.052: default/curl-pod (ID:3131) &lt;&gt; default/webpod-697b545f57-vbtsx:80 (ID:15436) post-xlate-fwd TRANSLATED (TCP)
+Aug  9 07:53:54.052: default/curl-pod:50310 (ID:3131) -&gt; default/webpod-697b545f57-vbtsx:80 (ID:15436) to-endpoint FORWARDED (TCP Flags: SYN)
+Aug  9 07:53:54.052: default/curl-pod:50310 (ID:3131) &lt;- default/webpod-697b545f57-vbtsx:80 (ID:15436) to-endpoint FORWARDED (TCP Flags: SYN, ACK)
+Aug  9 07:53:54.052: default/curl-pod:50310 (ID:3131) -&gt; default/webpod-697b545f57-vbtsx:80 (ID:15436) to-endpoint FORWARDED (TCP Flags: ACK)
+
+# IP 할당 확인
+kubectl get ippools
+kubectl get ippools -o jsonpath=&#x27;{.items[*].status.conditions[?(@.type!=&quot;cilium.io/PoolConflict&quot;)]}&#x27; | jq
+
+kubectl get svc webpod -o json | jq
+kubectl get svc webpod -o jsonpath=&#x27;{.status}&#x27; | jq
+</code></pre><p id="24ab8b2c-1c23-8025-816a-d0e194f22c99" class="">
+</p></details></li></ul><ul id="24ab8b2c-1c23-808d-ad83-d0a1813e87df" class="toggle"><li><details open=""><summary>[k8s 클러스터 <strong>외부</strong>] <strong>webpod</strong> 서비스를 <strong>LoadBalancer External IP</strong>로 호출 확인 → 도움 : <strong><span style="border-bottom:0.05em solid">BGP</span></strong><span style="border-bottom:0.05em solid"> 혹은 L2 </span><strong><span style="border-bottom:0.05em solid">Announcements</span></strong><span style="border-bottom:0.05em solid"> / L2 </span><strong><span style="border-bottom:0.05em solid">Aware</span></strong><span style="border-bottom:0.05em solid"> LB(Beta)</span></summary><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="24ab8b2c-1c23-80dd-95ac-cc41e3189e6d" class="code code-wrap"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all"># router : K8S 외부에서 통신 불가! 
+LBIP=192.168.10.211
+curl --connect-timeout 1 $LBIP
+arping -i eth1 $LBIP -c 1
+arping -i eth1 $LBIP -c 100000
+...
+
+# 192.168.10.211에 대한 MAC주소를 찾을수가 없음
+arp -an
+? (10.0.2.3) at 52:55:0a:00:02:03 [ether] on eth0
+? (10.0.2.2) at 52:55:0a:00:02:02 [ether] on eth0
+? (192.168.10.211) at &lt;incomplete&gt; on eth1
+? (192.168.10.100) at 08:00:27:f4:10:4b [ether] on eth1
+? (192.168.20.100) at 08:00:27:6c:32:f4 [ether] on eth2</code></pre></details></li></ul></li></ol><p id="24ab8b2c-1c23-8078-978f-dcc5ff53fe03" class="">
+</p><ol type="1" id="24ab8b2c-1c23-80db-b358-e5477c1324de" class="numbered-list" start="5"><li>Cilium L2 Announement<ul id="24ab8b2c-1c23-8019-8709-f28e20c48b93" class="toggle"><li><details open=""><summary>5.1. (참고) MetalLB Layer2 모드 - <a href="https://metallb.universe.tf/concepts/layer2/">Docs</a></summary><figure id="24ab8b2c-1c23-80cc-aad7-e0dffcec2c31" class="image"><a href="images/CleanShot_2025-08-03_at_11.04.07.png"><img style="width:1200px" src="images/CleanShot_2025-08-03_at_11.04.07.png"/></a></figure><figure id="24ab8b2c-1c23-80e0-91dc-db7842729f98" class="image"><a href="images/CleanShot_2025-08-03_at_11.04.20.png"><img style="width:1200px" src="images/CleanShot_2025-08-03_at_11.04.20.png"/></a></figure><figure id="24ab8b2c-1c23-806d-80eb-d298504a9ae9" class="image"><a href="images/CleanShot_2025-08-03_at_11.04.27.png"><img style="width:1200px" src="images/CleanShot_2025-08-03_at_11.04.27.png"/></a></figure><figure id="24ab8b2c-1c23-8003-a00f-e6452a29f6a0" class="image"><a href="images/CleanShot_2025-08-03_at_11.04.45.png"><img style="width:1152px" src="images/CleanShot_2025-08-03_at_11.04.45.png"/></a></figure><p id="24ab8b2c-1c23-80df-9000-dc03e37d04b3" class="">
+</p></details></li></ul><ul id="24ab8b2c-1c23-808d-93fd-f6d884ae7529" class="toggle"><li><details open=""><summary>5.2. Cilium <strong>Layer 2 (L2) Announcement</strong> using <strong>ARP</strong> :  - <a href="https://docs.cilium.io/en/stable/network/l2-announcements/">Docs</a></summary><ul id="24ab8b2c-1c23-801d-a8a2-c2376237cdce" class="bulleted-list"><li style="list-style-type:disc">L2 Announcements은 로컬 영역 네트워크에서 서비스를 가시화하고 도달할 수 있도록 하는 기능입니다. 이 기능은 주로 사무실이나 캠퍼스 네트워크와 같은 BGP 기반 라우팅 없이 네트워크 내에서 온프레미스 배포를 목적으로 합니다.</li></ul><ul id="24ab8b2c-1c23-80a9-9e94-e742f6290037" class="bulleted-list"><li style="list-style-type:disc">이 기능을 사용하면 ExternalIPs 또는 LoadBalancer IP에 대한 ARP 쿼리에 응답합니다. 이러한 IP는 여러 노드에 있는 가상 IP(네트워크 장치에 설치되지 않음)이므로 각 서비스에 대해 한 번에 하나의 노드가 ARP 쿼리에 응답하고 MAC 주소로 응답합니다. 이 노드는 서비스 로드 밸런싱 기능으로 로드 밸런싱을 수행하여 north/south 로드 밸런서 역할을 합니다.</li></ul><ul id="24ab8b2c-1c23-809b-a33a-c95aa82f963e" class="bulleted-list"><li style="list-style-type:disc">하나의 노드는 <strong>CiliumL2AnnouncementPolicy라는 Custom Resource에 의해 설정되며</strong> , 해당 노드의 VIP로 LB IP가 등록되고 GARP를 통해 같은 네트워크 대역에 VIP와 MAC 주소를 advertise 한다.</li></ul><ul id="24ab8b2c-1c23-80aa-b027-d7f43d56e4df" class="bulleted-list"><li style="list-style-type:disc">이 기능의 장점은 각 서비스가 고유한 IP를 사용할 수 있어 여러 서비스가 동일한 포트 번호를 사용할 수 있다는 점입니다. NodePort를 사용할 때 트래픽을 보낼 호스트를 결정하는 것은 클라이언트의 몫이며, 노드가 다운되면 IP+Port 콤보를 사용할 수 없게 됩니다. L2 Announcements를 통해 서비스 VIP는 다른 노드로 마이그레이션하기만 하면 계속 작동하게 됩니다.</li></ul><figure id="24ab8b2c-1c23-808a-9858-e47ed602feb2" class="image"><a href="images/image%208.png"><img style="width:864px" src="images/image%208.png"/></a><figcaption><a href="https://isovalent.com/blog/post/migrating-from-metallb-to-cilium/#l2-announcement-with-arp">https://isovalent.com/blog/post/migrating-from-metallb-to-cilium/#l2-announcement-with-arp</a></figcaption></figure><figure id="24ab8b2c-1c23-8081-b473-f560c0998e1e" class="image"><a href="images/image%209.png"><img style="width:864px" src="images/image%209.png"/></a></figure><ul id="24ab8b2c-1c23-808a-ae53-efb9c987aa29" class="bulleted-list"><li style="list-style-type:disc">제약사항<ul id="24ab8b2c-1c23-80cd-8772-ca59b7941659" class="bulleted-list"><li style="list-style-type:circle">The feature currently <strong>does not support IPv6/NDP.</strong></li></ul><ul id="24ab8b2c-1c23-80aa-a783-d6b7b34a4fc0" class="bulleted-list"><li style="list-style-type:circle">Due to the way L3 → L2 translation protocols work, one node receives all ARP requests for a specific IP, so no load balancing can happen before traffic hits the cluster.</li></ul><ul id="24ab8b2c-1c23-806c-b853-f5c6760b1529" class="bulleted-list"><li style="list-style-type:circle">The feature currently has <strong>no traffic balancing mechanism</strong> so nodes within the same policy might be asymmetrically <strong>loaded</strong>. For details see <a href="https://docs.cilium.io/en/stable/network/l2-announcements/#l2-announcements-leader-election">Leader Election</a>.</li></ul><ul id="24ab8b2c-1c23-80c8-82c9-e0b2cc5fd27d" class="bulleted-list"><li style="list-style-type:circle">The feature is incompatible with the <code><strong>externalTrafficPolicy: Local</strong></code> on services as it may cause service IPs to be announced on nodes without pods causing traffic drops.</li></ul></li></ul><p id="24ab8b2c-1c23-807a-9b06-efbdf2eabdf3" class="">
+</p></details></li></ul><ul id="24ab8b2c-1c23-80f9-845b-c4e616bd80cd" class="toggle"><li><details open=""><summary>5.3. [k8s 클러스터 <strong>외부</strong>] <strong>webpod</strong> 서비스를 <strong>LoadBalancer ExternalIP</strong>로 호출 with L2 <strong>Announcements</strong></summary><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="24ab8b2c-1c23-80bf-8da2-e30fba25f93d" class="code code-wrap"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all"># 모니터링 : router VM
+# 현재 arp table에 LBIP의 MAC이 등록되지 않아 arping시 timeout 발생
+arping -i eth1 $LBIP -c 100000
+Timeout
+Timeout
+
+# 설정 업그레이드
+helm upgrade cilium cilium/cilium --namespace kube-system --version 1.18.0 --reuse-values \
+   --set l2announcements.enabled=true &amp;&amp; watch -d kubectl get pod -A
+
+kubectl rollout restart -n kube-system ds/cilium
+
+# 확인
+kubectl -n kube-system exec ds/cilium -c cilium-agent -- cilium-dbg config --all | grep EnableL2Announcements
+EnableL2Announcements             : true
+
+cilium config view | grep enable-l2
+enable-l2-announcements                           true
+
+
+# 정책 설정 : arp 광고하게 될 service 와 node 지정(controlplane 제외) -&gt; 설정 직후 arping 확인!
+## 제약사항 : L2 ARP 모드에서 LB IPPool 은 같은 네트워크 대역에서만 유효. -&gt; k8s-w0 을 제외한 이유. 포함 시 리더 노드 선정 시 동작 실패 상황 발생!
+cat &lt;&lt; EOF | kubectl apply -f -
+apiVersion: &quot;cilium.io/v2alpha1&quot;  # not v2
+kind: CiliumL2AnnouncementPolicy
+metadata:
+  name: policy1
+spec:
+  serviceSelector:
+    matchLabels:
+      app: webpod
+  nodeSelector:
+    matchExpressions:
+      - key: kubernetes.io/hostname
+        operator: NotIn
+        values:
+          - k8s-w0
+  interfaces:
+  - ^eth[1-9]+
+  externalIPs: true
+  loadBalancerIPs: true
+EOF
+
+# 위와 같이 CiliumL2AnnouncementPolicy를 등록하면 router vm과 같은 네트워크에 있는 webpod service의 LBIP에 대해서 cilium agent가 advertise하고
+# router vm은 자신의 arp table에 LBIP와 LBIP에 해당하는 MAC주소를 등록하여 arping이 정상동작
+arping -i eth1 $LBIP -c 100000
+Timeout
+Timeout
+Timeout
+60 bytes from 08:00:27:f4:10:4b (192.168.10.211): index=0 time=419.251 usec
+60 bytes from 08:00:27:f4:10:4b (192.168.10.211): index=1 time=274.929 usec
+60 bytes from 08:00:27:f4:10:4b (192.168.10.211): index=2 time=268.259 usec
+
+# arp table 확인
+router:~# arp -an
+? (10.0.2.3) at 52:55:0a:00:02:03 [ether] on eth0
+? (10.0.2.2) at 52:55:0a:00:02:02 [ether] on eth0
+? (192.168.10.211) at 08:00:27:f4:10:4b [ether] on eth1
+
+# 확인
+kubectl -n kube-system get lease
+kubectl -n kube-system get lease | grep &quot;cilium-l2announce&quot;
+NAME                                   HOLDER                                                                      AGE
+cilium-l2announce-default-webpod       k8s-w1                                                                     10m
+...
+
+# 현재 리더 역할 노드 확인
+kubectl -n kube-system get lease/cilium-l2announce-default-webpod -o yaml | yq
+{
+  &quot;apiVersion&quot;: &quot;coordination.k8s.io/v1&quot;,
+  &quot;kind&quot;: &quot;Lease&quot;,
+  &quot;metadata&quot;: {
+    &quot;creationTimestamp&quot;: &quot;2025-08-09T08:32:18Z&quot;,
+    &quot;name&quot;: &quot;cilium-l2announce-default-webpod&quot;,
+    &quot;namespace&quot;: &quot;kube-system&quot;,
+    &quot;resourceVersion&quot;: &quot;38686&quot;,
+    &quot;uid&quot;: &quot;a14985b1-6fc3-461c-88dd-f9857ab3e6a1&quot;
+  },
+  &quot;spec&quot;: {
+    &quot;acquireTime&quot;: &quot;2025-08-09T08:54:56.334335Z&quot;,
+    &quot;holderIdentity&quot;: &quot;k8s-w1&quot;,
+    &quot;leaseDurationSeconds&quot;: 15,
+    &quot;leaseTransitions&quot;: 3,
+    &quot;renewTime&quot;: &quot;2025-08-09T08:58:30.834795Z&quot;
+  }
+}
+
+# cilium 파드 이름 지정
+export CILIUMPOD0=$(kubectl get -l k8s-app=cilium pods -n kube-system --field-selector spec.nodeName=k8s-ctr -o jsonpath=&#x27;{.items[0].metadata.name}&#x27;)
+export CILIUMPOD1=$(kubectl get -l k8s-app=cilium pods -n kube-system --field-selector spec.nodeName=k8s-w1  -o jsonpath=&#x27;{.items[0].metadata.name}&#x27;)
+export CILIUMPOD2=$(kubectl get -l k8s-app=cilium pods -n kube-system --field-selector spec.nodeName=k8s-w0  -o jsonpath=&#x27;{.items[0].metadata.name}&#x27;)
+echo $CILIUMPOD0 $CILIUMPOD1 $CILIUMPOD2
+
+# 현재 해당 IP에 대한 리더가 위치한 노드의 cilium-agent 파드 내에서 정보 확인
+kubectl exec -n kube-system $CILIUMPOD0 -- cilium-dbg shell -- db/show l2-announce
+kubectl exec -n kube-system $CILIUMPOD1 -- cilium-dbg shell -- db/show l2-announce
+IP               NetworkInterface
+192.168.10.211   eth1
+kubectl exec -n kube-system $CILIUMPOD2 -- cilium-dbg shell -- db/show l2-announce
+
+# 로그 확인
+kubectl -n kube-system logs ds/cilium | grep &quot;l2&quot;
+
+
+# router VM : LBIP로 curl 요청 확인
+arping -i eth1 $LBIP -c 1000
+curl --connect-timeout 1 $LBIP
+Hostname: webpod-697b545f57-ftrx9
+IP: 127.0.0.1
+IP: ::1
+IP: 172.20.1.50
+IP: fe80::b849:1ff:fe15:33b0
+RemoteAddr: 192.168.10.200:49898
+GET / HTTP/1.1
+Host: 192.168.10.211
+User-Agent: curl/8.5.0
+Accept: */*
+
+# VIP 에 대한 mac 주소가 리더 노드의 mac 주소와 동일함을 확인
+arp -a
+? (192.168.10.211) at 08:00:27:b8:9d:19 [ether] on eth1
+? (192.168.10.101) at 08:00:27:b8:9d:19 [ether] on eth1
+? (192.168.10.100) at 08:00:27:f4:10:4b [ether] on eth1
+...
+
+curl -s $LBIP
+curl -s $LBIP | grep Hostname
+curl -s $LBIP | grep RemoteAddr
+
+while true; do curl -s --connect-timeout 1 $LBIP | grep Hostname; sleep 0.1; done
+
+# 리더 노드가 아닌 다른 노드에 webpod 통신 시, SNAT 됨 : arp 동작(리더 노드)으로 인한 제약 사항
+# 위의 lease에서 확인한 것 처럼 현재 k8s-w1가 리더 노드이다.
+while true; do curl -s --connect-timeout 1 $LBIP | grep RemoteAddr; sleep 0.1; done
+RemoteAddr: 192.168.10.200:48056       # &quot;LBIP -&gt; k8s-w1 -&gt; k8s-w1의 webpod&quot; 이렇게 리더 노드로 통신시 RemoteAddr에 router ip가 그대로 찍힌다.
+RemoteAddr: 172.20.1.141:48060         # 하지만, LBIP -&gt; k8s-w1 -&gt; k8s-ctr의 webpod&quot; 이렇게 다른 노드로 통신시 RemoteAddr에 router ip가 아닌 k8s-w1의 cilium_host ip가 찍힌다.
+                                       # 즉, k8s-w1의 cilium_host ip로 SNAT 된것
+RemoteAddr: 192.168.10.200:48062
+RemoteAddr: 192.168.10.200:48078
+RemoteAddr: 172.20.1.141:48092
+
+# k8s-w1의 cilium_host
+sshpass -p &#x27;vagrant&#x27; ssh vagrant@k8s-w1 ip -c route | grep cilium_host
+172.20.0.0/24 via 172.20.1.141 dev cilium_host proto kernel src 172.20.1.141 mtu 1450 
+172.20.1.0/24 via 172.20.1.141 dev cilium_host proto kernel src 172.20.1.141 
+172.20.1.141 dev cilium_host proto kernel scope link 
+172.20.2.0/24 via 172.20.1.141 dev cilium_host proto kernel src 172.20.1.141 mtu 1450 </code></pre><ul id="24ab8b2c-1c23-80de-9600-fc8e9cf718e3" class="bulleted-list"><li style="list-style-type:disc"><strong>CiliumL2AnnouncementPolicy와 Lease</strong><ul id="24ab8b2c-1c23-80d1-bb1e-f2a8804d5b82" class="bulleted-list"><li style="list-style-type:circle">CiliumL2AnnouncementPolicy를 생성하면 kube-system에 lease object가 하나 생성된다.</li></ul><ul id="24ab8b2c-1c23-8005-925e-dc3adbaf8e06" class="bulleted-list"><li style="list-style-type:circle">lease object의 Holder는 CiliumL2AnnouncementPolicy이 생성될때 하나의 node를 leader로 설정하고 해당 node에 vip 등록한다.</li></ul><ul id="24ab8b2c-1c23-80ab-9557-d4cdfb02a8e9" class="bulleted-list"><li style="list-style-type:circle">각 lease object의 Holder는 다를 수 있다. 즉, service별로 생성한 CiliumL2AnnouncementPolicy의 leader node는 다를 수 있으므로 나름 service별 부하 분산이 된다고 볼 수 있다.</li></ul><ul id="24ab8b2c-1c23-80e2-9fb8-e9ecb36ea1f0" class="bulleted-list"><li style="list-style-type:circle">cilium agent가 재시작되면 각 service별로 생성된  CiliumL2AnnouncementPolicy의 leader도 변경되며 lease object의 Holder도 같이 변경된다.</li></ul><ul id="24ab8b2c-1c23-80c9-b08b-da862d05a690" class="bulleted-list"><li style="list-style-type:circle">L2 Network에서 GARP를 통한 arp advertise를 위해서는 여러개 node중 하나가 leader가 되고 LB IP를 해당 node에 VIP로 추가 후 MAC address와 mapping하여 해당 MAC address를 L2 network 전채에 GARP를 통해 advertise 해야한다.</li></ul><ul id="24ab8b2c-1c23-80da-84ee-eaaa3c9fecac" class="bulleted-list"><li style="list-style-type:circle">lease object는 “cilium-l2announce-[SERVICE의 NS]-[SERVICE이름]” 형식으로 자동 생성된다.</li></ul></li></ul><ul id="24ab8b2c-1c23-8083-809d-dc8e0107e85e" class="bulleted-list"><li style="list-style-type:disc">Cilium 1.18.0에서의 변경사항<ul id="24ab8b2c-1c23-806c-9aed-e13956efff2d" class="bulleted-list"><li style="list-style-type:circle"><strong>Cilium 1.18.0부터는 EnableL2NeighDiscovery라는 단일 옵션 대신 L2 Announcement 정책(CiliumL2AnnouncementPolicy)를 적용하는 새로운 방식을 통해 L2 neighbor discovery 기능을 활성화하는 방향으로 변경되었다고 보는 것이 맞습니다.</strong></li></ul><ul id="24ab8b2c-1c23-804c-8268-ea1a4fda12ae" class="bulleted-list"><li style="list-style-type:circle">예전에는 Helm 플래그/Agent 옵션 <code><strong>enable-l2-neigh-discovery</strong></code>로 켰지만, 1.18.0부터는 별도 CRD(<code><strong>CiliumL2AnnouncementPolicy</strong></code>) 생성으로 L2 neighbor discovery를 설정하며, Helm 설정 항목이나 cilium-agent 플래그에서 해당 옵션은 더 이상 없거나 관리하지 않습니다.</li></ul></li></ul></details></li></ul><ul id="24ab8b2c-1c23-8067-b92e-fa5789db9b36" class="toggle"><li><details open=""><summary>5.4. L2 Announcement <strong>리더 노드</strong>에 <strong>장애</strong> 주입 후 Failover 확인</summary><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="24ab8b2c-1c23-8009-a664-ed5c40d378d3" class="code code-wrap"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all">k8s-ctr:~# ip addr show eth1
+3: eth1: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc fq_codel state UP group default qlen 1000
+    link/ether 08:00:27:f4:10:4b brd ff:ff:ff:ff:ff:ff
+    altname enp0s9
+    inet 192.168.10.100/24 brd 192.168.10.255 scope global eth1
+       valid_lft forever preferred_lft forever
+    inet6 fe80::a00:27ff:fef4:104b/64 scope link 
+       valid_lft forever preferred_lft forever
+       
+for i in w1 w0 ; do echo &quot;&gt;&gt; node : k8s-$i &lt;&lt;&quot;; sshpass -p &#x27;vagrant&#x27; ssh vagrant@k8s-$i ip addr show eth1 ; echo; done
+&gt;&gt; node : k8s-w1 &lt;&lt;
+3: eth1: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc fq_codel state UP group default qlen 1000
+    link/ether 08:00:27:b8:9d:19 brd ff:ff:ff:ff:ff:ff
+    altname enp0s9
+    inet 192.168.10.101/24 brd 192.168.10.255 scope global eth1
+       valid_lft forever preferred_lft forever
+    inet6 fe80::a00:27ff:feb8:9d19/64 scope link 
+       valid_lft forever preferred_lft forever
+
+&gt;&gt; node : k8s-w0 &lt;&lt;
+3: eth1: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc fq_codel state UP group default qlen 1000
+    link/ether 08:00:27:6c:32:f4 brd ff:ff:ff:ff:ff:ff
+    altname enp0s9
+    inet 192.168.20.100/24 brd 192.168.20.255 scope global eth1
+       valid_lft forever preferred_lft forever
+    inet6 fe80::a00:27ff:fe6c:32f4/64 scope link 
+       valid_lft forever preferred_lft forever
+
+# router에서 arp talbe을 확인하면 LBIP에 대해서 k8s-w1의 eth1 MAC이 mapping되어있음
+router:~# arp -a
+? (10.0.2.3) at 52:55:0a:00:02:03 [ether] on eth0
+_gateway (10.0.2.2) at 52:55:0a:00:02:02 [ether] on eth0
+? (192.168.10.211) at 08:00:27:b8:9d:19 [ether] on eth1
+? (192.168.10.101) at 08:00:27:b8:9d:19 [ether] on eth1
+? (192.168.10.100) at 08:00:27:f4:10:4b [ether] on eth1
+? (192.168.20.100) at 08:00:27:6c:32:f4 [ether] on eth2
+
+# 신규 터미널 (router) : 반복 호출
+while true; do curl -s --connect-timeout 1 $LBIP | grep Hostname; sleep 0.1; done
+
+
+# 현재 리더 노드 확인
+kubectl -n kube-system get lease | grep &quot;cilium-l2announce&quot;
+NAME                                   HOLDER                                                                      AGE
+cilium-l2announce-default-webpod       k8s-w1                                                                      76m
+...
+
+# 리더 노드 강제 reboot
+sshpass -p &#x27;vagrant&#x27; ssh vagrant@k8s-w1  sudo reboot
+혹은
+sshpass -p &#x27;vagrant&#x27; ssh vagrant@k8s-ctr sudo reboot
+
+
+# 신규 터미널 (router) : arp 변경(갱신) 확인
+# k8s-w1가 재시작되면서 leader가 k8s-ctr로 변경되면서 LBIP에 대한 MAC이 k8s-ctr의 eth1 MAC으로 변경되었다.
+arp -a
+? (10.0.2.3) at 52:55:0a:00:02:03 [ether] on eth0
+_gateway (10.0.2.2) at 52:55:0a:00:02:02 [ether] on eth0
+? (192.168.10.211) at 08:00:27:f4:10:4b [ether] on eth1
+? (192.168.10.101) at 08:00:27:b8:9d:19 [ether] on eth1
+? (192.168.10.100) at 08:00:27:f4:10:4b [ether] on eth1
+? (192.168.20.100) at 08:00:27:6c:32:f4 [ether] on eth2
+
+kubectl -n kube-system get lease | grep &quot;cilium-l2announce&quot;
+cilium-l2announce-default-webpod       k8s-ctr                                                                     79m</code></pre><p id="24ab8b2c-1c23-8073-af89-efb1a679222c" class="">
+</p></details></li></ul><p id="24ab8b2c-1c23-80e4-a7e7-d77bc38ad24f" class=""><code>도전과제4</code> L2 Pod Announcements 설정 및 동작 확인해보자 - <a href="https://docs.cilium.io/en/stable/network/l2-announcements/#l2-pod-announcements">Docs</a></p><p id="24ab8b2c-1c23-80d3-8863-e6a6c4b2b1b9" class="">
+</p><p id="24ab8b2c-1c23-80ea-9d46-ec14b285c134" class="">5.5. <code>Service LB-IPAM 기능</code></p><ul id="24ab8b2c-1c23-80d1-875c-e38eed20c995" class="toggle"><li><details open=""><summary>5.5.1. Service 추가 시 동작 : <strong>netshoot-web</strong></summary><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="24ab8b2c-1c23-80fb-8198-d16607143671" class="code code-wrap"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all">#
+cat &lt;&lt; EOF | kubectl apply -f -
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: netshoot-web
+  labels:
+    app: netshoot-web
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: netshoot-web
+  template:
+    metadata:
+      labels:
+        app: netshoot-web
+    spec:
+      terminationGracePeriodSeconds: 0
+      containers:
+        - name: netshoot
+          image: nicolaka/netshoot
+          ports:
+            - containerPort: 8080
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+          command: [&quot;sh&quot;, &quot;-c&quot;]
+          args:
+            - |
+              while true; do 
+                { echo -e &quot;HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nOK from \$POD_NAME&quot;; } | nc -l -p 8080 -q 1;
+              done
+EOF
+
+#
+cat &lt;&lt; EOF | kubectl apply -f -
+apiVersion: v1
+kind: Service
+metadata:
+  name: netshoot-web
+  labels:
+    app: netshoot-web
+spec:
+  type: LoadBalancer
+  selector:
+    app: netshoot-web
+  ports:
+    - name: http
+      port: 80      
+      targetPort: 8080
+EOF
+
+#
+kubectl get svc netshoot-web
+NAME           TYPE           CLUSTER-IP    EXTERNAL-IP      PORT(S)        AGE
+netshoot-web   LoadBalancer   10.96.64.29   192.168.10.212   80:30131/TCP   8s
+
+#
+cat &lt;&lt; EOF | kubectl apply -f -
+apiVersion: &quot;cilium.io/v2alpha1&quot;  # not v2
+kind: CiliumL2AnnouncementPolicy
+metadata:
+  name: policy2
+spec:
+  serviceSelector:
+    matchLabels:
+      app: netshoot-web
+  nodeSelector:
+    matchExpressions:
+      - key: kubernetes.io/hostname
+        operator: NotIn
+        values:
+          - k8s-w0
+  interfaces:
+  - ^eth[1-9]+
+  externalIPs: true
+  loadBalancerIPs: true
+EOF
+
+# Service 별로 리더 노드가 다르다 : 즉, 외부 인입 시 Service 별로 나름 분산(?) 처리.. 
+kubectl -n kube-system get lease | grep &quot;cilium-l2announce&quot;
+cilium-l2announce-default-netshoot-web   k8s-ctr                                                                     11m
+cilium-l2announce-default-webpod         k8s-w1                                                                      107m 
+
+
+# 호출 확인
+## LBIP로 curl 요청 확인 : k8s 노드들에서 LB EXIP로 통신 가능!
+kubectl get svc netshoot-web -o jsonpath=&#x27;{.status.loadBalancer.ingress[0].ip}&#x27;
+LB2IP=$(kubectl get svc netshoot-web -o jsonpath=&#x27;{.status.loadBalancer.ingress[0].ip}&#x27;)
+curl -s $LB2IP
+
+## 신규터미널 (router)
+LB2IP=192.168.10.212
+arping -i eth1 $LB2IP -c 2
+curl -s $LB2IP
+
+# LB2IP의 MAC이 arp table에 등록되어 통신이 가능하다.
+arp -an
+? (192.168.10.212) at 08:00:27:f4:10:4b [ether] on eth1 # k8s-ctr node의 eth1 MAC address
+? (10.0.2.3) at 52:55:0a:00:02:03 [ether] on eth0
+? (10.0.2.2) at 52:55:0a:00:02:02 [ether] on eth0
+? (192.168.10.211) at 08:00:27:b8:9d:19 [ether] on eth1
+? (192.168.10.101) at 08:00:27:b8:9d:19 [ether] on eth1
+? (192.168.10.100) at 08:00:27:f4:10:4b [ether] on eth1
+? (192.168.20.100) at 08:00:27:6c:32:f4 [ether] on eth2
+</code></pre><p id="24ab8b2c-1c23-80fc-af44-cf2ede250f6c" class="">
+</p></details></li></ul><ul id="24ab8b2c-1c23-80ad-ba3b-caf849938c59" class="toggle"><li><details open=""><summary>5.5.2. Requesting IPs : 특정 Service에 EX-IP를 직접 설정 - <a href="https://docs.cilium.io/en/stable/network/lb-ipam/#loadbalancerclass">Docs</a> </summary><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="24ab8b2c-1c23-80b1-8816-c93ee11a5b1e" class="code code-wrap"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all"># Service netshoot-web 에 EX-IP를 직접 지정 변경
+k9s → svc → &lt;e&gt; edit
+ 
+## metadata.annotations 아래 아래 추가
+  annotations:
+    &quot;lbipam.cilium.io/ips&quot;: &quot;192.168.10.215&quot;
+
+#
+kubectl get svc netshoot-web
+NAME           TYPE           CLUSTER-IP      EXTERNAL-IP      PORT(S)        AGE
+netshoot-web   LoadBalancer   10.96.218.169   192.168.10.215   80:31362/TCP   24m
+
+#
+kubectl get svc netshoot-web -o jsonpath=&#x27;{.status.loadBalancer.ingress[0].ip}&#x27;
+LB2IP=$(kubectl get svc netshoot-web -o jsonpath=&#x27;{.status.loadBalancer.ingress[0].ip}&#x27;)
+curl -s $LB2IP
+
+# router에서 192.168.10.215라는 VIP에 대한 MAC address는 현재 모름
+# 192.168.10.212에 대한 정보가 arp table에서 사라짐
+router:~# arp -an
+? (192.168.10.212) at &lt;incomplete&gt; on eth1
+
+# 통신이 안된다.. 다시 192.168.10.215를 등록해줘야함.
+router:~# curl -s 192.168.10.212
+
+# 아래와 같이 정상적으로 arp table이 업데이트 되는지 확인
+router:~# arping -i eth1 192.168.10.215 -c 2
+router:~# curl -s 192.168.10.215
+OK from netshoot-web-5c59d94bd4-5f5kp
+
+router:~# arp -an
+? (192.168.10.211) at 08:00:27:b8:9d:19 [ether] on eth1
+? (192.168.20.100) at 08:00:27:6c:32:f4 [ether] on eth2
+? (192.168.10.212) at &lt;incomplete&gt; on eth1
+? (192.168.10.100) at 08:00:27:f4:10:4b [ether] on eth1
+? (10.0.2.2) at 52:55:0a:00:02:02 [ether] on eth0
+? (192.168.10.101) at 08:00:27:b8:9d:19 [ether] on eth1
+? (192.168.10.215) at 08:00:27:f4:10:4b [ether] on eth1</code></pre><figure id="24ab8b2c-1c23-8076-84ba-c8b7296e0ac8" class="image"><a href="images/image%2010.png"><img style="width:960px" src="images/image%2010.png"/></a></figure><p id="24ab8b2c-1c23-8044-9d72-e1f2e6e107c7" class="">
+</p></details></li></ul><ul id="24ab8b2c-1c23-8083-8917-e451719d9176" class="toggle"><li><details open=""><summary>5.5.3. Sharing Keys : EX-IP 1개를 각기 다른 Port 를 통해서 사용 - <a href="https://docs.cilium.io/en/stable/network/lb-ipam/#requesting-ips">Docs</a></summary><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="24ab8b2c-1c23-8076-9e98-d4165c7095c1" class="code code-wrap"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all">#
+cat &lt;&lt; EOF | kubectl apply -f -
+apiVersion: v1
+kind: Service
+metadata:
+  name: netshoot-web2
+  labels:
+    app: netshoot-web
+spec:
+  type: LoadBalancer
+  selector:
+    app: netshoot-web
+  ports:
+    - name: http
+      port: 8080      
+      targetPort: 8080
+EOF
+
+#
+kubectl get svc -l app=netshoot-web
+NAME            TYPE           CLUSTER-IP      EXTERNAL-IP      PORT(S)          AGE
+netshoot-web    LoadBalancer   10.96.218.169   192.168.10.215   80:31362/TCP     29m
+netshoot-web2   LoadBalancer   10.96.252.125   192.168.10.212   8080:32107/TCP   6s
+
+# Service netshoot-web, netshoot-web2 에 annotations 추가
+k9s → svc → &lt;e&gt; edit 
+## metadata.annotations 아래 아래 추가
+  annotations:
+    &quot;lbipam.cilium.io/ips&quot;: &quot;192.168.10.215&quot;
+    &quot;lbipam.cilium.io/sharing-key&quot;: &quot;1234&quot;
+
+#
+kubectl get svc -l app=netshoot-web
+NAME            TYPE           CLUSTER-IP      EXTERNAL-IP      PORT(S)          AGE
+netshoot-web    LoadBalancer   10.96.218.169   192.168.10.215   80:31362/TCP     30m
+netshoot-web2   LoadBalancer   10.96.252.125   192.168.10.215   8080:32107/TCP   100s
+
+# sharing-key 사용되는 IP는 모든 같은 리더 노드 사용
+# 같은 sharing-key로 공유되는 CiliumL2AnnouncementPolicy라고 하더라도 leader가 다를수 있다. 즉, lease 객체의 Holder가 다를 수 있다.
+# 그럼 하나의 192.168.10.215 VIP에 대해서 port별로 다른 MAC address가 mapping 된다.
+kubectl -n kube-system get lease | grep &quot;cilium-l2announce&quot;
+NAME                                      HOLDER                                                                      AGE
+cilium-l2announce-default-netshoot-web    k8s-ctr                                                                     23m
+cilium-l2announce-default-netshoot-web2   k8s-w1                                                                      5m36s
+cilium-l2announce-default-webpod          k8s-w1                                                                      120m
+
+# 호출 확인
+curl -s $LB2IP
+curl -s $LB2IP:8080
+
+
+## 신규터미널 (router)
+LB2IP=192.168.10.215
+
+# 위에서 확인했듯이 lease 객체의 Holder가 다르게 설정되어있다.
+# 이로 인해 192.168.10.215에 대해서 router vm에서 arping을 날려보면, 아래와 같이 두개의 MAC Address가 응답오는것을 알 수 있따.
+arping -i eth1 $LB2IP -c 2
+ARPING 192.168.10.215
+60 bytes from 08:00:27:f4:10:4b (192.168.10.215): index=0 time=197.557 usec  # k8s-ctr 즉, cilium-l2announce-default-netshoot-web
+60 bytes from 08:00:27:b8:9d:19 (192.168.10.215): index=1 time=403.243 usec  # k8s-w1 즉, cilium-l2announce-default-netshoot-web2
+60 bytes from 08:00:27:b8:9d:19 (192.168.10.215): index=2 time=260.255 usec
+60 bytes from 08:00:27:f4:10:4b (192.168.10.215): index=3 time=481.782 usec
+
+# L2 Network에 의해 k8s-ctr의 MAC Address로 향한다.
+curl -s $LB2IP
+# L2 Network에 의해 k8s-w1의 MAC Address로 향한다.
+curl -s $LB2IP:8080
+
+# 아래와 같이 arping을 지속적으로 수행하고 arp table을 확인해보면 arp table이 지속적으로 변경되는것을 볼 수 있다.
+# 이는 앞서 설명했듯이 CiliumL2AnnouncementPolicy에 의해 192.168.10.215에 대해서 두개의 node가 각각 leader로 즉, lease의 holder로 설정됬기 때문이다.
+router:~# arping -i eth1 $LB2IP
+ARPING 192.168.10.215
+60 bytes from 08:00:27:f4:10:4b (192.168.10.215): index=0 time=257.254 usec
+60 bytes from 08:00:27:b8:9d:19 (192.168.10.215): index=1 time=393.155 usec
+60 bytes from 08:00:27:f4:10:4b (192.168.10.215): index=2 time=292.105 usec
+60 bytes from 08:00:27:b8:9d:19 (192.168.10.215): index=3 time=308.446 usec
+
+router:~# arp -an
+? (192.168.20.100) at 08:00:27:6c:32:f4 [ether] on eth2
+? (192.168.10.100) at 08:00:27:f4:10:4b [ether] on eth1
+? (10.0.2.2) at 52:55:0a:00:02:02 [ether] on eth0
+? (192.168.10.215) at 08:00:27:f4:10:4b [ether] on eth1
+
+router:~# arp -an
+? (192.168.20.100) at 08:00:27:6c:32:f4 [ether] on eth2
+? (192.168.10.100) at 08:00:27:f4:10:4b [ether] on eth1
+? (10.0.2.2) at 52:55:0a:00:02:02 [ether] on eth0
+? (192.168.10.215) at 08:00:27:b8:9d:19 [ether] on eth1</code></pre></details></li></ul><p id="24ab8b2c-1c23-80b1-9a9a-dc576f510d8c" class="">
+</p><p id="24ab8b2c-1c23-801e-beb7-edf12acfaef7" class=""><code>도전과제5</code> Service 에 NodePort 비활성화 설정 해보세요 - Docs</p></li></ol><p id="24ab8b2c-1c23-8032-938f-d8ccc5be766d" class="">
+</p><ol type="1" id="24ab8b2c-1c23-8025-a928-fabf5664e1fa" class="numbered-list" start="6"><li>prometheus-stack<ul id="24ab8b2c-1c23-8056-a8d2-c2ee97d6c1ba" class="toggle"><li><details open=""><summary>6.1. kube-prometheus-stack 설치</summary><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="24ab8b2c-1c23-80b2-9d26-f24d6c1f0b55" class="code code-wrap"><code class="language-Shell" style="white-space:pre-wrap;word-break:break-all"># 기존 프로메테우스, 그라파나 삭제
+kubectl delete -f https://raw.githubusercontent.com/cilium/cilium/1.18.0/examples/kubernetes/addons/prometheus/monitoring-example.yaml
+
+
+# repo 추가
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+
+# 파라미터 파일 생성
+cat &lt;&lt;EOT &gt; monitor-values.yaml
+prometheus:
+  prometheusSpec:
+    scrapeInterval: &quot;15s&quot;
+    evaluationInterval: &quot;15s&quot;
+  service:
+    type: NodePort
+    nodePort: 30001
+
+grafana:
+  defaultDashboardsTimezone: Asia/Seoul
+  adminPassword: prom-operator
+  service:
+    type: NodePort
+    nodePort: 30002
+
+alertmanager:
+  enabled: false
+defaultRules:
+  create: false
+prometheus-windows-exporter:
+  prometheus:
+    monitor:
+      enabled: false
+EOT
+cat monitor-values.yaml
+
+# 배포
+helm install kube-prometheus-stack prometheus-community/kube-prometheus-stack --version 75.15.1 \
+-f monitor-values.yaml --create-namespace --namespace monitoring
+
+
+# 각각 웹 접속 실행
+## Windows(WSL2) 사용자는 아래 주소를 자신의 웹 브라우저에서 기입 후 직접 접속, 이후에도 동일.
+open http://127.0.0.1:30001 # macOS
+open http://127.0.0.1:30002 # macOS
+
+# 확인
+## grafana : 프로메테우스는 메트릭 정보를 저장하는 용도로 사용하며, 그라파나로 시각화 처리
+## prometheus-0 : 모니터링 대상이 되는 파드는 ‘exporter’라는 별도의 사이드카 형식의 파드에서 모니터링 메트릭을 노출, pull 방식으로 가져와 내부의 시계열 데이터베이스에 저장
+## node-exporter : 노드익스포터는 물리 노드에 대한 자원 사용량(네트워크, 스토리지 등 전체) 정보를 메트릭 형태로 변경하여 노출
+## operator : 시스템 경고 메시지 정책(prometheus rule), 애플리케이션 모니터링 대상 추가 등의 작업을 편리하게 할수 있게 CRD 지원
+## kube-state-metrics : 쿠버네티스의 클러스터의 상태(kube-state)를 메트릭으로 변환하는 파드
+helm list -n monitoring
+kubectl get pod,svc,ingress,pvc -n monitoring
+kubectl get-all -n monitoring
+kubectl get prometheus,servicemonitors -n monitoring
+kubectl get crd | grep monitoring
+
+# 프로메테우스 버전 확인
+kubectl exec -it sts/prometheus-kube-prometheus-stack-prometheus -n monitoring -c prometheus -- prometheus --version
+
+
+# 삭제
+helm uninstall -n monitoring kube-prometheus-stack
+</code></pre><p id="24ab8b2c-1c23-8059-9024-d2359a5d852e" class="">
+</p></details></li></ul><ul id="24ab8b2c-1c23-80d1-8d64-f31158c3c41f" class="toggle"><li><details open=""><summary>6.2. Cilium 관련 메트릭용 Service 생성</summary><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="24ab8b2c-1c23-8015-b632-f99d4dd4bd56" class="code code-wrap"><code class="language-Shell" style="white-space:pre-wrap;word-break:break-all">#
+cat &lt;&lt; EOF | kubectl apply -f -
+apiVersion: v1
+kind: Service
+metadata:
+  name: cilium-agent-metrics
+  namespace: kube-system
+  labels:
+    k8s-app: cilium-agent
+spec:
+  selector:
+    k8s-app: cilium
+  ports:
+    - name: prometheus
+      port: 9962
+      targetPort: 9962     
+EOF
+kubectl get svc,ep -n kube-system cilium-agent-metrics
+
+#
+cat &lt;&lt; EOF | kubectl apply -f -
+apiVersion: v1
+kind: Service
+metadata:
+  name: cilium-operator-metrics
+  namespace: kube-system
+  labels:
+    k8s-app: cilium-operator
+spec:
+  selector:
+    name: cilium-operator
+  ports:
+    - name: prometheus
+      port: 9963
+      targetPort: 9963
+EOF
+kubectl get svc,ep -n kube-system cilium-operator-metrics
+
+#
+cat &lt;&lt; EOF | kubectl apply -f -
+apiVersion: v1
+kind: Service
+metadata:
+  name: hubble-metrics-service
+  namespace: kube-system
+  labels:
+    k8s-app: hubble
+spec:
+  selector:
+    k8s-app: cilium
+  ports:
+    - name: metrics
+      port: 9965
+      targetPort: 9965
+EOF
+kubectl get svc,ep -n kube-system hubble-metrics-service
+</code></pre><p id="24ab8b2c-1c23-80ec-87ec-f619bda23ff9" class="">
+</p></details></li></ul><ul id="24ab8b2c-1c23-80ce-a52b-eeb8f07ab5a5" class="toggle"><li><details open=""><summary>6.3. Prometheus 수집용 <strong>ServiceMonitor</strong> 생성 : Target 확인 → 프로메테우스 메트릭 수집 확인</summary><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="24ab8b2c-1c23-8093-ab00-f7788350a3a4" class="code code-wrap"><code class="language-Shell" style="white-space:pre-wrap;word-break:break-all">#
+cat &lt;&lt; EOF | kubectl apply -f -
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: cilium-agent
+  namespace: monitoring
+  labels:
+    release: kube-prometheus-stack
+spec:
+  selector:
+    matchLabels:
+      k8s-app: cilium-agent
+  namespaceSelector:
+    matchNames:
+      - kube-system
+  endpoints:
+    - port: prometheus
+      interval: 30s
+EOF
+
+#
+cat &lt;&lt; EOF | kubectl apply -f -
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: cilium-operator
+  namespace: monitoring
+  labels:
+    release: kube-prometheus-stack
+spec:
+  selector:
+    matchLabels:
+      k8s-app: cilium-operator
+  namespaceSelector:
+    matchNames:
+      - kube-system
+  endpoints:
+    - port: prometheus
+      interval: 30s
+EOF
+
+#
+cat &lt;&lt; EOF | kubectl apply -f -
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: hubble
+  namespace: monitoring
+  labels:
+    release: kube-prometheus-stack
+spec:
+  selector:
+    matchLabels:
+      k8s-app: hubble
+  namespaceSelector:
+    matchNames:
+      - kube-system
+  endpoints:
+    - port: metrics
+      interval: 30s
+EOF
+</code></pre><figure id="24ab8b2c-1c23-80a8-9817-e7034a9a318e" class="image"><a href="images/CleanShot_2025-08-03_at_12.12.05.png"><img style="width:1200px" src="images/CleanShot_2025-08-03_at_12.12.05.png"/></a></figure><p id="24ab8b2c-1c23-80ac-ba50-f3fee8839453" class="">
+</p></details></li></ul><ul id="24ab8b2c-1c23-8098-8722-d2a78a571f48" class="toggle"><li><details open=""><summary>6.4. Prometheus stack unhealthy serviceMonitor 수정</summary><p id="24ab8b2c-1c23-8087-b23e-db2e354d011b" class="">6.4.1. kube-prometheus-stack-kube-controller-manager <div class="indented"><ul id="24ab8b2c-1c23-802e-82aa-f9977b06106b" class="bulleted-list"><li style="list-style-type:disc">원인<p id="24ab8b2c-1c23-8089-b8c5-e7d82c94353d" class="">kube-controller-manager의 바인드 주소 제한: 기본적으로 kube-controller-manager는 메트릭스를 localhost(127.0.0.1)에만 노출하도록 설정되어 있습니다. 이 때문에 Prometheus (보통 다른 파드나 노드에서 실행됨)가 외부에서 접근할 수 없습니다. Cilium 설치 시 네트워킹이 eBPF 기반으로 변경되면서 이 문제가 더 두드러질 수 있지만, Cilium 자체가 직접적인 원인은 아닙니다. 대신, Cilium의 kube-proxy 대체 모드(기본적으로 활성화됨)가 서비스 디스커버리에 영향을 주어 Prometheus의 엔드포인트 탐색이 실패할 수 있습니다.</p></li></ul><ul id="24ab8b2c-1c23-8026-a717-d86121b1187b" class="bulleted-list"><li style="list-style-type:disc">확인 방법<p id="24ab8b2c-1c23-80a4-911d-da1222d37b3c" class="">먼저 현재 상태를 확인해 보세요:</p><ul id="24ab8b2c-1c23-8046-ab9a-e9fa58a32439" class="bulleted-list"><li style="list-style-type:circle">Prometheus 타겟 목록 확인: Prometheus UI (보통 prometheus-operated 서비스 포워딩으로 접근)에서 Targets 메뉴를 열고, kube-controller-manager 관련 타겟을 찾아보세요. &quot;Up&quot; 대신 &quot;Down&quot; 또는 오류(예: connection refused)가 표시될 겁니다.</li></ul><ul id="24ab8b2c-1c23-802a-aa01-e7402329d973" class="bulleted-list"><li style="list-style-type:circle">엔드포인트 확인: kubectl get ep -n kube-system | grep kube-controller-manager 명령으로 EP가 제대로 생성되었는지 확인. 이면 문제가 맞습니다.</li></ul><ul id="24ab8b2c-1c23-8096-b989-c96b1a8786fa" class="bulleted-list"><li style="list-style-type:circle">로그 확인: kubectl logs -n monitoring &lt;prometheus-pod-name&gt;으로 스크랩 오류 로그(예: &quot;Get ...: dial tcp 127.0.0.1:10257: connect: connection refused&quot;)를 검색하세요.</li></ul><ul id="24ab8b2c-1c23-80d4-bedd-d1cf385dfef9" class="bulleted-list"><li style="list-style-type:circle">포트 리스닝 확인: 마스터 노드에서 ss -lnpt | grep kube-controller 명령으로 10252/10257 포트가 0.0.0.0에 바인딩되어 있는지 확인.</li></ul></li></ul><ul id="24ab8b2c-1c23-80f5-a8d7-dd13d8b5dd1a" class="bulleted-list"><li style="list-style-type:disc">해결방법<ol type="1" id="24ab8b2c-1c23-804e-851f-f3c54e65ae39" class="numbered-list" start="1"><li><strong>kube-controller-manager 설정 수정</strong>:<ul id="24ab8b2c-1c23-809a-8920-cbc74bc1fece" class="bulleted-list"><li style="list-style-type:disc">마스터 노드의 /etc/kubernetes/manifests/kube-controller-manager.yaml 파일을 편집하세요.</li></ul><ul id="24ab8b2c-1c23-80b2-966f-f9ea33fb7078" class="bulleted-list"><li style="list-style-type:disc">spec.containers[0].command 섹션에 다음 옵션을 추가:<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="24ab8b2c-1c23-80cb-ac92-ffc7814edf3c" class="code code-wrap"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all">- --bind-address=0.0.0.0</code></pre></li></ul></li></ol><ol type="1" id="24ab8b2c-1c23-8065-a7c4-fc38d5a3d6ca" class="numbered-list" start="2"><li><strong>ServiceMonitor 수정 (kube-prometheus-stack Helm 값 조정)</strong>:<ul id="24ab8b2c-1c23-8084-8537-d1d81b39662e" class="bulleted-list"><li style="list-style-type:disc">Helm 차트 값을 업데이트하여 HTTPS 스킴과 TLS를 제대로 설정하세요. 예시 values.yaml:<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="24ab8b2c-1c23-80ba-8ecf-e6893194d90e" class="code code-wrap"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all">kubeControllerManager:
+  enabled: true
+  endpoints: []  # 필요 시 마스터 노드 IP 목록 추가
+  service:
+    enabled: true
+    port: 10257  # HTTPS 포트
+    targetPort: 10257
+  serviceMonitor:
+    enabled: true
+    scheme: https
+    tlsConfig:
+      insecureSkipVerify: true  # 개발 환경에서만 사용, 프로덕션에서는 caFile 설정</code></pre></li></ul><ul id="24ab8b2c-1c23-80a3-9db7-f5ae636f6448" class="bulleted-list"><li style="list-style-type:disc">Helm 업그레이드: helm upgrade [release-name] prometheus-community/kube-prometheus-stack -n monitoring -f values.yaml</li></ul></li></ol><ol type="1" id="24ab8b2c-1c23-809a-a8ec-c1383f3d999a" class="numbered-list" start="3"><li><strong>Cilium 관련 추가 설정</strong>:<ul id="24ab8b2c-1c23-80c5-a530-fe974ceac5bf" class="bulleted-list"><li style="list-style-type:disc">Cilium이 kube-proxy를 대체 모드로 설치했다면 (기본값), Prometheus의 서비스 디스커버리가 영향을 받을 수 있습니다. Cilium Helm 값에서 kubeProxyReplacement: strict로 설정하고 재설치하세요.</li></ul><ul id="24ab8b2c-1c23-8046-8d35-c0d58c3c7e94" class="bulleted-list"><li style="list-style-type:disc">Cilium의 모니터링을 활성화: Cilium Helm 값에 prometheus.enabled: true 추가. 이는 Cilium 자체 메트릭스를 Prometheus에 노출하지만, kube-controller-manager 문제를 직접 해결하지는 않습니다.</li></ul></li></ol><ol type="1" id="24ab8b2c-1c23-8038-a9f7-cb1e1569caa4" class="numbered-list" start="4"><li>확인<figure id="24ab8b2c-1c23-80d0-91a7-dbdae7a7ba5d" class="image"><a href="images/image%2011.png"><img style="width:864px" src="images/image%2011.png"/></a></figure></li></ol></li></ul><p id="24ab8b2c-1c23-8062-99e0-fdb63cc37b27" class="">
+</p><p id="24ab8b2c-1c23-8068-9975-ec87ce7b9922" class="">6.4.2. kube-prometheus-stack-kube-etcd</p><ul id="24ab8b2c-1c23-80d1-8a0a-cfa18841f445" class="bulleted-list"><li style="list-style-type:disc">원인<ul id="24ab8b2c-1c23-803e-b54a-e33e9ca67237" class="bulleted-list"><li style="list-style-type:circle"><strong>localhost 바인드 제한</strong>: etcd는 기본적으로 메트릭스를 localhost(127.0.0.1):2381 포트(HTTPS)에만 노출합니다. Prometheus(다른 파드나 노드에서 실행)가 외부 접근이 불가능해 스크랩이 실패합니다. kubeadm 같은 self-managed 클러스터에서 자주 발생합니다.</li></ul><ul id="24ab8b2c-1c23-808c-89f8-c6e0594df2af" class="bulleted-list"><li style="list-style-type:circle"><strong>TLS 인증 문제</strong>: etcd 메트릭스는 HTTPS로 보호되어 CA 인증서, 클라이언트 인증서/키가 필요합니다. ServiceMonitor가 이를 제대로 설정하지 않으면 &quot;certificate signed by unknown authority&quot; 같은 오류가 발생합니다.</li></ul><ul id="24ab8b2c-1c23-80e3-b84e-c9ab5731efbf" class="bulleted-list"><li style="list-style-type:circle"><strong>서비스/엔드포인트 디스커버리 이슈</strong>: Cilium의 kube-proxy 대체 모드에서 ClusterIP 서비스가 NodeIP를 사용하거나 엔드포인트가 제대로 생성되지 않을 수 있습니다. etcd가 headless 서비스로 노출되지 않거나 IP가 맞지 않습니다.</li></ul><ul id="24ab8b2c-1c23-809e-a3a3-f75dc5d86d2c" class="bulleted-list"><li style="list-style-type:circle"><strong>포트 및 구성 불일치</strong>: 메트릭스 포트(2381)가 기본 2379(클라이언트 포트)와 다르거나, Kubernetes 버전(1.20 이상)에 따라 설정이 달라질 수 있습니다.</li></ul></li></ul><ul id="24ab8b2c-1c23-805f-af3a-e01e372a7836" class="bulleted-list"><li style="list-style-type:disc">확인 방법<ul id="24ab8b2c-1c23-8020-9655-dd4a39ba5a22" class="bulleted-list"><li style="list-style-type:circle">Prometheus UI Targets에서 &quot;kube-etcd&quot; 또는 &quot;etcd&quot; 타겟을 확인: &quot;Down&quot; 상태와 오류(예: &quot;Get https://...: connect: connection refused&quot;)를 봅니다.</li></ul><ul id="24ab8b2c-1c23-80e9-9163-f695ea638271" class="bulleted-list"><li style="list-style-type:circle">엔드포인트 확인: kubectl get ep -n kube-system | grep etcd – 이면 문제.</li></ul><ul id="24ab8b2c-1c23-80c2-840f-fddd41482f9e" class="bulleted-list"><li style="list-style-type:circle">로그 확인: kubectl logs -n monitoring &lt;prometheus-pod-name&gt; -c prometheus에서 etcd 관련 스크랩 오류 검색.</li></ul><ul id="24ab8b2c-1c23-8052-abd5-f8ec4c88ff0c" class="bulleted-list"><li style="list-style-type:circle">etcd 포트 확인: 마스터 노드에서 ss -lnpt | grep etcd로 2381 포트가 localhost에만 바인드되었는지 확인.</li></ul><ul id="24ab8b2c-1c23-8074-b3a0-dd196e106274" class="bulleted-list"><li style="list-style-type:circle">Cilium 상태: cilium status로 네트워킹 문제 확인.</li></ul></li></ul><ul id="24ab8b2c-1c23-8002-bbea-e75b8dfa1edc" class="bulleted-list"><li style="list-style-type:disc">해결방법<ul id="24ab8b2c-1c23-8039-b455-fc68ad32b784" class="bulleted-list"><li style="list-style-type:circle">etcd는 보안이 중요하니, localhost 바인드를 풀지 말고 TLS를 제대로 설정하는 게 추천됩니다. kube-prometheus-stack Helm 차트를 통해 구성하는것이 좋음</li></ul><ul id="24ab8b2c-1c23-8066-807d-d7cf0d338373" class="bulleted-list"><li style="list-style-type:circle"><mark class="highlight-red">1,2번 과정에서 에러가 있어서 3번과정으로 임시 해결함…</mark></li></ul><ol type="1" id="24ab8b2c-1c23-80e7-9fae-fb540be83512" class="numbered-list" start="1"><li><strong>etcd 인증서 시크릿 생성</strong>:</li></ol><ul id="24ab8b2c-1c23-8089-8b65-fd28fe0523ce" class="bulleted-list"><li style="list-style-type:circle">마스터 노드의 etcd 인증서 파일을 사용해 시크릿 생성 (kube-system 네임스페이스 추천, 하지만 monitoring 네임스페이스에 생성 가능):<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="24ab8b2c-1c23-802c-89d7-de296becc559" class="code code-wrap"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all">kubectl create secret generic etcd-certs -n monitoring \
+  --from-file=etcd-ca.crt=/etc/kubernetes/pki/etcd/ca.crt \
+  --from-file=etcd-client.crt=/etc/kubernetes/pki/etcd/peer.crt \
+  --from-file=etcd-client.key=/etc/kubernetes/pki/etcd/peer.key</code></pre></li></ul><ul id="24ab8b2c-1c23-80ed-8046-de8cefca1bea" class="bulleted-list"><li style="list-style-type:circle">파일 경로는 클러스터 구성에 따라 다를 수 있음 (예: /etc/kubernetes/pki/etcd/server.crt 등). 확인: kubectl get cm kubeadm-config -n kube-system -o yaml.</li></ul><ol type="1" id="24ab8b2c-1c23-8077-9626-cb8a811eeef4" class="numbered-list" start="2"><li><strong>Helm values.yaml 수정 (kube-prometheus-stack)</strong>:</li></ol><ul id="24ab8b2c-1c23-8012-a52d-fe7c06bfafc6" class="bulleted-list"><li style="list-style-type:circle">values.yaml에 다음 추가/수정<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="24ab8b2c-1c23-8041-a5fa-cdaa3c5c7656" class="code code-wrap"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all">kubeEtcd:
+  enabled: true
+  # etcd 서버 IP 목록 (클러스터에 따라 localhost 또는 실제 IP/호스트명 사용)
+  endpoints: [&quot;127.0.0.1&quot;]  # 싱글 노드라면 이렇게; 멀티 노드라면 [&quot;10.0.0.1&quot;, &quot;10.0.0.2&quot;] 등
+  service:
+    enabled: true
+    port: 2381
+    targetPort: 2381
+  serviceMonitor:
+    enabled: true
+    interval: 30s  # 스크랩 간격
+    scheme: https
+    tlsConfig:
+      caFile: /etc/prometheus/secrets/etcd-certs/etcd-ca.crt
+      certFile: /etc/prometheus/secrets/etcd-certs/etcd-client.crt
+      keyFile: /etc/prometheus/secrets/etcd-certs/etcd-client.key
+      insecureSkipVerify: false  # 프로덕션에서는 false; 테스트 시 true로
+      serverName: localhost  # 또는 etcd 호스트명</code></pre></li></ul><ul id="24ab8b2c-1c23-8050-82ed-f13060628626" class="bulleted-list"><li style="list-style-type:circle">endpoints를 실제 etcd IP로 설정: kubectl get pods -n kube-system -l component=etcd -o wide로 IP 확인.</li></ul><ul id="24ab8b2c-1c23-8038-8079-c7b9115a8ea8" class="bulleted-list"><li style="list-style-type:circle">Helm 업그레이드: helm upgrade [release-name] prometheus-community/kube-prometheus-stack -n monitoring -f values.yaml</li></ul><ol type="1" id="24ab8b2c-1c23-8025-b65b-f887b0c884bd" class="numbered-list" start="3"><li><strong>etcd manifest 수정 (선택적, 보안 주의)</strong>:</li></ol><ul id="24ab8b2c-1c23-8054-a7ff-f55573e0872c" class="bulleted-list"><li style="list-style-type:circle">만약 TLS 설정이 복잡하다면, /etc/kubernetes/manifests/etcd.yaml 편집:<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js" integrity="sha512-7Z9J3l1+EYfeaPKcGXu3MS/7T+w19WtKQY/n+xzmw4hZhJ9tyYmcUS+4QqAlzhicE5LAfMQSF3iFTK9bQdTxXg==" crossorigin="anonymous" referrerPolicy="no-referrer"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" integrity="sha512-tN7Ec6zAFaVSG3TpNAKtk4DOHNpSwKHxxrsiw4GHKESGPs5njn/0sMCUMl2svV4wo4BK/rCP7juYz+zx+l6oeQ==" crossorigin="anonymous" referrerPolicy="no-referrer"/><pre id="24ab8b2c-1c23-80de-98fe-f8184576a70e" class="code code-wrap"><code class="language-Bash" style="white-space:pre-wrap;word-break:break-all">spec:
+  containers:
+  - command:
+    - etcd
+    ...
+    - --listen-metrics-urls=http://0.0.0.0:2381  # HTTP로 변경 (보안 취약, 테스트용)</code></pre></li></ul><ol type="1" id="24ab8b2c-1c23-80d3-9536-fc6db974eeb9" class="numbered-list" start="4"><li><strong>Cilium 관련 조정</strong>:<ul id="24ab8b2c-1c23-800f-a263-fdf548da257e" class="bulleted-list"><li style="list-style-type:disc">Cilium Helm values에서 prometheus.enabled: true와 kubeProxyReplacement: strict 확인/설정. 재설치: helm upgrade cilium cilium/cilium -n kube-system -f cilium-values.yaml.</li></ul><ul id="24ab8b2c-1c23-80ae-aa3c-f6e27e5e01e3" class="bulleted-list"><li style="list-style-type:disc">Cilium이 etcd 서비스를 방해하지 않도록 네트워크 정책 확인: kubectl get networkpolicies -n kube-system.</li></ul></li></ol></li></ul><ul id="24ab8b2c-1c23-800f-8d58-cb4b467e0d2a" class="bulleted-list"><li style="list-style-type:disc">확인<figure id="24ab8b2c-1c23-80f3-9d18-c9a99f42e56e" class="image"><a href="images/image%2012.png"><img style="width:1056px" src="images/image%2012.png"/></a></figure></li></ul></div></p></details></li></ul></li></ol></div></article><span class="sans" style="font-size:14px;padding-top:2em"></span></body></html>
