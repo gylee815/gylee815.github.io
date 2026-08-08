@@ -1019,7 +1019,7 @@ flowchart LR
 
 <blockquote class="callout"><p>이 절의 모든 수치는 실제로 이 도구에서 해당 문장을 입력하고 실행해서 얻은 결과다 (Temperature=0.8, Top-k 샘플링 k=5).</p></blockquote>
 
-<figure><img src="transformer_explainer_the_weather_is_hot_today.png" alt="Transformer Explainer로 본 &quot;The weather is hot today&quot;의 전체 처리 과정"><figcaption>Transformer Explainer로 본 "The weather is hot today"의 전체 처리 과정</figcaption></figure>
+<figure><img src="./images/transformer_explainer_the_weather_is_hot_today.png" alt="Transformer Explainer로 본 &quot;The weather is hot today&quot;의 전체 처리 과정"><figcaption>Transformer Explainer로 본 "The weather is hot today"의 전체 처리 과정</figcaption></figure>
 
 <h2 id="sec-45">1. 이 예제가 쓰는 모델: GPT-2 (small)</h2>
 
@@ -1137,14 +1137,15 @@ flowchart TD
     <span class="fa-legend-item"><i class="fa-dot fa-dot-2"></i>② 서빙 방식 (Prefill/Decode/KV Cache)</span>
     <span class="fa-legend-item"><i class="fa-dot fa-dot-3"></i>③ 가속 (Softmax/FlashAttention)</span>
   </div>
+  <p style="margin: -10px 0 18px; font-size: 0.78rem; color: var(--text-muted);">※ 아래 박스의 색은 지금 진행 중인 세부 계산이 ①②③ 중 어느 절에서 설명하는 개념인지를 보여준다. 같은 Prefill/Decode 박스 안에서도 어떤 계산을 하고 있는지에 따라 색이 바뀐다. ⚡ 표시는 FlashAttention이 그 계산을 가속한다는 뜻이다.</p>
 
   <div class="fa-stage">
     <div class="fa-main-timeline" id="fa-main-timeline"></div>
 
-    <div class="fa-loopback" id="fa-loopback">⟲ DEC → KV 반복 (다음 토큰 생성)</div>
+    <div class="fa-loopback" id="fa-loopback">⟲ 다음 토큰이 선택될 때까지 Decode ↔ KV Cache ↔ 토큰 선택 반복</div>
 
     <div class="fa-connector-down" aria-hidden="true">
-      <span>Transformer 내부 계산</span>
+      <span>Transformer 내부 계산 (실제로는 여러 head·여러 layer에서 반복되고 MLP도 거치는 과정을 attention 1회로 단순화)</span>
     </div>
 
     <div class="fa-detail-wrap" id="fa-detail-wrap">
@@ -1451,20 +1452,22 @@ flowchart TD
 
   const STEPS = [
   { id: "prompt", phase: 0, mainNode: "U", detailNode: null, detailContext: null, flashBadge: false, loopBack: false, title: "사용자 프롬프트 입력", desc: "사용자가 입력한 프롬프트가 토큰 단위로 쪼개지며 LLM의 응답 생성 과정이 시작된다. 이 토큰들은 곧 임베딩 단계로 넘어간다." },
-  { id: "embed", phase: 1, mainNode: "EMB", detailNode: null, detailContext: null, flashBadge: false, loopBack: false, title: "토큰 임베딩 + Positional Encoding", desc: "각 토큰을 숫자 벡터(임베딩)로 바꾼다. Self-attention은 모든 단어를 동시에 병렬로 처리해 순서 개념이 전혀 없기 때문에, \"몇 번째 위치인지\"를 담은 Positional Encoding을 임베딩에 더해 순서 정보를 되돌려준다." },
+  { id: "embed", phase: 1, mainNode: "EMB", detailNode: null, detailContext: null, flashBadge: false, loopBack: false, title: "토큰 임베딩 + Positional Encoding", desc: "각 토큰을 숫자 벡터(임베딩)로 바꾼다. Self-attention은 모든 단어를 동시에 병렬로 처리해 순서 개념이 전혀 없기 때문에, \"몇 번째 위치인지\"를 담은 Positional Encoding을 임베딩에 더해 순서 정보를 되돌려준다 (원 논문은 sin/cos 방식을 쓰지만, 최신 모델들은 RoPE 등 다른 위치 인코딩 방식을 쓰기도 한다)." },
   { id: "prefill_start", phase: 2, mainNode: "PF", detailNode: null, detailContext: null, flashBadge: false, loopBack: false, title: "Prefill 시작", desc: "사용자가 입력한 프롬프트 전체를 한 번에 GPU에 넣어 병렬로 처리한다. 큰 행렬끼리의 matmul이 일어나 GPU 연산 유닛(텐서 코어)이 꽉 차게 활용되므로, Prefill은 compute-bound 단계로 분류된다." },
   { id: "prefill_qkv", phase: 1, mainNode: "PF", detailNode: "QKV", detailContext: "프롬프트 전체 토큰 동시에", flashBadge: false, loopBack: false, title: "Q,K,V 계산 (Prefill)", desc: "프롬프트에 속한 모든 토큰의 Q, K, V를 동시에 계산한다. Prefill 때는 이렇게 프롬프트 전체 토큰을 한 번에 병렬로 처리하지만, 뒤에 나올 Decode 때는 새 토큰 1개에 대해서만 같은 계산을 반복한다는 점이 다르다." },
-  { id: "prefill_score", phase: 1, mainNode: "PF", detailNode: "SCORE", detailContext: "프롬프트 전체 토큰 동시에", flashBadge: false, loopBack: false, title: "QKᵀ/√d_k (Prefill)", desc: "Query와 모든 Key를 내적(dot product)해 단어 간 관련도 점수를 구한 뒤 √d_k로 나눠 값의 크기를 줄인다. d_k가 커질수록 내적 값이 커져 softmax가 한쪽으로 쏠리고 학습이 멈추는 것을 막기 위한 장치다." },
-  { id: "prefill_softmax", phase: 3, mainNode: "PF", detailNode: "SFA", detailContext: "프롬프트 전체 토큰 동시에", flashBadge: false, loopBack: false, title: "Softmax (Prefill)", desc: "점수를 합이 1이 되는 확률로 바꾸는 단계다. 오버플로우를 막기 위해 최댓값을 빼는 safe softmax를 쓰고, 데이터를 타일로 나눠 처리해도 한 번에 계산한 것과 정확히 같은 결과가 나오도록 보정하는 online softmax 트릭이 함께 쓰인다." },
-  { id: "prefill_wv", phase: 1, mainNode: "PF", detailNode: "WV", detailContext: "프롬프트 전체 토큰 동시에", flashBadge: true, loopBack: false, title: "×V (Prefill · FlashAttention)", desc: "softmax로 구한 확률을 가중치 삼아 각 토큰의 Value를 섞어 문맥이 반영된 출력을 만든다. 이 연산은 FlashAttention으로 타일 단위 가속되는데, 이는 근사가 아니라 계산 순서만 바꿔 기존 방식과 수학적으로 정확히 같은(exact) 결과를 더 빠르게 낸다." },
-  { id: "kv_create", phase: 2, mainNode: "KV", detailNode: null, detailContext: null, flashBadge: false, loopBack: false, title: "KV Cache 생성", desc: "Prefill 과정에서 계산된 프롬프트 전체 토큰의 Key와 Value가 GPU 메모리(HBM)에 캐시로 저장된다. Query는 매 스텝 새로 필요해 캐싱하지 않지만, 반복해서 재사용되는 Key와 Value만 이렇게 저장해둔다." },
-  { id: "decode_start", phase: 2, mainNode: "DEC", detailNode: null, detailContext: null, flashBadge: false, loopBack: false, title: "Decode 시작", desc: "이미 만들어진 KV cache를 활용해 딱 1개의 새 토큰에 대한 계산만 수행한다. 처리량이 작아 GPU 연산 유닛은 대부분 한가한 대신, 매 스텝 커지는 KV cache를 메모리에서 읽어와야 하는 memory-bound 단계다." },
-  { id: "decode_qkv", phase: 1, mainNode: "DEC", detailNode: "QKV", detailContext: "새 토큰 1개만", flashBadge: false, loopBack: false, title: "Q,K,V 계산 (Decode)", desc: "새로 생성 중인 토큰 1개에 대해서만 Q,K,V를 계산한다. Prefill 때는 프롬프트 전체 토큰을 동시에 병렬로 처리했지만, Decode 때는 새 토큰 1개만 계산하고 과거 토큰들의 K,V는 캐시에서 그대로 재사용한다는 점이 가장 큰 차이다." },
-  { id: "decode_score", phase: 1, mainNode: "DEC", detailNode: "SCORE", detailContext: "새 토큰 1개만", flashBadge: false, loopBack: false, title: "QKᵀ/√d_k (Decode)", desc: "새 토큰의 Query가 캐시에 저장된 과거 모든 토큰의 Key와 내적해 관련도 점수를 구하고, 이 점수를 √d_k로 나눠 조정한다." },
-  { id: "decode_softmax", phase: 3, mainNode: "DEC", detailNode: "SFA", detailContext: "새 토큰 1개만", flashBadge: false, loopBack: false, title: "Softmax (Decode)", desc: "Prefill 때와 마찬가지로 최댓값을 빼는 safe softmax로 오버플로우를 막고, 타일 단위로 나눠 계산해도 정확히 같은 결과가 나오는 online softmax 보정을 적용한다. 같은 계산이 Decode의 매 스텝마다 반복된다." },
-  { id: "decode_wv", phase: 1, mainNode: "DEC", detailNode: "WV", detailContext: "새 토큰 1개만", flashBadge: true, loopBack: false, title: "×V (Decode · FlashAttention)", desc: "확률 가중치로 캐시된 Value들을 섞어 새 토큰의 출력을 만든다. 이때도 FlashAttention이 타일 단위로 가속하며, 근사가 아니라 기존 방식과 수학적으로 정확히 같은 결과를 더 빠르게 계산해낸다." },
-  { id: "kv_append", phase: 2, mainNode: "KV", detailNode: null, detailContext: null, flashBadge: false, loopBack: true, title: "KV Cache에 추가", desc: "방금 생성한 새 토큰의 K,V가 캐시에 추가(append)된다. 다음 토큰을 만들기 위해 9번(Decode 시작)부터 이 과정이 다시 시작되며, 이 반복이 응답이 끝날 때까지 계속된다." },
-  { id: "output", phase: 0, mainNode: "OUT", detailNode: null, detailContext: null, flashBadge: false, loopBack: false, title: "최종 응답 텍스트", desc: "Decode가 반복되며 생성된 토큰들이 모여 최종 응답 텍스트가 완성된다. Attention으로 문맥을 이해하고(①), 프롬프트를 병렬 처리한 뒤 KV cache로 토큰을 하나씩 생성하며(②), 그 안의 softmax 계산을 FlashAttention 같은 IO-aware 기법으로 빠르게 처리한(③) 결과다." }
+  { id: "prefill_score", phase: 1, mainNode: "PF", detailNode: "SCORE", detailContext: "프롬프트 전체 토큰 동시에", flashBadge: true, loopBack: false, title: "QKᵀ/√d_k + Masking (Prefill)", desc: "Query와 모든 Key를 내적(dot product)해 단어 간 관련도 점수를 구한 뒤, 아직 생성되지 않은 미래 토큰을 보지 못하도록 causal mask(−∞)를 적용한다. d_k가 커질수록 내적 값도 커져 softmax가 한쪽으로 지나치게 쏠리고 기울기가 매우 작아지는 문제(saturation)가 생기는데, 이를 완화하기 위해 점수를 √d_k로 나눠 규모를 안정시킨다." },
+  { id: "prefill_softmax", phase: 3, mainNode: "PF", detailNode: "SFA", detailContext: "프롬프트 전체 토큰 동시에", flashBadge: true, loopBack: false, title: "Attention Softmax (Prefill)", desc: "점수를 합이 1이 되는 확률로 바꾸는 단계다. 오버플로우를 막기 위해 최댓값을 빼는 safe softmax를 쓰고, FlashAttention에서는 K,V를 타일 단위로 나눠 처리하면서도 한 번에 계산한 것과 정확히 같은 결과가 나오도록 중간 최댓값·합계를 보정하는 online softmax가 함께 쓰인다. (이 softmax는 '어떤 토큰에 얼마나 집중할지'를 정하는 attention 내부용이며, 뒤에서 나올 '다음 단어를 고르는 softmax'와는 다른 것이다.)" },
+  { id: "prefill_wv", phase: 1, mainNode: "PF", detailNode: "WV", detailContext: "프롬프트 전체 토큰 동시에", flashBadge: true, loopBack: false, title: "×V (Prefill · FlashAttention)", desc: "softmax로 구한 확률을 가중치 삼아 각 토큰의 Value를 섞어 문맥이 반영된 벡터를 만든다. 사실 이 ×V뿐 아니라 앞의 점수 계산(SCORE)과 softmax까지 세 단계 전체가 FlashAttention 안에서 SRAM 타일 단위로 하나의 커널처럼 묶여 처리되며, 계산 순서만 바꿨을 뿐 기존 방식과 수학적으로 정확히 같은(exact) 결과를 더 빠르게 낸다." },
+  { id: "kv_create", phase: 2, mainNode: "KV", detailNode: null, detailContext: null, flashBadge: false, loopBack: false, title: "KV Cache 생성", desc: "Prefill에서 각 Transformer 레이어가 계산한 프롬프트 전체 토큰의 Key와 Value가 GPU 메모리(HBM)에 레이어별 캐시로 저장된다. Query는 매 스텝 새로 필요해 캐싱하지 않지만, 반복해서 재사용되는 Key와 Value만 이렇게 저장해둔다." },
+  { id: "prefill_sample", phase: 0, mainNode: "SEL", detailNode: null, detailContext: null, flashBadge: false, loopBack: false, title: "첫 다음 토큰 선택", desc: "Attention과 MLP를 모든 Transformer 레이어에서 거친 뒤, 프롬프트 마지막 위치의 벡터를 LM Head(선형 레이어)에 통과시켜 어휘 전체(예: 5만여 개 단어)에 대한 점수(logit)를 만든다. 이 점수에 어휘용 softmax(앞서 본 attention 내부 softmax와는 역할이 다르다)를 적용해 확률로 바꾸고, 그중 하나를 선택해 첫 번째로 생성될 토큰이 정해진다." },
+  { id: "decode_start", phase: 2, mainNode: "DEC", detailNode: null, detailContext: null, flashBadge: false, loopBack: false, title: "Decode 시작", desc: "방금 선택된 토큰을 새 입력으로 받아, 이미 만들어진 KV cache를 활용해 이 1개 토큰에 대한 계산만 수행한다. 처리량이 작아 GPU 연산 유닛을 충분히 채우기 어려운 반면, 매 스텝 커지는 KV cache를 메모리에서 읽어와야 하는 memory-bound 단계다." },
+  { id: "decode_qkv", phase: 1, mainNode: "DEC", detailNode: "QKV", detailContext: "새 토큰 1개만", flashBadge: false, loopBack: false, title: "Q,K,V 계산 (Decode)", desc: "직전 단계에서 선택되어 문맥 끝에 추가된 현재 입력 토큰 1개에 대해서만 Q,K,V를 계산한다. Prefill 때는 프롬프트 전체 토큰을 동시에 병렬로 처리했지만, Decode 때는 새로 입력된 토큰 1개만 계산하고 과거 토큰들의 K,V는 캐시에서 그대로 재사용한다는 점이 가장 큰 차이다." },
+  { id: "decode_score", phase: 1, mainNode: "DEC", detailNode: "SCORE", detailContext: "새 토큰 1개만", flashBadge: true, loopBack: false, title: "QKᵀ/√d_k (Decode)", desc: "새 토큰의 Query가 캐시에 저장된 과거 모든 토큰의 Key와 내적해 관련도 점수를 구하고, 이 점수를 √d_k로 나눠 규모를 안정시킨다. Decode는 한 번에 새 토큰 1개 위치만 계산하고 그보다 미래의 토큰은 아직 존재하지 않으므로, Prefill과 달리 별도의 causal mask를 적용할 필요가 실질적으로 없다." },
+  { id: "decode_softmax", phase: 3, mainNode: "DEC", detailNode: "SFA", detailContext: "새 토큰 1개만", flashBadge: true, loopBack: false, title: "Attention Softmax (Decode)", desc: "Prefill 때와 마찬가지로 최댓값을 빼는 safe softmax로 오버플로우를 막고, 타일 단위로 나눠 계산해도 정확히 같은 결과가 나오는 online softmax 보정을 적용한다. 같은 계산이 Decode의 매 스텝마다 반복되며, 이 역시 '다음 단어를 고르는 softmax'가 아니라 attention 내부용 softmax다." },
+  { id: "decode_wv", phase: 1, mainNode: "DEC", detailNode: "WV", detailContext: "새 토큰 1개만", flashBadge: true, loopBack: false, title: "×V (Decode · FlashAttention)", desc: "확률 가중치로 캐시된 Value들을 섞어 이번 위치의 문맥 벡터를 만든다. Prefill 때와 마찬가지로 점수 계산·softmax·×V 세 단계가 FlashAttention으로 함께 가속되며, 근사가 아니라 기존 방식과 수학적으로 정확히 같은 결과를 더 빠르게 계산해낸다." },
+  { id: "kv_append", phase: 2, mainNode: "KV", detailNode: null, detailContext: null, flashBadge: false, loopBack: false, title: "KV Cache에 반영", desc: "이번 Decode forward에서 계산한 현재 입력 토큰의 K,V가 각 레이어의 캐시에 추가(append)된다. 이 forward의 마지막 벡터는 곧이어 다음 토큰을 고르는 데 쓰인다." },
+  { id: "decode_sample", phase: 0, mainNode: "SEL", detailNode: null, detailContext: null, flashBadge: false, loopBack: true, title: "다음 토큰 선택 (Decode)", desc: "이번 Decode forward의 벡터도 첫 토큰 때와 마찬가지로 LM Head와 어휘 softmax를 거쳐 다음 토큰을 고른다. 새로 선택된 토큰은 다음 반복에서 Decode의 입력이 되며, 'Decode → KV Cache 반영 → 토큰 선택'이 문장이 끝나는 토큰(EOS)이 나오거나 최대 길이에 도달할 때까지 계속 반복된다." },
+  { id: "output", phase: 0, mainNode: "OUT", detailNode: null, detailContext: null, flashBadge: false, loopBack: false, title: "최종 응답 텍스트", desc: "Decode → 토큰 선택 → KV Cache 반영 과정이 EOS 토큰이 나오거나 최대 길이에 도달할 때까지 반복되며 생성된 토큰들이 모여 최종 응답 텍스트가 완성된다. Attention으로 문맥을 이해하고(①), 프롬프트를 병렬 처리한 뒤 KV cache로 토큰을 하나씩 생성하며(②), 그 안의 softmax 계산을 FlashAttention 같은 IO-aware 기법으로 빠르게 처리한(③) 결과다." }
 ];
 
   const MAIN_NODES = [
@@ -1472,6 +1475,7 @@ flowchart TD
     { id: "EMB", label: "토큰 임베딩 + PE" },
     { id: "PF", label: "Prefill" },
     { id: "KV", label: "KV Cache" },
+    { id: "SEL", label: "다음 토큰 선택" },
     { id: "DEC", label: "Decode" },
     { id: "OUT", label: "최종 응답" }
   ];
@@ -1479,7 +1483,7 @@ flowchart TD
   const DETAIL_NODES = [
     { id: "QKV", label: "Q,K,V 계산" },
     { id: "SCORE", label: "QKᵀ/√d_k" },
-    { id: "SFA", label: "Softmax" },
+    { id: "SFA", label: "Attention Softmax" },
     { id: "WV", label: "× V" }
   ];
 
