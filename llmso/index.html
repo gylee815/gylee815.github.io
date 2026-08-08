@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hands-On LLM Serving and Optimization Study</title>
+<meta name="description" content="Hands-On LLM Serving and Optimization Study — Week 1~7 학습자료 모음">
+<style>
+  :root {
+    --bg: #ffffff;
+    --bg-alt: #f6f7f9;
+    --text: #1c1f24;
+    --text-muted: #5b6270;
+    --border: #e2e5ea;
+    --accent: #3457d5;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #14161a;
+      --bg-alt: #1b1e24;
+      --text: #e7e9ec;
+      --text-muted: #9aa2b1;
+      --border: #2c3038;
+      --accent: #7c93ff;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", Helvetica, Arial, sans-serif;
+    line-height: 1.6;
+  }
+  header {
+    padding: 3.5rem 1.5rem 2.5rem;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg-alt);
+  }
+  header h1 {
+    margin: 0 0 0.6rem;
+    font-size: 1.8rem;
+  }
+  header p {
+    margin: 0;
+    color: var(--text-muted);
+  }
+  main {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 2.5rem 1.5rem 4rem;
+  }
+  ul.week-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+  }
+  ul.week-list li a {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    text-decoration: none;
+    color: var(--text);
+    transition: border-color 0.15s ease, background 0.15s ease;
+  }
+  ul.week-list li.available a:hover {
+    border-color: var(--accent);
+    background: var(--bg-alt);
+  }
+  .week-badge {
+    flex: 0 0 auto;
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    border-radius: 999px;
+    padding: 0.2rem 0.7rem;
+  }
+  .week-title {
+    flex: 1 1 auto;
+    font-size: 1rem;
+  }
+  li.upcoming a {
+    cursor: default;
+    opacity: 0.55;
+  }
+  li.upcoming .week-badge {
+    color: var(--text-muted);
+    border-color: var(--border);
+  }
+  .status-tag {
+    flex: 0 0 auto;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>Hands-On LLM Serving and Optimization Study</h1>
+  <p>Week 1 ~ Week 7 학습자료 모음</p>
+</header>
+<main>
+  <ul class="week-list">
+    <li class="available">
+      <a href="w1/llm_basic.html">
+        <span class="week-badge">Week 1</span>
+        <span class="week-title">LLM 기초 — Attention부터 FlashAttention까지</span>
+      </a>
+    </li>
+    <li class="upcoming">
+      <a href="w2/">
+        <span class="week-badge">Week 2</span>
+        <span class="week-title">준비 중</span>
+        <span class="status-tag">예정</span>
+      </a>
+    </li>
+    <li class="upcoming">
+      <a href="w3/">
+        <span class="week-badge">Week 3</span>
+        <span class="week-title">준비 중</span>
+        <span class="status-tag">예정</span>
+      </a>
+    </li>
+    <li class="upcoming">
+      <a href="w4/">
+        <span class="week-badge">Week 4</span>
+        <span class="week-title">준비 중</span>
+        <span class="status-tag">예정</span>
+      </a>
+    </li>
+    <li class="upcoming">
+      <a href="w5/">
+        <span class="week-badge">Week 5</span>
+        <span class="week-title">준비 중</span>
+        <span class="status-tag">예정</span>
+      </a>
+    </li>
+    <li class="upcoming">
+      <a href="w6/">
+        <span class="week-badge">Week 6</span>
+        <span class="week-title">준비 중</span>
+        <span class="status-tag">예정</span>
+      </a>
+    </li>
+    <li class="upcoming">
+      <a href="w7/">
+        <span class="week-badge">Week 7</span>
+        <span class="week-title">준비 중</span>
+        <span class="status-tag">예정</span>
+      </a>
+    </li>
+  </ul>
+</main>
+</body>
+</html>
