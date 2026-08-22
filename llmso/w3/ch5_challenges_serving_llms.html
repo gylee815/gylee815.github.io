@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CH5. LLM 서빙의 도전 과제 — 초보자를 위한 완전 가이드</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+  :root {
+    --bg: #ffffff;
+    --bg-alt: #f6f7f9;
+    --text: #1c1f24;
+    --text-muted: #5b6270;
+    --border: #e2e5ea;
+    --accent: #3457d5;
+    --accent-soft: #eef1fd;
+    --callout-bg: #fff8e6;
+    --callout-border: #e8c766;
+    --fix-bg: #fdeef0;
+    --fix-border: #d9534f;
+    --code-bg: #f2f3f5;
+    --success: #1a7f37;
+    --success-soft: #dafbe1;
+    --danger: #cf222e;
+    --danger-soft: #ffebe9;
+    --max-width: 880px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #14161a; --bg-alt: #1b1e24; --text: #e7e9ec; --text-muted: #9aa2b1;
+      --border: #2c3038; --accent: #7c93ff; --accent-soft: #1e2330;
+      --callout-bg: #2a2410; --callout-border: #6b5a1c;
+      --fix-bg: #2a1516; --fix-border: #8a3a3a;
+      --code-bg: #1e2126; --success: #3fb950; --success-soft: #0f2e1a;
+      --danger: #f85149; --danger-soft: #3a1414;
+    }
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", Helvetica, Arial, sans-serif;
+    line-height: 1.75; font-size: 16px;
+  }
+  .site-header { padding: 3rem 1.5rem 1.25rem; text-align: center; border-bottom: 1px solid var(--border); background: var(--bg-alt); }
+  .site-title { margin: 0 0 .5rem; font-size: 1.9rem; }
+  .site-subtitle { margin: 0; color: var(--text-muted); font-size: .95rem; }
+  .badge-row { margin-top: 1rem; display: flex; gap: .5rem; justify-content: center; flex-wrap: wrap; }
+  .badge { font-size: .75rem; padding: .25rem .7rem; border-radius: 999px; background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+  .layout { display: flex; align-items: flex-start; max-width: 1180px; margin: 0 auto; padding: 2rem 1.5rem 4rem; gap: 2.5rem; }
+  nav.sidebar { position: sticky; top: 1.5rem; flex: 0 0 250px; max-height: calc(100vh - 3rem); overflow-y: auto; font-size: .85rem; border-right: 1px solid var(--border); padding-right: 1.25rem; }
+  nav.sidebar h2 { font-weight: 700; margin: 0 0 .75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: .05em; font-size: .75rem; }
+  nav.sidebar ul { list-style: none; margin: 0; padding-left: 0; }
+  nav.sidebar li { margin: .5rem 0; }
+  nav.sidebar a { color: var(--text-muted); text-decoration: none; display: block; line-height: 1.4; }
+  nav.sidebar a:hover { color: var(--accent); }
+  nav.sidebar .next-link { margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+  nav.sidebar .next-link a { color: var(--accent); font-weight: 600; }
+  main { flex: 1 1 auto; min-width: 0; }
+  .markdown-body { max-width: var(--max-width); }
+  .markdown-body h2 { margin-top: 3.5rem; padding-top: 1.5rem; border-top: 3px solid var(--accent); font-size: 1.5rem; }
+  .markdown-body h2:first-child { margin-top: 0; padding-top: 0; border-top: none; }
+  .markdown-body h3 { margin-top: 2.25rem; font-size: 1.18rem; }
+  .markdown-body h4 { margin-top: 1.5rem; font-size: 1.02rem; color: var(--text-muted); }
+  .markdown-body p { margin: 1rem 0; }
+  .markdown-body a { color: var(--accent); }
+  .markdown-body ul, .markdown-body ol { padding-left: 1.4rem; }
+  .markdown-body li { margin: .35rem 0; }
+  .markdown-body hr { border: none; border-top: 1px solid var(--border); margin: 3rem 0; }
+  .markdown-body table { width: 100%; border-collapse: collapse; margin: 1.25rem 0; font-size: .88rem; }
+  .markdown-body th, .markdown-body td { border: 1px solid var(--border); padding: .5rem .7rem; text-align: left; vertical-align: top; }
+  .markdown-body th { background: var(--bg-alt); }
+  blockquote { margin: 1.25rem 0; padding: .85rem 1.1rem; background: var(--callout-bg); border-left: 4px solid var(--callout-border); border-radius: 4px; }
+  blockquote p { margin: .3rem 0; }
+  blockquote.fix { background: var(--fix-bg); border-left-color: var(--fix-border); }
+  blockquote.fix b { color: var(--fix-border); }
+  .markdown-body code { font-family: "SFMono-Regular", Consolas, Menlo, monospace; background: var(--code-bg); padding: .15em .4em; border-radius: 4px; font-size: .9em; }
+  .markdown-body pre { background: var(--code-bg); padding: 1rem 1.1rem; border-radius: 6px; overflow-x: auto; margin: 1.25rem 0; }
+  .markdown-body pre code { background: none; padding: 0; font-size: .85rem; }
+  .mermaid-diagram { text-align: center; margin: 1.5rem 0; padding: 1rem; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; overflow-x: auto; }
+  .mermaid-diagram svg { max-width: 100%; height: auto; }
+  .analogy-box { display: flex; gap: .85rem; align-items: flex-start; margin: 1.25rem 0; padding: 1rem 1.1rem; background: var(--accent-soft); border-radius: 8px; }
+  .analogy-box .emoji { font-size: 1.6rem; line-height: 1; }
+  .analogy-box b { color: var(--accent); }
+  details.toc-mobile { display: none; margin: 0 0 24px; }
+  details.toc-mobile summary { cursor: pointer; font-weight: 600; padding: 10px 14px; background: var(--bg-alt); border: 1px solid var(--border); border-radius: 6px; }
+  details.toc-mobile ul { list-style: none; padding-left: 8px; }
+  details.toc-mobile a { color: var(--accent); text-decoration: none; }
+  @media (max-width: 900px) {
+    nav.sidebar { display: none; } details.toc-mobile { display: block; } .layout { padding: 1.5rem 1rem 3rem; }
+  }
+
+  /* ---- interactive demo widget ---- */
+  .demo { margin: 1.5rem 0 2rem; padding: 1.1rem 1.2rem 1.3rem; border: 1px solid var(--border); border-radius: 10px; background: var(--bg); }
+  .demo__badge { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: var(--accent); background: var(--accent-soft); border-radius: 999px; padding: 3px 10px; margin-bottom: 12px; }
+  .demo__stage { display: flex; gap: 10px; flex-wrap: wrap; align-items: stretch; margin: 10px 0 14px; min-height: 90px; }
+  .demo__gpu { flex: 1 1 220px; border: 2px dashed var(--border); border-radius: 10px; padding: 10px; position: relative; background: var(--bg-alt); }
+  .demo__gpu-label { font-weight: 700; font-size: 12px; color: var(--text-muted); margin-bottom: 6px; }
+  .demo__bar-track { height: 26px; border-radius: 6px; background: var(--bg); border: 1px solid var(--border); overflow: hidden; display: flex; }
+  .demo__bar-weight { background: #6b7280; height: 100%; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 11px; transition: width .4s ease; white-space: nowrap; }
+  .demo__bar-kv { background: var(--accent); height: 100%; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 11px; transition: width .4s ease; white-space: nowrap; }
+  .demo__bar-free { background: transparent; height: 100%; }
+  .demo__gpu.oom { border-color: var(--danger); }
+  .demo__gpu.oom .demo__bar-track { border-color: var(--danger); }
+  .demo__caption { min-height: 2.6em; font-size: 13.5px; padding: 8px 10px; border-radius: 6px; background: var(--bg-alt); border: 1px solid var(--border); margin-bottom: 10px; }
+  .demo__caption b { color: var(--accent); }
+  .demo__caption.warn b { color: var(--danger); }
+  .demo__controls { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .demo__controls button { font-family: inherit; font-size: 13px; padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-alt); color: var(--text); cursor: pointer; }
+  .demo__controls button:hover { background: var(--accent-soft); }
+  .demo__controls button.primary { background: var(--success); border-color: var(--success); color: #fff; }
+  .demo__controls button.primary:hover { filter: brightness(.92); }
+  .demo__step-label { font-size: 12px; color: var(--text-muted); margin-left: auto; }
+  .demo__legend { display: flex; gap: 14px; font-size: 12px; color: var(--text-muted); margin-bottom: 8px; flex-wrap: wrap; }
+  .demo__legend span { display: inline-flex; align-items: center; gap: 5px; }
+  .demo__swatch { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+  .demo__select-row { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 10px; }
+  .demo__select-row label { font-size: 12.5px; color: var(--text-muted); display: flex; flex-direction: column; gap: 4px; font-weight: 600; }
+  .demo__select-row select { font-family: inherit; font-size: 13.5px; padding: 5px 8px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg); color: var(--text); }
+  .demo__formula { font-family: "SFMono-Regular", Consolas, Menlo, monospace; font-size: 12.5px; padding: 8px 10px; border-radius: 6px; background: var(--code-bg); margin-bottom: 10px; line-height: 1.6; overflow-x: auto; }
+
+  /* ---- bit-layout visualization (precision formats) ---- */
+  .bitbox-row { display: flex; align-items: center; gap: 10px; margin: .6rem 0; flex-wrap: wrap; }
+  .bitbox-row .bitbox-label { flex: 0 0 92px; font-size: 12.5px; font-weight: 700; }
+  .bitbox-track { display: flex; height: 26px; border-radius: 4px; overflow: hidden; border: 1px solid var(--border); flex: 1 1 320px; min-width: 220px; }
+  .bitbox-seg { display: flex; align-items: center; justify-content: center; font-size: 10.5px; color: #fff; white-space: nowrap; }
+  .bitbox-sign { background: #6b7280; }
+  .bitbox-exp { background: #cf7a2b; }
+  .bitbox-mant { background: var(--accent); }
+  .bitbox-legend { display: flex; gap: 14px; font-size: 12px; color: var(--text-muted); margin: .5rem 0 1rem; flex-wrap: wrap; }
+  .bitbox-legend span { display: inline-flex; align-items: center; gap: 5px; }
+
+  /* ---- fraction box (unit cancellation visual) ---- */
+  .frac-row { display: flex; align-items: center; justify-content: center; gap: .9rem; margin: 1.1rem 0; padding: 1rem; background: var(--bg-alt); border-radius: 8px; flex-wrap: wrap; font-size: .92rem; }
+  .frac { display: inline-flex; flex-direction: column; align-items: center; }
+  .frac .num, .frac .den { padding: .1rem .5rem; }
+  .frac .num { border-bottom: 2px solid var(--text); }
+  .frac-op { font-size: 1.3rem; color: var(--text-muted); }
+</style>
+</head>
+<body>
+<div class="site-header">
+  <h1 class="site-title">CH5. Challenges When Serving LLMs</h1>
+  <p class="site-subtitle">LLM 서빙이 왜 느리고 비싼가 — 하드웨어와 두 가지 병목으로 완전히 이해하기</p>
+  <div class="badge-row">
+    <span class="badge">초보자용</span>
+    <span class="badge">
+      <a href="https://app.notion.com/p/CH5-Challenges-When-Serving-LLMs-3c4fc6d1ff38806eb42edfa8156c4e10?source=copy_link" class="badge-link" target="_blank">원문 기반 (Notion CH5)</a>
+    </span>
+    <span class="badge">CH6에서 계속 →</span>
+  </div>
+</div>
+<div class="layout">
+  <nav class="sidebar">
+    <h2>목차</h2>
+    <ul>
+      <li><a href="#intro">시작하며: 이 문서를 읽는 법</a></li>
+      <li><a href="#s1">1. 서빙 최적화가 왜 중요한가</a></li>
+      <li><a href="#s2">2. 가속기 칩(GPU)의 역할</a></li>
+      <li><a href="#s3">3. 모델 로딩 단계의 병목</a></li>
+      <li><a href="#s4">4. 모델 실행 단계의 병목</a></li>
+      <li><a href="#s5">5. 기타 AI 가속기와 동향</a></li>
+      <li><a href="#summary">핵심 요약</a></li>
+    </ul>
+    <div class="next-link"><a href="./ch6_llm_optimization_techniques.html">다음: CH6. 최적화 기법 →</a></div>
+  </nav>
+  <main>
+    <details class="toc-mobile">
+      <summary>목차 펼치기</summary>
+      <ul>
+        <li><a href="#intro">시작하며</a></li>
+        <li><a href="#s1">1. 서빙 최적화가 왜 중요한가</a></li>
+        <li><a href="#s2">2. 가속기 칩(GPU)의 역할</a></li>
+        <li><a href="#s3">3. 모델 로딩 단계의 병목</a></li>
+        <li><a href="#s4">4. 모델 실행 단계의 병목</a></li>
+        <li><a href="#s5">5. 기타 AI 가속기와 동향</a></li>
+        <li><a href="#summary">핵심 요약</a></li>
+      </ul>
+    </details>
+
+    <div class="markdown-body">
+
+<h2 id="intro">시작하며: 이 문서를 읽는 법</h2>
+<p>ChatGPT 같은 서비스에 질문을 보내면 몇 초(때로는 몇십 초) 뒤에 답이 돌아옵니다. 이 문서는 "왜 그만큼 시간이 걸리고, 왜 그 서비스가 그렇게 비싼가"를 처음부터 끝까지 설명합니다. 결론부터 말하면, 원인은 딱 두 가지입니다.</p>
+<ol>
+  <li><b>모델을 GPU에 올려두는 것 자체가 메모리를 많이 먹는다</b> (모델 로딩 병목)</li>
+  <li><b>토큰을 한 개씩 순서대로 만들어내야 해서 GPU의 계산력을 다 못 쓴다</b> (모델 실행 병목)</li>
+</ol>
+<p>이 문서(CH5)는 "문제가 무엇인지"를 하드웨어 관점에서 정확히 짚습니다. 문제를 정확히 알아야 CH6에서 배울 해결책(배칭, 양자화, 캐싱 등)이 "왜 그렇게 설계됐는지"가 이해됩니다.</p>
+
+<blockquote>
+<p><b>미니 용어집</b> — 처음 보는 단어가 나오면 여기로 돌아오세요.</p>
+<ul>
+  <li><b>토큰(token)</b>: 모델이 텍스트를 다루는 최소 단위(대략 단어 조각). "안녕하세요"는 보통 여러 토큰으로 쪼개집니다.</li>
+  <li><b>TTFT</b>(Time To First Token): 요청을 보낸 뒤 첫 번째 글자(토큰)가 나오기까지 걸리는 시간.</li>
+  <li><b>TPOT</b>(Time Per Output Token, ITL이라고도 함): 그다음 토큰이 하나씩 더 나오는 데 걸리는 간격.</li>
+  <li><b>GPU 메모리(VRAM/HBM)</b>: 그래픽카드 안에 있는, CPU 메모리보다 훨씬 빠른 전용 저장 공간.</li>
+  <li><b>KV 캐시</b>: 지금까지 계산한 토큰들의 중간 결과를 저장해두는 공간 (뒤에서 자세히 설명).</li>
+</ul>
+</blockquote>
+
+<h2 id="s1">1. 서빙 최적화가 왜 중요한가</h2>
+<p>LLM을 서비스로 배포할 때 신경 써야 할 것은 세 가지입니다: <b>고객 경험</b>, <b>비용 효율성</b>, <b>확장성·피크 대응</b>.</p>
+
+<h3>고객 경험: 지연시간의 진실은 "비선형적"이다</h3>
+<p>지연시간(TTFT)을 20초에서 1초로 줄이면 사용자는 극적인 차이를 느낍니다. 하지만 이미 0.1초인 것을 0.01초로 줄이면? 사람은 그 차이를 거의 느끼지 못합니다.</p>
+<div class="analogy-box">
+  <span class="emoji">🏥</span>
+  <div><b>비유: 응급실 대기</b><br>
+  첫 진료까지 대기시간(TTFT)이 이미 거의 0에 가깝다면, 의사를 한 명 더 투입해 대기를 더 줄이는 것보다 더 많은 환자(=처리량)를 보게 하는 편이 낫습니다. 이미 충분히 빠르면, "더 빠르게"보다 "더 많이"가 이득입니다.</div>
+</div>
+<p><b>계산으로 확인해보기.</b> TTFT가 1.2초, 토큰 사이 간격(TPOT)이 40ms, 답변이 100토큰이라면 전체 응답 시간은:</p>
+<pre><code>1.2초 + 99 × 0.04초 = 5.16초</code></pre>
+<p>TPOT를 20ms로 절반 줄이면 3.18초가 됩니다. 재미있는 점은 <b>전체 시간이 정확히 절반이 되는 게 아니라 1.62배(5.16÷3.18)만 개선</b>된다는 것입니다 — TTFT라는 "고정비용"이 그대로 남아있기 때문입니다.</p>
+<p>모델 품질도 경험의 일부입니다. 같은 계열이라면 큰 모델(예: 70B)이 작은 모델(예: 8B)보다 답변 품질이 좋습니다. 서빙을 잘 최적화하면 같은 하드웨어·같은 응답속도 조건에서 <b>더 큰 모델</b>을 쓸 수 있게 되어, 결국 품질도 함께 올라갑니다.</p>
+
+<h3>비용 효율성: 진짜 돈은 훈련이 아니라 추론에서 나간다</h3>
+<p>"GPT-4 훈련비 5천만 달러"같은 기사 때문에 훈련이 제일 비쌀 것 같지만, 실제로는 <b>추론(inference) 비용이 이미 훈련 비용을 넘어섰고 격차는 계속 벌어지는 중</b>입니다. 이유는 단순합니다 — 훈련은 한 번 하고 끝나는 투자지만, 추론은 서비스가 살아있는 한 요청 하나하나마다 계속 돈이 나갑니다.</p>
+
+<h3>확장성과 피크 대응: 블랙프라이데이가 오면?</h3>
+<p>평소엔 잘 돌아가던 서비스도 트래픽이 갑자기 400% 넘게 튀면(예: 블랙프라이데이) 최적화가 부족한 시스템은 병목·지연 악화·요청 실패를 겪습니다. 또한 서빙이 최적화된 모델은 저사양 GPU에서도 돌아갈 수 있어, 원하는 고사양 GPU를 구하지 못하는 상황에서도 유연하게 대응할 수 있습니다.</p>
+
+<div class="mermaid-diagram">
+<pre class="mermaid">
+flowchart LR
+    A["고객 경험\nTTFT · TPOT · 모델 품질"] --> D["서빙 최적화가\n결정하는 트레이드오프"]
+    B["비용 효율성\n추론이 훈련보다 큰 비용"] --> D
+    C["확장성 · 피크 대응\nGPU 품귀 · 트래픽 급증"] --> D
+    D --> E["동일 하드웨어로\n더 크고 빠르고 저렴한 서빙"]
+</pre>
+</div>
+
+<h2 id="s2">2. 가속기 칩(GPU)의 역할</h2>
+<p>LLM을 실제로 돌리는 것은 GPU입니다. LLM 서빙과 가장 관련 깊은 GPU 스펙은 4가지입니다.</p>
+
+<div class="analogy-box">
+  <span class="emoji">🍕</span>
+  <div><b>비유: 피자 전문점 주방</b><br>
+  <b>연산력(Compute/FLOPS)</b> = 오븐의 화력 · <b>메모리 용량(VRAM)</b> = 재료를 보관하는 냉장고 크기 · <b>메모리 대역폭(Bandwidth)</b> = 냉장고에서 오븐까지 재료를 나르는 컨베이어 속도 · <b>인터커넥트(Interconnect)</b> = 주방 여러 개를 잇는 통로.</div>
+</div>
+<ul>
+  <li>냉장고(VRAM)가 너무 작으면 → 반죽(모델)을 아예 못 넣습니다 = <b>OOM(메모리 부족) 에러</b></li>
+  <li>오븐(연산력)은 센데 컨베이어(대역폭)가 느리면 → 오븐이 놀고 있습니다 = <b>연산력 낭비</b></li>
+  <li>컨베이어는 빠른데 오븐이 약하면 → 굽는 데 오래 걸립니다 = <b>연산력 병목</b></li>
+</ul>
+
+<h3>실제 GPU 스펙 비교</h3>
+<p>추론(inference)에 널리 쓰이는 NVIDIA GPU들을 비교하면 다음과 같습니다 (2026년 봄 기준 참고가). <b>주의:</b> 이 표는 "FP16/BF16 연산" 열을 모든 GPU에서 <b>dense(희소성 미적용) 수치를 메인으로</b> 통일해서 적었고, NVIDIA가 2:4 구조적 희소성(sparsity, CH6 참고)을 적용했을 때의 수치는 괄호 안에 참고로 덧붙였습니다 — NVIDIA 발표 자료는 종종 sparse 수치를 메인으로 내세우는 경우가 많아 혼동하기 쉬운데, 여기서는 dense 기준으로 통일했으므로 표만 보고 "H100이 A100보다 6배 이상 빠르다"는 식으로 계산할 위험이 없습니다(H100 989 TFLOPS ÷ A100 312 TFLOPS ≈ 3.17배):</p>
+<table>
+<thead><tr><th>GPU</th><th>메모리(VRAM)</th><th>대역폭</th><th>FP16/BF16 연산</th><th>FP8 지원</th><th>인터커넥트</th><th>시간당 비용</th></tr></thead>
+<tbody>
+<tr><td>H200 SXM</td><td>141 GB</td><td>4.8 TB/s</td><td>989 TFLOPS<br><span style="color:var(--text-muted); font-size:.85em;">(Sparse 시 1,979)</span></td><td>지원</td><td>NVLink 900GB/s</td><td>~$6.3</td></tr>
+<tr><td>H100 SXM</td><td>80 GB</td><td>3.35 TB/s</td><td>989 TFLOPS<br><span style="color:var(--text-muted); font-size:.85em;">(Sparse 시 1,979)</span></td><td>지원</td><td>NVLink 900GB/s</td><td>~$6.2</td></tr>
+<tr><td>H100 NVL</td><td>94 GB</td><td>3.9 TB/s</td><td>835 TFLOPS<br><span style="color:var(--text-muted); font-size:.85em;">(Sparse 시 1,671)</span></td><td>지원</td><td>NVLink Bridge 600GB/s</td><td>—</td></tr>
+<tr><td>A100 SXM</td><td>80 GB</td><td>1.935 TB/s</td><td>312 TFLOPS<br><span style="color:var(--text-muted); font-size:.85em;">(Dense, Sparse 시 624)</span></td><td>미지원</td><td>NVLink 600GB/s</td><td>~$2.7</td></tr>
+<tr><td>L40S</td><td>48 GB</td><td>0.864 TB/s</td><td>362 TFLOPS<br><span style="color:var(--text-muted); font-size:.85em;">(Dense FP16; FP8 Tensor Core 시 733 — §4에서 사용)</span></td><td>지원</td><td>PCIe Gen4 64GB/s</td><td>~$2.25</td></tr>
+<tr><td>A10</td><td>24 GB</td><td>0.6 TB/s</td><td>125 TFLOPS<br><span style="color:var(--text-muted); font-size:.85em;">(Dense)</span></td><td>미지원</td><td>PCIe Gen4 64GB/s</td><td>&lt;$1.25</td></tr>
+</tbody>
+</table>
+<blockquote>
+<p>💡 <b>표에 나온 용어가 낯설다면</b>: <b>TFLOPS</b>는 "1초에 몇 조 번 계산할 수 있는가"를 나타내는 연산 속도 단위입니다(Tera=1조, FLOPS=초당 부동소수점 연산 횟수) — 숫자가 클수록 "오븐 화력"이 세다는 뜻입니다. <b>FP16/BF16/FP8</b>은 숫자를 저장하는 정밀도 형식으로, 뒤에 붙은 숫자(16, 8)는 비트 수입니다 — 비트 수가 작을수록 계산이 빠르고 메모리를 덜 쓰지만 정밀도는 낮아집니다(자세한 원리는 아래에서, 실전 활용은 CH6의 "양자화"에서 다룹니다). 또한 이 표의 TFLOPS는 어디까지나 Tensor Core의 <b>이론적 최대치(peak)</b>이며, 실제 토큰 생성 속도(token/s)는 모델 구조·배치 크기·소프트웨어 커널에 따라 이보다 훨씬 낮게 나오는 것이 보통입니다.</p>
+</blockquote>
+
+<h3>정밀도 형식 더 자세히: FP16·BF16·FP8이 뭐가 다른가</h3>
+<p>숫자 하나(예: 가중치 값 0.0347...)를 컴퓨터가 저장하려면 정해진 비트 수 안에 <b>부호(양수/음수)</b>·<b>지수(exponent, 값의 "범위"를 결정)</b>·<b>가수(mantissa, 소수점 이하 "정밀도"를 결정)</b> 세 부분을 나눠 담아야 합니다. 정밀도 형식마다 이 비트를 어디에 얼마나 쓰느냐가 다릅니다.</p>
+<table>
+<thead><tr><th>정밀도</th><th>비트 수</th><th>바이트 크기</th></tr></thead>
+<tbody>
+<tr><td>FP32 (단정밀도)</td><td>32비트</td><td>4바이트</td></tr>
+<tr><td>FP16(반정밀도) / BF16</td><td>16비트</td><td>2바이트</td></tr>
+<tr><td>INT8 / FP8</td><td>8비트</td><td>1바이트</td></tr>
+</tbody>
+</table>
+<div class="bitbox-legend">
+  <span><span class="bitbox-seg bitbox-sign" style="width:14px; height:14px; display:inline-block;"></span> 부호(1비트, 항상 고정)</span>
+  <span><span class="bitbox-seg bitbox-exp" style="width:14px; height:14px; display:inline-block;"></span> 지수(exponent) — 값의 범위</span>
+  <span><span class="bitbox-seg bitbox-mant" style="width:14px; height:14px; display:inline-block;"></span> 가수(mantissa) — 소수점 정밀도</span>
+</div>
+<div class="bitbox-row">
+  <div class="bitbox-label">FP32</div>
+  <div class="bitbox-track">
+    <div class="bitbox-seg bitbox-sign" style="width:3%">1</div>
+    <div class="bitbox-seg bitbox-exp" style="width:25%">지수 8비트</div>
+    <div class="bitbox-seg bitbox-mant" style="width:72%">가수 23비트</div>
+  </div>
+</div>
+<div class="bitbox-row">
+  <div class="bitbox-label">FP16</div>
+  <div class="bitbox-track">
+    <div class="bitbox-seg bitbox-sign" style="width:6%">1</div>
+    <div class="bitbox-seg bitbox-exp" style="width:31%">지수 5비트</div>
+    <div class="bitbox-seg bitbox-mant" style="width:63%">가수 10비트</div>
+  </div>
+</div>
+<div class="bitbox-row">
+  <div class="bitbox-label">BF16</div>
+  <div class="bitbox-track">
+    <div class="bitbox-seg bitbox-sign" style="width:6%">1</div>
+    <div class="bitbox-seg bitbox-exp" style="width:50%">지수 8비트</div>
+    <div class="bitbox-seg bitbox-mant" style="width:44%">가수 7비트</div>
+  </div>
+</div>
+<div class="bitbox-row">
+  <div class="bitbox-label">FP8(E4M3)</div>
+  <div class="bitbox-track">
+    <div class="bitbox-seg bitbox-sign" style="width:12%">1</div>
+    <div class="bitbox-seg bitbox-exp" style="width:50%">지수4</div>
+    <div class="bitbox-seg bitbox-mant" style="width:38%">가수3</div>
+  </div>
+</div>
+<p>같은 16비트(2바이트) 예산이라도 <b>FP16</b>과 <b>BF16</b>은 그 비트를 다르게 씁니다. FP16(지수 5비트+가수 10비트)은 소수점 아래를 촘촘하게 표현해 정밀도는 높지만, 지수가 짧아 표현 가능한 값의 범위가 좁습니다 — 훈련 중 값이 너무 크거나 작아지면 overflow/underflow가 나기 쉽습니다. <b>BF16</b>(지수 8비트+가수 7비트)은 정밀도(가수)를 희생하는 대신 FP32와 <b>지수 비트 수가 같아 유사한 범위</b>를 커버해서 FP16보다 overflow/underflow 위험이 낮습니다 — 그래서 최신 LLM 훈련·서빙에서는 FP16보다 BF16이 더 널리 쓰입니다. 자(尺)에 비유하면, FP16은 "눈금이 촘촘하지만 짧은 자", BF16은 "눈금은 좀 성기지만 아주 긴 자"인 셈입니다.</p>
+<p><b>FP8</b>은 한 걸음 더 나가 8비트(1바이트)만 씁니다. LLM 가속기에서 널리 쓰이는 대표적인 두 변형이 <b>E4M3</b>(지수4+가수3, 정밀도를 조금 더 챙김)와 <b>E5M2</b>(지수5+가수2, 범위를 조금 더 챙김)입니다 — H100 이상의 Transformer Engine은 텐서 특성에 맞춰 이 둘을 섞어 쓰는데, 정확히 어떤 텐서에 어느 형식을 쓸지는 프레임워크의 스케일링 정책과 하드웨어 구현에 따라 달라집니다(세부 variant도 하드웨어/표준 구현마다 조금씩 다를 수 있습니다). 참고로 "BF8"이라는 널리 정립된 표준 명칭은 없습니다 — 굳이 비슷한 개념을 찾자면 "BF16처럼 범위를 우선하는 8비트 포맷"인 FP8-E5M2가 가장 가깝습니다.</p>
+<p>정밀도를 낮추면 오차(반올림·클램핑)가 생기지만, 최신 양자화 기법은 "스케일링"으로 이 오차를 최소화합니다 — 이 실전 활용법은 CH6의 "양자화"에서 자세히 다룹니다.</p>
+
+<p><b>선택 가이드 예시</b> — 작은 모델(Llama-3-8B)은 저렴한 A10으로 충분하고, 중간 모델(14B급, FP8)은 L40S 한 대로 커버되며, DeepSeek-R1(671B)처럼 초대형 모델은 (원문이 드는 한 예로) H200 8개를 NVLink로 묶은 구성을 쓰기도 합니다. 다만 실제로 몇 대가 필요한지는 정밀도(FP8/FP4)·병렬화 전략(tensor/pipeline/expert parallel)·컨텍스트 길이·SLA에 따라 달라지므로, 이 숫자를 고정된 정답으로 외울 필요는 없습니다. "무조건 좋은 GPU"는 없고, 서빙하려는 모델이 그 GPU의 강점(메모리 용량? FP8? NVLink?)으로부터 실제 이득을 보는지가 기준입니다.</p>
+
+<h3>GPU 여러 대를 연결할 때: 인터커넥트가 병목이 될 수 있다</h3>
+<p>모델이 GPU 하나에 안 들어가면 여러 GPU를 연결해야 합니다. 이때 GPU 간 통신 속도(인터커넥트)가 얼마나 중요한지 구체적인 예로 살펴봅니다.</p>
+<p>H100 SXM 8개를 NVLink로만(스위치 없이) 연결하면, GPU 1개가 가진 총 900GB/s 대역폭을 7개의 다른 GPU와 나눠 써야 해서(<code>900 ÷ 7 ≈ 128GB/s</code>) 대략 GPU 쌍 하나당 128GB/s 정도로 줄어듭니다. 반면 NVSwitch라는 별도의 고가 스위치를 추가하면 모든 GPU 쌍이 훨씬 더 높은 대역폭으로 통신할 수 있습니다(all-to-all). <span style="color:var(--text-muted); font-size:.92em;">(이 128GB/s 계산은 "총 대역폭을 균등히 나눈다"고 가정한 단순화된 예시이며, 실제 pair-to-pair 대역폭은 NVSwitch 세대·동시 트래픽 패턴에 따라 달라집니다 — 핵심은 정확한 숫자보다 "스위치 없이는 GPU 쌍마다 쓸 수 있는 대역폭이 줄어든다"는 경향입니다.)</span></p>
+<p>노드(서버) 간 통신은 이보다 훨씬 느립니다 — InfiniBand 기준 약 50GB/s로, 같은 노드 안의 900GB/s보다 <b>18배</b> 느립니다(NIC 세대·링크 수에 따라 배수는 달라질 수 있습니다). 그래서 "가능하면 한 서버(노드) 안에서 먼저 최적화하라"는 원칙이 나옵니다.</p>
+
+<div class="mermaid-diagram">
+<pre class="mermaid">
+flowchart TD
+    GPU["GPU 선택 기준"] --> Compute["연산력(FLOPS)"]
+    GPU --> Mem["메모리 용량(VRAM)"]
+    GPU --> BW["메모리 대역폭"]
+    GPU --> IC["인터커넥트\nNVLink / NVSwitch / InfiniBand"]
+    Mem -->|부족하면| OOM["모델 로드 자체 실패"]
+    BW -->|부족하면| Waste["연산력 낭비\n(오븐이 놀고 있음)"]
+    Compute -->|부족하면| Wait["고객 대기시간 증가"]
+    IC -->|"노드 내부 900GB/s\n노드 간 50GB/s (18배 차)"| Node["가능하면 한 노드\n안에서 먼저 최적화"]
+</pre>
+</div>
+
+<h2 id="s3">3. 모델 로딩 단계의 병목</h2>
+<p>모델을 서비스에 올리려면 가중치(weight)를 저장장치(SSD) → CPU 메모리 → GPU 메모리 순으로 옮겨야 합니다. 한 번 GPU 메모리에 올라가면 그 상태로 계속 상주합니다.</p>
+<p><b>왜 GPU 메모리에 통째로 올려둬야 할까요?</b> 저장 장치별 속도 차이가 어마어마하기 때문입니다.</p>
+<table>
+<thead><tr><th>저장 위치</th><th>대역폭</th></tr></thead>
+<tbody>
+<tr><td>SSD (디스크)</td><td>0.5 ~ 14 GB/s</td></tr>
+<tr><td>CPU 메모리</td><td>50 ~ 200 GB/s</td></tr>
+<tr><td>GPU 메모리(HBM)</td><td>300 GB/s ~ 3+ TB/s</td></tr>
+</tbody>
+</table>
+<p>요청이 올 때마다 디스크에서 모델을 읽어오려 한다면 토큰 하나 만드는 데 몇 초씩 걸려버립니다. 그래서 모델은 반드시 GPU 메모리에 미리 캐싱돼 있어야 합니다.</p>
+
+<h3>모델만 담으면 충분할까? — KV 캐시라는 복병</h3>
+<div class="analogy-box">
+  <span class="emoji">🔖</span>
+  <div><b>비유: 책갈피와 메모</b><br>
+  KV 캐시는 "이미 읽은 페이지 내용을 다시 안 읽으려고 책갈피와 함께 메모를 꽂아두는 것"과 같습니다. 매 토큰을 생성할 때마다 이전 토큰들의 계산 결과를 처음부터 다시 하지 않고 재사용합니다. 편리하지만, 대화(요청)가 진행될수록 메모(캐시)가 계속 쌓입니다.</div>
+</div>
+<p><b>KV 캐시 크기 계산 공식:</b></p>
+<pre><code>토큰당 KV 캐시 크기 = 2 × 레이어 수 × 헤드 수 × 헤드 차원 × 정밀도(바이트)</code></pre>
+<p style="color:var(--text-muted); font-size:.9em;">※ 이 식은 <b>MHA(Multi-Head Attention)</b> 기준입니다 — 여기서 "헤드 수"는 K/V를 저장하는 헤드 수(<code>num_key_value_heads</code>)를 뜻하며, MHA에서는 이 값이 어텐션 헤드 수와 같습니다. CH6에서 배울 GQA/MQA/MLA는 K/V를 저장하는 헤드 수 자체가 더 작거나(GQA/MQA) 아예 다른 방식(MLA, latent 압축)으로 계산되므로 이 식을 그대로 쓸 수 없습니다.</p>
+<p>Llama-2-7b(레이어 32, 헤드 32, 헤드 차원 128, FP16=2바이트) 기준: <code>2×32×32×128×2 = 524,288바이트 ≈ 0.5MB/토큰</code>. 시퀀스 길이 4,096, 동시 요청 16개라면:</p>
+<pre><code>0.5MB × 4,096 × 16 = 32,768MB ≈ 32GB</code></pre>
+<p style="color:var(--text-muted); font-size:.9em;">※ 엄밀히는 524,288바이트=0.5<b>MiB</b>(2진 단위)이고 전체는 32<b>GiB</b>(≈34.4GB, 10진 단위)입니다. 이 문서에서는 실무 관행을 따라 MiB/GiB를 편의상 MB/GB로 느슨하게 표기합니다 — 개념 이해에는 지장이 없습니다.</p>
+<blockquote>
+<p>👉 모델 자체 크기(7B, FP16 기준 14GB)보다 <b>KV 캐시(32GB)가 더 커질 수 있습니다!</b> 그래서 짧은 컨텍스트·낮은 동시성을 가정한 출발점으로 "GPU 메모리는 모델 크기의 최소 2배를 확보하라"는 경험칙이 흔히 쓰입니다 — 다만 실제 필요량은 컨텍스트 길이·동시 요청 수·런타임 여유에 따라 이보다 적거나 훨씬 많을 수 있으므로, 정확히는 "가중치 + 목표 동시성×최대 컨텍스트의 KV 캐시 + 런타임 여유"로 직접 산정하는 것이 안전합니다.</p>
+</blockquote>
+<p>실제 예시로 A10(24GB)과 L40S(48GB)를 비교하면, 모델(14GB)을 빼고 남는 메모리는 각각 10GB, 34GB이고 이는 최대 배치 크기 약 4개 vs 16개로 이어집니다(<span style="color:var(--text-muted);">실제로는 CUDA 컨텍스트·연산 중간값(activation) 버퍼·엔진의 예약 여유분도 차지하므로 이보다 더 적은 것이 보통입니다 — 여기서는 원리를 보여주기 위한 단순화된 예시입니다</span>). L40S가 GPU 가격은 약 1.7배 비싸지만 동시 처리량은 4배 늘어나므로, <b>총소유비용 관점에서는 오히려 L40S가 유리</b>할 수 있습니다.</p>
+
+<h3>GPU 메모리 구조: HBM과 SRAM — KV 캐시는 어디에 저장될까?</h3>
+<p>"GPU 메모리"라고 뭉뚱그려 말했지만, 사실 GPU 안에는 성격이 전혀 다른 메모리가 여러 층으로 나뉘어 있습니다. 앞서 나온 <b>피자 주방</b> 비유를 그대로 이어가 보면:</p>
+<div class="analogy-box">
+  <span class="emoji">🧂</span>
+  <div><b>비유: 작업대 위 양념통 vs 창고 냉장고</b><br>
+  <b>SRAM</b>(L1/L2 캐시, 공유 메모리)은 요리사(연산 유닛) 손 바로 옆에 있는 <b>작업대 위 양념통</b>입니다 — 손 뻗으면 바로 닿아 매우 빠르지만, 놓을 수 있는 양이 아주 적습니다. <b>HBM</b>(VRAM 본체)은 주방 한켠의 <b>큰 냉장고/창고</b>입니다 — 재료(가중치, KV 캐시)를 몽땅 담을 수 있지만, 꺼내 오는 데 상대적으로 시간이 걸립니다.</div>
+</div>
+<p>실제 연산이 일어나려면 데이터가 대략 <b>HBM → SRAM(L2 캐시 → L1 캐시/공유 메모리) → 레지스터</b> 순서로 점점 더 작고 빠른 메모리로 좁혀져야 합니다(레지스터에 도착해야 비로소 계산에 쓰일 수 있습니다 — 다만 캐시에 이미 값이 있으면(캐시 히트) 일부 단계는 건너뛸 수 있습니다). <b>GPU 내부의 이 경로만 놓고 보면 가장 느린 구간이 HBM</b>이기 때문에, 앞서 GPU 스펙 표에서 본 "메모리 대역폭"은 사실 이 HBM의 속도를 가리키는 것이고, 그래서 GPU 전체 성능을 가늠하는 핵심 기준이 됩니다(§4에서 이 대역폭을 다시 사용합니다). (참고: 시스템 전체로 범위를 넓히면 앞서 본 CPU 메모리·SSD가 HBM보다 훨씬 더 느립니다 — 그건 "모델 로딩" 단계 얘기이고, 지금은 모델이 이미 GPU 안에 다 올라온 "실행 단계"만 이야기하고 있습니다.)</p>
+<div class="mermaid-diagram">
+<pre class="mermaid">
+flowchart TD
+    R["레지스터\n(가장 빠름 · 가장 작음)"] --- S1["SRAM: L1 캐시 / 공유 메모리\n연산 유닛 바로 옆, 용량 작고 비쌈"]
+    S1 --- S2["SRAM: L2 캐시"]
+    S2 --- H["HBM(VRAM)\n가중치 + KV 캐시가 저장되는 곳\n용량 큼(수십~백GB대), 상대적으로 느림"]
+    H --- C["CPU 메모리(RAM)\n더 크고 더 느림"]
+    C --- D["SSD/디스크\n가장 크고 가장 느림\n(가장 느림 · 가장 큼)"]
+</pre>
+</div>
+<p><b>KV 캐시도 가중치와 마찬가지로 이 HBM에 저장됩니다.</b> 그런데 (아직 배우지 않은 GQA/MLA 같은 절감 기법을 적용하지 않은 일반적인 경우) 토큰을 하나 생성할 때마다 지금까지 쌓인 KV 캐시를 다시 이 느린 HBM에서 읽어와야 합니다 — 이것이 바로 §4에서 배울 "Decode(토큰 생성) 단계가 왜 메모리 대역폭 제한적인지"의 물리적인 이유입니다(구체적인 절감 방법은 CH6의 GQA/MLA에서 다룹니다). (예외적으로, attention 전체를 SRAM에 통째로 올리는 대신 작은 조각(타일) 단위로 SRAM에 올려 계산·누적함으로써 거대한 중간 결과를 HBM에 쓰지 않도록 영리하게 설계된 FlashAttention 같은 기법도 있습니다 — CH6에서 자세히 다룹니다.)</p>
+
+<div class="demo" id="kvDemo">
+  <span class="demo__badge">🧪 직접 조작해보기 — GPU와 모델을 바꿔가며 확인</span>
+  <div class="demo__select-row">
+    <label>GPU 선택
+      <select id="kvGpuSelect">
+        <option value="h200">H200 SXM (141GB)</option>
+        <option value="h100sxm">H100 SXM (80GB)</option>
+        <option value="h100nvl">H100 NVL (94GB)</option>
+        <option value="a100">A100 SXM (80GB)</option>
+        <option value="l40s">L40S (48GB)</option>
+        <option value="a10" selected>A10 (24GB)</option>
+      </select>
+    </label>
+    <label>모델 선택
+      <select id="kvModelSelect">
+        <option value="llama2-7b" selected>Llama-2-7B</option>
+        <option value="llama2-13b">Llama-2-13B</option>
+      </select>
+    </label>
+  </div>
+  <div class="demo__formula" id="kvFormula"></div>
+  <div class="demo__legend">
+    <span><span class="demo__swatch" style="background:#6b7280"></span> 모델 가중치(고정)</span>
+    <span><span class="demo__swatch" style="background:var(--accent)"></span> KV 캐시(계속 증가)</span>
+  </div>
+  <p style="color:var(--text-muted); font-size:12px; margin:0 0 10px;">※ 이 막대는 "가중치+KV 캐시"의 이론적 합계만 표시합니다 — 실제로는 activation 버퍼·CUDA 컨텍스트 등 추가 오버헤드가 있어 막대가 100%를 채우기 전에 이미 OOM이 날 수 있습니다.</p>
+  <div class="demo__stage">
+    <div class="demo__gpu" id="kvGpuBox">
+      <div class="demo__gpu-label" id="kvGpuLabel">GPU 메모리 (24GB, A10 기준)</div>
+      <div class="demo__bar-track">
+        <div class="demo__bar-weight" id="kvWeightBar" style="width:0%">14GB</div>
+        <div class="demo__bar-kv" id="kvKvBar" style="width:0%">0GB</div>
+      </div>
+    </div>
+  </div>
+  <div class="demo__caption" id="kvCaption">▶ 재생을 눌러 요청이 늘어날 때 KV 캐시가 어떻게 GPU 메모리를 잠식하는지 확인하세요.</div>
+  <div class="demo__controls">
+    <button data-act="reset">⏮ 리셋</button>
+    <button data-act="prev">◀ 이전</button>
+    <button data-act="play" class="primary">▶ 재생</button>
+    <button data-act="next">다음 ▶</button>
+    <span class="demo__step-label" id="kvStepLabel">0 / 5 요청 동시 처리</span>
+  </div>
+</div>
+
+<h2 id="s4">4. 모델 실행 단계의 병목</h2>
+<p>모델이 GPU에 잘 올라갔다면, 다음 질문은 "이 GPU는 연산력이 부족해서 느린가, 아니면 메모리에서 데이터를 읽어오는 속도가 부족해서 느린가?"입니다. 이를 정량적으로 따지는 개념이 <b>산술 강도(Arithmetic Intensity)</b>입니다.</p>
+<pre><code>산술 강도(FLOPS/Byte) = 연산 횟수 ÷ 이동한 데이터량(바이트)</code></pre>
+<p>산술 강도가 낮으면(=계산은 적은데 데이터를 많이 옮겨야 하면) <b>메모리 대역폭 제한(memory-bound)</b>, 높으면(=적은 데이터로 계산을 많이 하면) <b>연산 제한(compute-bound)</b>이라고 부릅니다. 이 둘의 경계값을 "크로스오버 포인트"라 하며, GPU의 연산력을 대역폭으로 나누면 구할 수 있습니다.</p>
+<p>L40S 예시(<b>FP16 기준</b>): <code>362 TFLOPS ÷ 864 GB/s ≈ 419 FLOPS/B</code>. 워크로드의 산술 강도가 419보다 낮으면 L40S의 362 TFLOPS를 다 활용하지 못합니다. (FP8로 돌리면 연산 성능이 733 TFLOPS로 늘어나 크로스오버 포인트도 달라집니다 — 정밀도를 바꾸면 이 기준선도 함께 움직인다는 점을 기억하세요.)</p>
+
+<h4>이 계산, 단위가 다른 두 값을 어떻게 나누는 걸까?</h4>
+<p>"연산 속도(TFLOPS)"와 "대역폭(GB/s)"은 언뜻 전혀 다른 두 값처럼 보이지만, 사실 둘 다 <b>"매초(per second) 얼마나 처리하는가"를 나타내는 속도</b>라는 공통점이 있습니다.</p>
+<ul>
+  <li><b>TFLOPS</b> = 초당 연산 횟수 = <code>연산 / 초</code></li>
+  <li><b>GB/s</b> = 초당 이동 바이트 = <code>바이트 / 초</code></li>
+</ul>
+<p>이 둘을 나누면, 분자·분모에 똑같이 있던 <b>"초"가 서로 약분되어 사라지고</b> "연산/바이트"라는 완전히 새로운 단위가 남습니다:</p>
+<div class="frac-row">
+  <div class="frac"><span class="num">연산 / 초</span><span class="den">바이트 / 초</span></div>
+  <span class="frac-op">=</span>
+  <span>연산</span>
+  <span class="frac-op">÷</span>
+  <span>바이트</span>
+  <span class="frac-op">=</span>
+  <span><b>연산 / 바이트</b></span>
+</div>
+<p>실제 숫자를 넣어 단계별로 풀어보면:</p>
+<pre><code>(362 × 10¹² 연산/초) ÷ (864 × 10⁹ 바이트/초)
+  = (362×10¹² ÷ 864×10⁹) × (연산/초 ÷ 바이트/초)      ← 숫자와 단위를 분리
+  = 418.98               × (연산 / 바이트)              ← "초"가 분자·분모에서 약분되어 사라짐
+  ≈ 419 FLOPS/B</code></pre>
+<p>직관적으로 풀면 이렇습니다 — <b>"이 GPU는 데이터 1바이트를 창고(HBM)에서 꺼내 오는 그 시간 동안, 최대 419번의 연산을 처리할 수 있는 능력이 있다"</b>는 뜻입니다. 그래서:</p>
+<ul>
+  <li>실제 작업이 바이트당 <b>419번보다 적게</b> 계산해도 된다면 → 연산 유닛은 데이터가 도착하기만 기다리며 놀게 됩니다(<b>memory-bound</b>).</li>
+  <li>실제 작업이 바이트당 <b>419번보다 많이</b> 계산해야 한다면 → 데이터는 이미 다 도착했는데 연산이 못 따라가 밀립니다(<b>compute-bound</b>).</li>
+</ul>
+
+<h3>행렬 곱셈으로 직접 계산해보기</h3>
+<p>이제 "실제 작업이 바이트당 몇 번 계산하는가"를 직접 구해볼 차례입니다. LLM의 셀프 어텐션·피드포워드 레이어는 대부분 <b>행렬 곱셈(matrix multiplication, matmul)</b>으로 이루어져 있으므로, 행렬 곱셈 하나의 산술 강도부터 유도해 보겠습니다.</p>
+<p><b>행렬 곱셈이란?</b> 입력 행렬 <code>[M,K]</code>(M행 K열)과 가중치 행렬 <code>[K,N]</code>(K행 N열)을 곱해 출력 행렬 <code>[M,N]</code>을 만드는 연산입니다. 출력의 각 원소는 "입력의 한 행"과 "가중치의 한 열"을 각 자리끼리 곱한 뒤 전부 더하는 <b>내적(dot product)</b>으로 계산됩니다. 단순하게 3중 반복문으로 적으면:</p>
+<pre><code>for m in [0, M):
+    for n in [0, N):
+        for k in [0, K):
+            Outputs[m][n] += Inputs[m][k] * Weights[k][n]</code></pre>
+<p><b>① 연산 횟수(분자) 세어보기</b> — 위 코드에서 출력 원소 하나(<code>Outputs[m][n]</code>)를 완성하려면 <code>k</code>가 0부터 K-1까지 도는 동안 <b>곱셈 K번 + 덧셈 (K-1)번</b>이 필요합니다. 곱셈과 덧셈을 합쳐 "약 2K번의 연산"으로 셈하는 것이 관행(FLOP 카운팅 컨벤션)입니다. 출력 원소는 총 M×N개이므로:</p>
+<pre><code>전체 연산 횟수 = M × N × (약 2K) = 2 × M × N × K</code></pre>
+<p><b>② 데이터 이동량(분모) 세어보기</b> — 이 계산을 하려면 입력 행렬(M×K개 값)과 가중치 행렬(K×N개 값)을 읽어와야 하고, 계산이 끝난 출력 행렬(M×N개 값)을 다시 써야 합니다. 값 하나의 정밀도가 2바이트(FP16/BF16)라면:</p>
+<pre><code>전체 데이터 이동량 = 2바이트 × (M×K + K×N + M×N)</code></pre>
+<p><b>③ 나누면 "2"가 약분된다</b> — 분자의 2(곱셈+덧셈)와 분모의 2(바이트 수)가 우연히 같은 숫자라서, 나누는 과정에서 정확히 상쇄됩니다:</p>
+<pre><code>산술 강도 = (2 × M×N×K) ÷ (2바이트 × (M×K+K×N+M×N))
+        = M×N×K ÷ (M×K + K×N + M×N)</code></pre>
+<p style="color:var(--text-muted); font-size:.92em;">※ 공식에 정밀도(바이트 수)가 안 보인다고 해서 정밀도가 중요하지 않다는 뜻은 <b>아닙니다</b> — 이 "2"의 상쇄는 정밀도가 <b>2바이트(FP16/BF16)일 때만</b> 성립하는 우연입니다. 정밀도가 b바이트일 때 일반식은 <code>산술 강도 = 2×M×N×K ÷ (b×(M×K+K×N+M×N))</code>이며, FP16/BF16(b=2)일 때만 분자의 2와 상쇄되어 앞서 본 간단한 식이 됩니다. FP8(b=1)로 바꾸면 이 식 자체의 값이 약 2배로 커지고, 여기에 더해 하드웨어의 peak 연산 성능·대역폭도 정밀도에 따라 달라지므로 크로스오버 포인트 역시 함께 움직입니다.</p>
+<p>M=N=K로 두고 크기를 바꿔보면:</p>
+<table>
+<thead><tr><th>행렬 크기</th><th>산술 강도</th><th>L40S 기준 판정</th></tr></thead>
+<tbody>
+<tr><td>64</td><td>21 FLOPS/B</td><td>메모리 대역폭 제한</td></tr>
+<tr><td>512</td><td>170 FLOPS/B</td><td>메모리 대역폭 제한</td></tr>
+<tr><td>4,096</td><td>1,365 FLOPS/B</td><td>연산 제한</td></tr>
+</tbody>
+</table>
+<p>행렬이 커질수록 산술 강도가 오르는 이유도 공식으로 설명됩니다 — 분자 <code>M×N×K</code>는 <b>세제곱(n³)</b>으로 커지는데, 분모 <code>M×K+K×N+M×N</code>은 <b>제곱(n²)</b>으로만 커집니다. M=N=K=n일 때 정리하면 산술 강도는 대략 <code>n/3</code>에 비례해서 커집니다 — 그래서 행렬이 클수록 "분자가 분모보다 훨씬 빠르게 자라" compute-bound 쪽으로 이동하는 것입니다. 그렇다면 LLM 서빙에 실제로 등장하는 행렬은 충분히 큰가요? — <b>Prefill과 Decode에서 답이 완전히 다릅니다.</b></p>
+
+<h3>Prefill과 Decode: 같은 GPU에서 정반대 성격의 두 작업</h3>
+<div class="analogy-box">
+  <span class="emoji">📦</span>
+  <div><b>비유: 큰 상자 조립 vs 낱개 배송</b><br>
+  Prefill(입력 프롬프트 전체를 한 번에 처리)은 "큰 상자를 한 번에 조립하는" 작업이라 도구(연산력)가 많을수록 유리합니다. Decode(토큰을 하나씩 생성)는 "낱개 주문마다 창고를 왕복하는" 작업이라 컨베이어(대역폭) 속도가 관건입니다.</div>
+</div>
+<p>수식으로 확인하면(시퀀스 길이 s, 은닉 차원 h가 모두 4,096일 때, 공식은 <code>s·h²÷(2sh+h²)</code>입니다 — <span style="color:var(--text-muted);">공식 자체를 외울 필요는 없고, 아래 표의 결론(Prefill은 높고 Decode는 낮다)만 기억해도 충분합니다</span>):</p>
+<table>
+<thead><tr><th>구간</th><th>산술 강도</th><th>판정</th></tr></thead>
+<tbody>
+<tr><td>Prefill (s=4,096)</td><td>≈1,365 FLOPS/B</td><td>연산 제한 (compute-bound)</td></tr>
+<tr><td>Decode (s=1, 토큰 1개씩)</td><td>≈1.0 FLOPS/B</td><td>메모리 대역폭 제한 (memory-bound)</td></tr>
+</tbody>
+</table>
+<blockquote>
+<p>📖 <b>원문의 핵심 결론</b>: "Decode는 시퀀스 길이와 무관하게 s=1이 고정이므로 산술 강도가 항상 매우 낮다(~1.0) → 시퀀스가 아무리 길어도 항상 memory-bandwidth-bound다." (단, 이 분석은 요청을 한 번에 하나씩만 처리하는 경우를 가정합니다. 여러 요청을 <b>묶어서(배칭)</b> 처리하면 이 산술 강도 자체를 인위적으로 끌어올릴 수 있는데, 이것이 바로 CH6에서 배울 첫 번째 최적화 기법입니다.)</p>
+</blockquote>
+
+<div class="mermaid-diagram">
+<pre class="mermaid">
+flowchart TD
+    subgraph L["모델 로딩 병목"]
+      A1["Storage 0.5~14GB/s"] --> A2["CPU RAM 50~200GB/s"] --> A3["GPU VRAM 300GB/s~3TB/s"]
+      A3 --> A4["가중치(고정) + KV 캐시(계속 증가)\n→ 모델보다 커질 수 있음"]
+    end
+    subgraph E["모델 실행 병목"]
+      B1["Prefill: s가 큼"] -->|"산술 강도 ↑"| B2["연산 제한 (compute-bound)"]
+      B3["Decode(저배치): s=1 고정"] -->|"산술 강도 ~1.0"| B4["대개 메모리 대역폭 제한"]
+    end
+    L -."원인: 느린 저장장치→GPU 전송 + 용량 초과".-> M["결국 모두 GPU 하드웨어 자원\n(전송 속도·용량·연산 처리량·메모리 대역폭)의\n물리적 한계에서 비롯됨"]
+    B2 -."원인: 연산 처리량 한계".-> M
+    B4 -."원인: GPU 내부 HBM 대역폭 한계".-> M
+</pre>
+</div>
+
+<h2 id="s5">5. 기타 AI 가속기와 동향</h2>
+<p>NVIDIA 외에도 AMD MI300X·Intel Gaudi2(범용 대안), Google TPU·AWS Inferentia(클라우드 전용), Groq·Cerebras 같은 스타트업 칩들이 있습니다. 그럼에도 CUDA 소프트웨어 생태계의 성숙도와 정밀도·인터커넥트 유연성 덕분에 NVIDIA가 여전히 시장을 주도하고 있습니다.</p>
+<h3>"메모리 벽(Memory Wall)"</h3>
+<p>지난 20년간 GPU의 연산 성능(FLOPS)은 폭발적으로 늘었지만, 메모리 대역폭은 그만큼 빠르게 좋아지지 않았습니다. 그 결과 데이터를 옮기는 속도가 발목을 잡는 현상이 점점 심해지는데, 이를 "메모리 벽"이라 부릅니다. 이를 완화하는 두 가지 트렌드가 있습니다.</p>
+<ul>
+  <li><b>온칩 SRAM 활용 확대</b>: SRAM은 칩 내부에 바로 붙어 있어 HBM(GPU 메모리)보다 훨씬 빠르지만 용량은 작고 비싼 메모리입니다. Groq처럼 이 SRAM을 크게 만들어 느린 HBM 접근 자체를 줄이는 접근(비용은 비쌈).</li>
+  <li><b>랙 스케일 통합</b>: NVIDIA GB200 NVL72처럼 GPU 72개를 하나의 거대한 NVLink 도메인으로 묶어 통신 장벽을 낮추는 접근.</li>
+</ul>
+
+<h2 id="summary">핵심 요약</h2>
+<blockquote>
+<p>1. LLM 서빙 최적화는 <b>고객 경험(TTFT/TPOT) · 비용(추론이 훈련보다 비쌈) · 확장성(피크 대응)</b> 세 축에서 사업의 성패를 좌우합니다.</p>
+<p>2. GPU는 <b>연산력 · 메모리 용량 · 메모리 대역폭 · 인터커넥트</b> 네 스펙의 균형으로 골라야 하며, 어느 하나라도 부족하면 나머지가 아무리 좋아도 소용없습니다.</p>
+<p>3. 병목은 크게 둘입니다 — <b>모델 로딩</b>(가중치+KV 캐시가 GPU 메모리를 초과할 수 있음)과 <b>모델 실행</b>(Prefill은 연산 제한, 저배치 Decode는 대개 메모리 대역폭 제한). 이 두 병목을 정확히 겨냥한 해결책들이 바로 CH6의 주제입니다.</p>
+</blockquote>
+<p style="text-align:center; margin-top:2.5rem;"><a href="./ch6_llm_optimization_techniques.html" style="font-weight:700; font-size:1.05rem;">→ 이 문제들을 실제로 해결하는 기법들, CH6에서 계속 보기</a></p>
+
+    </div>
+  </main>
+</div>
+
+<script>
+  mermaid.initialize({ startOnLoad: true, theme: 'default', securityLevel: 'loose' });
+</script>
+<script>
+(function () {
+  // KV cache growth interactive demo — GPU/모델 선택형
+  var GPUS = {
+    h200:    { label: 'H200 SXM', vram: 141 },
+    h100sxm: { label: 'H100 SXM', vram: 80 },
+    h100nvl: { label: 'H100 NVL', vram: 94 },
+    a100:    { label: 'A100 SXM', vram: 80 },
+    l40s:    { label: 'L40S',     vram: 48 },
+    a10:     { label: 'A10',      vram: 24 }
+  };
+  var MODELS = {
+    'llama2-7b':  { label: 'Llama-2-7B',  params: 7e9,  layers: 32, heads: 32, headDim: 128 },
+    'llama2-13b': { label: 'Llama-2-13B', params: 13e9, layers: 40, heads: 40, headDim: 128 }
+  };
+  var PRECISION_BYTES = 2; // BF16/FP16 — 본문 예시와 동일 조건
+  var SEQ_LEN = 4096;      // 본문 예시와 동일하게 고정
+  var MAX_STEPS_CAP = 60;  // 극단적으로 큰 GPU에서도 애니메이션이 끝나지 않는 것을 막는 안전 상한
+
+  function weightGB(m) { return (m.params * PRECISION_BYTES) / 1e9; }
+  function kvPerTokenBytes(m) { return 2 * m.layers * m.heads * m.headDim * PRECISION_BYTES; }
+  function kvPerReqGB(m) { return (kvPerTokenBytes(m) * SEQ_LEN) / 1e9; }
+  function fmt(x) { return (Math.round(x * 100) / 100).toString(); }
+
+  var STEPS = [], idx = 0, timer = null, GPU_TOTAL = 24, WEIGHT = 14;
+
+  function buildSteps(gpuKey, modelKey) {
+    var gpu = GPUS[gpuKey], model = MODELS[modelKey];
+    var weight = weightGB(model), kvReq = kvPerReqGB(model), total = gpu.vram;
+    GPU_TOTAL = total; WEIGHT = weight;
+
+    var formula = document.getElementById('kvFormula');
+    formula.textContent =
+      '가중치 = ' + (model.params / 1e9) + 'B params × ' + PRECISION_BYTES + '바이트 = ' + fmt(weight) + 'GB   |   ' +
+      '토큰당 KV = 2×' + model.layers + '×' + model.heads + '×' + model.headDim + '×' + PRECISION_BYTES + '바이트 = ' + kvPerTokenBytes(model).toLocaleString() + '바이트 ≈ ' + fmt(kvPerTokenBytes(model) / 1e6) + 'MB   |   ' +
+      '요청당(시퀀스 ' + SEQ_LEN + '토큰) KV ≈ ' + fmt(kvReq) + 'GB';
+
+    document.getElementById('kvGpuLabel').textContent = 'GPU 메모리 (' + total + 'GB, ' + gpu.label + ' 기준)';
+
+    if (weight >= total) {
+      return [{
+        req: 0, kv: 0, weight: weight, total: total,
+        label: '이 조합은 처리 불가',
+        caption: '⚠️ 모델 가중치만으로 이미 ' + fmt(weight) + 'GB — ' + gpu.label + '(' + total + 'GB)에 가중치조차 들어가지 않습니다! 이 조합은 요청을 하나도 처리할 수 없습니다(더 큰 GPU를 쓰거나, 양자화로 가중치를 줄여야 합니다 — CH6 참고).',
+        warn: true, overflow: true
+      }];
+    }
+
+    var raw = [];
+    var stepsNeeded = Math.ceil((total - weight) / kvReq); // 이 조합이 실제로 OOM에 도달하는 요청 수
+    var maxSteps = Math.min(MAX_STEPS_CAP, stepsNeeded + 1); // 항상 경고 지점까지 보여주되 상한은 둠
+    for (var n = 0; n <= maxSteps; n++) {
+      var kv = kvReq * n;
+      var used = weight + kv;
+      var warn = used >= total;
+      raw.push({ req: n, kv: kv, weight: weight, total: total, warn: warn });
+      if (warn) break;
+    }
+    var lastIdx = raw.length - 1;
+    raw.forEach(function (s) {
+      var pct = Math.round((s.weight + s.kv) / s.total * 100);
+      s.label = s.req + ' / ' + lastIdx + ' 요청 동시 처리';
+      if (s.req === 0) {
+        s.caption = '아직 요청이 없습니다. 모델 가중치(' + fmt(s.weight) + 'GB)만 GPU 메모리를 차지하고 있습니다.';
+      } else if (s.warn) {
+        s.caption = '⚠️ 요청 ' + s.req + '개째 — ' + fmt(s.weight) + 'GB+' + fmt(s.kv) + 'GB=' + fmt(s.weight + s.kv) + 'GB로 GPU 전체 메모리(' + fmt(s.total) + 'GB)의 ' + pct + '%를 채웠습니다! 여기에 activation 버퍼·CUDA 컨텍스트까지 필요하므로, 실제로는 이 지점 훨씬 전에 이미 OOM(메모리 부족)이 발생합니다.';
+      } else {
+        s.caption = '요청 ' + s.req + '개 동시 처리 — 가중치 ' + fmt(s.weight) + 'GB + KV 캐시 ' + fmt(s.kv) + 'GB = ' + fmt(s.weight + s.kv) + 'GB / ' + fmt(s.total) + 'GB (' + pct + '%)';
+      }
+    });
+    return raw;
+  }
+
+  var weightBar = document.getElementById('kvWeightBar');
+  var kvBar = document.getElementById('kvKvBar');
+  var caption = document.getElementById('kvCaption');
+  var stepLabel = document.getElementById('kvStepLabel');
+  var gpuBox = document.getElementById('kvGpuBox');
+
+  function render() {
+    var s = STEPS[idx];
+    if (s.overflow) {
+      weightBar.style.width = '100%';
+      weightBar.textContent = fmt(s.weight) + 'GB (초과)';
+      kvBar.style.width = '0%';
+      kvBar.textContent = '';
+    } else {
+      var weightPct = Math.min(100, (s.weight / s.total) * 100);
+      var kvPct = Math.min(100 - weightPct, (s.kv / s.total) * 100);
+      weightBar.style.width = weightPct + '%';
+      weightBar.textContent = fmt(s.weight) + 'GB';
+      kvBar.style.width = kvPct + '%';
+      kvBar.textContent = s.kv > 0 ? fmt(s.kv) + 'GB' : '';
+    }
+    caption.innerHTML = s.caption;
+    caption.className = 'demo__caption' + (s.warn ? ' warn' : '');
+    gpuBox.className = 'demo__gpu' + (s.warn ? ' oom' : '');
+    stepLabel.textContent = s.label;
+  }
+  function next() { if (idx < STEPS.length - 1) { idx++; render(); } else { pause(); } }
+  function prev() { if (idx > 0) { idx--; render(); } }
+  function reset() { pause(); idx = 0; render(); }
+  function rebuild() {
+    STEPS = buildSteps(gpuSelect.value, modelSelect.value);
+    reset();
+  }
+  function play() {
+    if (timer) { pause(); return; }
+    playBtn.textContent = '⏸ 일시정지';
+    timer = setInterval(function () {
+      if (idx >= STEPS.length - 1) { pause(); return; }
+      next();
+    }, 1100);
+  }
+  function pause() {
+    if (timer) { clearInterval(timer); timer = null; }
+    playBtn.textContent = '▶ 재생';
+  }
+  var root = document.getElementById('kvDemo');
+  var playBtn = root.querySelector('[data-act="play"]');
+  var gpuSelect = document.getElementById('kvGpuSelect');
+  var modelSelect = document.getElementById('kvModelSelect');
+  root.querySelector('[data-act="reset"]').addEventListener('click', reset);
+  root.querySelector('[data-act="prev"]').addEventListener('click', function () { pause(); prev(); });
+  root.querySelector('[data-act="next"]').addEventListener('click', function () { pause(); next(); });
+  playBtn.addEventListener('click', play);
+  gpuSelect.addEventListener('change', rebuild);
+  modelSelect.addEventListener('change', rebuild);
+  rebuild();
+})();
+</script>
+</body>
+</html>
