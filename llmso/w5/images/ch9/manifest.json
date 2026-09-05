@@ -1,0 +1,86 @@
+[
+  {
+    "index": 1,
+    "caption": "",
+    "file": "images/ch9/01.png",
+    "bytes": 67505
+  },
+  {
+    "index": 2,
+    "caption": "",
+    "file": "images/ch9/02.png",
+    "bytes": 70473
+  },
+  {
+    "index": 3,
+    "caption": "Figure 9-1. AWS EC2 g6e.2xlarge instance에서 `nvidia-smi` 출력",
+    "file": "images/ch9/03_Figure_9-1_AWS_EC2_g6e_2xlarge_instance에.png",
+    "bytes": 265126
+  },
+  {
+    "index": 4,
+    "caption": "*Figure 9-2. ShareGPT dataset에서 Qwen3-14B 원본과 AWQ 4-bit quantized version의 throughput/latency 비교.*",
+    "file": "images/ch9/04__Figure_9-2_ShareGPT_dataset에서_Qwen3-14B.png",
+    "bytes": 192220
+  },
+  {
+    "index": 5,
+    "caption": "Figure 9-3. Prefix Repetition dataset에서 Qwen3-14B 원본과 AWQ 4-bit quantized version 비교",
+    "file": "images/ch9/05_Figure_9-3_Prefix_Repetition_dataset에서_Q.png",
+    "bytes": 200747
+  },
+  {
+    "index": 6,
+    "caption": "",
+    "file": "images/ch9/06.png",
+    "bytes": 110916
+  },
+  {
+    "index": 7,
+    "caption": "",
+    "file": "images/ch9/07.png",
+    "bytes": 131611
+  },
+  {
+    "index": 8,
+    "caption": "",
+    "file": "images/ch9/08.png",
+    "bytes": 142064
+  },
+  {
+    "index": 9,
+    "caption": "XFCE 데스크톱",
+    "file": "images/ch9/09_XFCE_데스크톱.png",
+    "bytes": 909959
+  },
+  {
+    "index": 10,
+    "caption": "",
+    "file": "images/ch9/10.png",
+    "bytes": 120744
+  },
+  {
+    "index": 11,
+    "caption": "",
+    "file": "images/ch9/11.png",
+    "bytes": 196882
+  },
+  {
+    "index": 12,
+    "caption": "",
+    "file": "images/ch9/12.png",
+    "bytes": 305550
+  },
+  {
+    "index": 13,
+    "caption": "그림 9-4. g6e 인스턴스에서 Qwen3-14B-AWQ를 GPU 1개/2개/4개로 실행한 벤치마크 결과",
+    "file": "images/ch9/13_그림_9-4_g6e_인스턴스에서_Qwen3-14B-AWQ를_GPU_1개_.png",
+    "bytes": 166901
+  },
+  {
+    "index": 14,
+    "caption": "그림 9-5. p4d 인스턴스에서 Qwen3-14B-AWQ를 GPU 1개/2개/4개로 실행한 벤치마크 결과",
+    "file": "images/ch9/14_그림_9-5_p4d_인스턴스에서_Qwen3-14B-AWQ를_GPU_1개_.png",
+    "bytes": 175442
+  }
+]

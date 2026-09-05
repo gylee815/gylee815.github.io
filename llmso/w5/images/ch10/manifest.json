@@ -1,0 +1,128 @@
+[
+  {
+    "index": 1,
+    "caption": "",
+    "file": "images/ch10/01.png",
+    "bytes": 144549
+  },
+  {
+    "index": 2,
+    "caption": "그림 10-1: 엔드포인트 수준 라우팅 vs. 복제본 수준 라우팅",
+    "file": "images/ch10/02_그림_10-1_엔드포인트_수준_라우팅_vs_복제본_수준_라우팅.png",
+    "bytes": 51158
+  },
+  {
+    "index": 3,
+    "caption": "그림 10-2: 시맨틱 라우터가 요청을 여러 LLM으로 라우팅하는 예시 시스템",
+    "file": "images/ch10/03_그림_10-2_시맨틱_라우터가_요청을_여러_LLM으로_라우팅하는_예시_시.png",
+    "bytes": 75884
+  },
+  {
+    "index": 4,
+    "caption": "",
+    "file": "images/ch10/04.png",
+    "bytes": 52964
+  },
+  {
+    "index": 5,
+    "caption": "",
+    "file": "images/ch10/05.png",
+    "bytes": 211750
+  },
+  {
+    "index": 6,
+    "caption": "",
+    "file": "images/ch10/06.png",
+    "bytes": 144963
+  },
+  {
+    "index": 7,
+    "caption": "",
+    "file": "images/ch10/07.png",
+    "bytes": 81119
+  },
+  {
+    "index": 8,
+    "caption": "",
+    "file": "images/ch10/08.png",
+    "bytes": 51354
+  },
+  {
+    "index": 9,
+    "caption": "",
+    "file": "images/ch10/09.png",
+    "bytes": 46799
+  },
+  {
+    "index": 10,
+    "caption": "",
+    "file": "images/ch10/10.png",
+    "bytes": 165717
+  },
+  {
+    "index": 11,
+    "caption": "",
+    "file": "images/ch10/11.png",
+    "bytes": 56028
+  },
+  {
+    "index": 12,
+    "caption": "Figure 10-3. End-to-end performance profiling decision flowchart",
+    "file": "images/ch10/12_Figure_10-3_End-to-end_performance_profi.png",
+    "bytes": 87899
+  },
+  {
+    "index": 13,
+    "caption": "Figure 10-4. VLM에서 text input과 vision input의 dual-stream processing",
+    "file": "images/ch10/13_Figure_10-4_VLM에서_text_input과_vision_inp.png",
+    "bytes": 34806
+  },
+  {
+    "index": 14,
+    "caption": "",
+    "file": "images/ch10/14.png",
+    "bytes": 65353
+  },
+  {
+    "index": 15,
+    "caption": "_Figure 10-5. Multimodal input preprocessing을 nonblocking independent process로 분리한 vLLM V1 process-separation diagram",
+    "file": "images/ch10/15__Figure_10-5_Multimodal_input_preprocess.png",
+    "bytes": 112435
+  },
+  {
+    "index": 16,
+    "caption": "Figure 10-6. CPU, GPU, NPU heterogeneous compute",
+    "file": "images/ch10/16_Figure_10-6_CPU_GPU_NPU_heterogeneous_co.png",
+    "bytes": 21763
+  },
+  {
+    "index": 17,
+    "caption": "Figure 10-7. Edge-cloud hybrid inference architecture",
+    "file": "images/ch10/17_Figure_10-7_Edge-cloud_hybrid_inference_.png",
+    "bytes": 44099
+  },
+  {
+    "index": 18,
+    "caption": "Figure 10-8. Main model과 함께 GPU memory에 co-located된 여러 LoRA adapter",
+    "file": "images/ch10/18_Figure_10-8_Main_model과_함께_GPU_memory에_c.png",
+    "bytes": 22492
+  },
+  {
+    "index": 19,
+    "caption": "_Figure 10-9. LoRA adapter 없이 여러 fine-tuned model을 서빙하는 방식과 LoRA adapter 기반 방식 비교",
+    "file": "images/ch10/19__Figure_10-9_LoRA_adapter_없이_여러_fine-tun.png",
+    "bytes": 34909
+  },
+  {
+    "index": 20,
+    "caption": "_Figure 10-10. Foundation 구축, instruction following, human alignment로 이어지는 LLM training stages.",
+    "file": "images/ch10/20__Figure_10-10_Foundation_구축_instruction_.png",
+    "bytes": 37985
+  },
+  {
+    "index": 21,
+    "caption": "_Figure 10-11. Generation(serving) phase와 training phase에서의 simple reinforcement learning flow",
+    "file": "images/ch10/21__Figure_10-11_Generation_serving_phase와_.png",
+    "bytes": 46149
+  }
+]

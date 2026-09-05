@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CH9. 실전 LLM 최적화 — 초보자를 위한 완전 가이드</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+  :root {
+    --bg: #ffffff; --bg-alt: #f6f7f9; --text: #1c1f24; --text-muted: #5b6270;
+    --border: #e2e5ea; --accent: #3457d5; --accent-soft: #eef1fd;
+    --callout-bg: #fff8e6; --callout-border: #e8c766;
+    --fix-bg: #fdeef0; --fix-border: #d9534f;
+    --code-bg: #f2f3f5; --success: #1a7f37; --success-soft: #dafbe1;
+    --danger: #cf222e; --danger-soft: #ffebe9; --max-width: 900px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #14161a; --bg-alt: #1b1e24; --text: #e7e9ec; --text-muted: #9aa2b1;
+      --border: #2c3038; --accent: #7c93ff; --accent-soft: #1e2330;
+      --callout-bg: #2a2410; --callout-border: #6b5a1c;
+      --fix-bg: #2a1516; --fix-border: #8a3a3a;
+      --code-bg: #1e2126; --success: #3fb950; --success-soft: #0f2e1a;
+      --danger: #f85149; --danger-soft: #3a1414;
+    }
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", Helvetica, Arial, sans-serif;
+    line-height: 1.75; font-size: 16px;
+  }
+  .site-header { padding: 3rem 1.5rem 1.25rem; text-align: center; border-bottom: 1px solid var(--border); background: var(--bg-alt); }
+  .site-title { margin: 0 0 .5rem; font-size: 1.9rem; }
+  .site-subtitle { margin: 0; color: var(--text-muted); font-size: .95rem; }
+  .badge-row { margin-top: 1rem; display: flex; gap: .5rem; justify-content: center; flex-wrap: wrap; }
+  .badge { font-size: .75rem; padding: .25rem .7rem; border-radius: 999px; background: var(--accent-soft); color: var(--accent); font-weight: 600; text-decoration: none; display: inline-block; }
+  a.badge:hover { text-decoration: underline; }
+  .layout { display: flex; align-items: flex-start; max-width: 1200px; margin: 0 auto; padding: 2rem 1.5rem 4rem; gap: 2.5rem; }
+  nav.sidebar { position: sticky; top: 1.5rem; flex: 0 0 260px; max-height: calc(100vh - 3rem); overflow-y: auto; font-size: .85rem; border-right: 1px solid var(--border); padding-right: 1.25rem; }
+  nav.sidebar h2 { font-weight: 700; margin: 0 0 .75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: .05em; font-size: .75rem; }
+  nav.sidebar ul { list-style: none; margin: 0; padding-left: 0; }
+  nav.sidebar li { margin: .45rem 0; }
+  nav.sidebar a { color: var(--text-muted); text-decoration: none; display: block; line-height: 1.4; }
+  nav.sidebar a:hover { color: var(--accent); }
+  nav.sidebar .sub { padding-left: .8rem; font-size: .92em; }
+  nav.sidebar .prev-link, nav.sidebar .next-link { margin-bottom: 1.25rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+  nav.sidebar .prev-link a, nav.sidebar .next-link a { color: var(--accent); font-weight: 600; }
+  main { flex: 1 1 auto; min-width: 0; }
+  .markdown-body { max-width: var(--max-width); }
+  .markdown-body h2 { margin-top: 3.5rem; padding-top: 1.5rem; border-top: 3px solid var(--accent); font-size: 1.5rem; }
+  .markdown-body h2:first-child { margin-top: 0; padding-top: 0; border-top: none; }
+  .markdown-body h3 { margin-top: 2.25rem; font-size: 1.18rem; }
+  .markdown-body h4 { margin-top: 1.5rem; font-size: 1.02rem; color: var(--text-muted); }
+  .markdown-body p { margin: 1rem 0; }
+  .markdown-body a { color: var(--accent); }
+  .markdown-body ul, .markdown-body ol { padding-left: 1.4rem; }
+  .markdown-body li { margin: .35rem 0; }
+  .markdown-body hr { border: none; border-top: 1px solid var(--border); margin: 3rem 0; }
+  .markdown-body table { width: 100%; border-collapse: collapse; margin: 1.25rem 0; font-size: .87rem; }
+  .markdown-body th, .markdown-body td { border: 1px solid var(--border); padding: .5rem .7rem; text-align: left; vertical-align: top; }
+  .markdown-body th { background: var(--bg-alt); }
+  .markdown-body blockquote { margin: 1.25rem 0; padding: .9rem 1.1rem; border-left: 4px solid var(--callout-border); background: var(--callout-bg); border-radius: 0 6px 6px 0; }
+  blockquote.fix { background: var(--fix-bg); border-left-color: var(--fix-border); }
+  blockquote.fix b { color: var(--fix-border); }
+  .markdown-body code { font-family: "SFMono-Regular", Consolas, Menlo, monospace; background: var(--code-bg); padding: .15em .4em; border-radius: 4px; font-size: .9em; }
+  .markdown-body pre { background: var(--code-bg); padding: 1rem 1.1rem; border-radius: 6px; overflow-x: auto; margin: 1.25rem 0; }
+  .markdown-body pre code { background: none; padding: 0; font-size: .85rem; }
+  .mermaid-diagram { text-align: center; margin: 1.5rem 0; padding: 1rem; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; overflow-x: auto; }
+  .mermaid-diagram svg { max-width: 100%; height: auto; }
+  .figure-box { margin: 1.5rem 0; text-align: center; }
+  .figure-box img { max-width: 100%; border-radius: 8px; border: 1px solid var(--border); }
+  .figure-box figcaption { margin-top: .6rem; font-size: .85em; color: var(--text-muted); text-align: left; }
+  .analogy-box { display: flex; gap: .85rem; align-items: flex-start; margin: 1.25rem 0; padding: 1rem 1.1rem; background: var(--accent-soft); border-radius: 8px; }
+  .analogy-box .emoji { font-size: 1.6rem; line-height: 1; }
+  .analogy-box b { color: var(--accent); }
+  details.toc-mobile { display: none; margin: 0 0 24px; }
+  details.toc-mobile summary { cursor: pointer; font-weight: 600; padding: 10px 14px; background: var(--bg-alt); border: 1px solid var(--border); border-radius: 6px; }
+  details.toc-mobile ul { list-style: none; padding-left: 8px; }
+  details.toc-mobile a { color: var(--accent); text-decoration: none; }
+  @media (max-width: 900px) {
+    nav.sidebar { display: none; } details.toc-mobile { display: block; } .layout { padding: 1.5rem 1rem 3rem; }
+  }
+
+  /* ---- glossary ---- */
+  .glossary { max-width: 1200px; margin: 0 auto; padding: 1.25rem 1.5rem 0.5rem; }
+  .glossary > summary { cursor: pointer; font-weight: 700; font-size: .95rem; padding: .8rem 1.1rem; background: var(--accent-soft); color: var(--accent); border-radius: 8px; list-style: none; }
+  .glossary > summary::-webkit-details-marker { display: none; }
+  .glossary > summary::before { content: "📖 "; }
+  .glossary[open] > summary { border-radius: 8px 8px 0 0; }
+  .glossary-body { border: 1px solid var(--border); border-top: none; border-radius: 0 0 8px 8px; padding: 1.1rem 1.3rem; background: var(--bg); }
+  .glossary-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: .9rem 1.5rem; }
+  .glossary-cat { grid-column: 1 / -1; margin: .6rem 0 -.2rem; font-size: .78rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: .04em; border-top: 1px solid var(--border); padding-top: .8rem; }
+  .glossary-cat:first-of-type { border-top: none; padding-top: 0; margin-top: 0; }
+  .gterm dt { font-weight: 700; color: var(--accent); font-size: .88rem; }
+  .gterm dd { margin: .15rem 0 0; font-size: .83rem; color: var(--text); line-height: 1.5; }
+  .refs-list { font-size: .88rem; color: var(--text-muted); }
+  .refs-list li { margin: .5rem 0; }
+
+  /* ---- 8-step pipeline stepper widget ---- */
+  .demo { margin: 1.5rem 0 2rem; padding: 1.1rem 1.2rem 1.3rem; border: 1px solid var(--border); border-radius: 10px; background: var(--bg); }
+  .demo__badge { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: var(--accent); background: var(--accent-soft); border-radius: 999px; padding: 3px 10px; margin-bottom: 12px; }
+  .step__grid { display: flex; gap: 6px; flex-wrap: wrap; margin: 14px 0; }
+  .step__cell { flex: 1 1 100px; min-width: 90px; padding: 10px 8px; border-radius: 8px; border: 2px solid var(--border); background: var(--bg-alt); text-align: center; font-size: 12px; font-weight: 700; cursor: pointer; transition: all .3s ease; color: var(--text-muted); }
+  .step__cell.active { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); transform: scale(1.06); }
+  .step__cell.done { border-color: var(--success); color: var(--success); }
+  .step__caption { min-height: 5.5em; font-size: 13.5px; padding: 10px 12px; border-radius: 6px; background: var(--bg-alt); border: 1px solid var(--border); margin: 10px 0; }
+  .step__caption b { color: var(--accent); }
+  .demo__controls { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .demo__controls button { font-family: inherit; font-size: 13px; padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-alt); color: var(--text); cursor: pointer; }
+  .demo__controls button:hover { background: var(--accent-soft); }
+  .demo__controls button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .demo__step-label { font-size: 12px; color: var(--text-muted); margin-left: auto; }
+
+  /* ---- AWQ memory bar widget ---- */
+  .mem__wrap { margin: 14px 0; }
+  .mem__row { display: flex; align-items: center; gap: 10px; margin: 10px 0; }
+  .mem__label { flex: 0 0 110px; font-size: 12px; font-weight: 700; color: var(--text-muted); }
+  .mem__track { flex: 1 1 auto; height: 30px; border-radius: 6px; background: var(--bg-alt); border: 1px solid var(--border); overflow: hidden; display: flex; }
+  .mem__seg { height: 100%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: #fff; transition: width .6s ease; white-space: nowrap; overflow: hidden; }
+  .mem__seg.weights { background: #3457d5; }
+  .mem__seg.kv { background: #1a7f37; }
+  .mem__seg.free { background: repeating-linear-gradient(45deg, var(--bg-alt), var(--bg-alt) 6px, var(--border) 6px, var(--border) 12px); color: var(--text-muted); }
+  .mem__stat-row { display: flex; gap: 20px; margin: 14px 0; flex-wrap: wrap; }
+  .mem__stat b { font-size: 1.25rem; color: var(--accent); display: block; }
+  .mem__stat span { font-size: 11px; color: var(--text-muted); }
+</style>
+</head>
+<body>
+<div class="site-header">
+  <h1 class="site-title">CH9. LLM Optimization in Practice</h1>
+  <p class="site-subtitle">Qwen3-14B + vLLM으로 배우는 실전 LLM 서빙 최적화 8단계 — 하드웨어 점검부터 분산 서빙까지</p>
+  <div class="badge-row">
+    <span class="badge">초보자용</span>
+    <a class="badge" href="https://app.notion.com/p/CH9-LLM-Optimization-in-Practice-3d2fc6d1ff38805196d0cbab7739ec60" target="_blank" rel="noopener">원문 기반 (Notion CH9)</a>
+    <span class="badge">Hands-on 실습 챕터</span>
+    <span class="badge">← CH7/CH8에서 이어짐</span>
+  </div>
+</div>
+<details class="glossary" open>
+  <summary>핵심 용어 사전 (누르면 접기/펼치기) — 이 챕터에서 처음 보는 용어가 있다면 여기서 먼저 확인하세요</summary>
+  <div class="glossary-body">
+    <dl class="glossary-grid">
+      <div class="glossary-cat">처리량·지연시간 지표</div>
+      <div class="gterm"><dt>TPS (Tokens Per Second)</dt><dd>초당 처리하는 토큰 수. 총 토큰 처리량(입력+출력)과 출력 토큰 처리량으로 나눠서 본다.</dd></div>
+      <div class="gterm"><dt>TTFT (Time To First Token)</dt><dd>요청 전송부터 첫 토큰이 나오기까지 걸리는 시간. 프리필(Prefill) 효율성을 반영한다.</dd></div>
+      <div class="gterm"><dt>ITL (Inter-Token Latency)</dt><dd>연속된 출력 토큰 사이의 생성 간격. 스트리밍 체감 속도를 결정한다.</dd></div>
+      <div class="gterm"><dt>TPOT (Time Per Output Token)</dt><dd>디코딩 단계에서 출력 토큰 1개를 생성하는 데 걸리는 평균 시간. 원문의 전체 지표 체계(표 9-1)에서는 ITL과 나란히 지연시간 지표로 분류되며, 사실상 같은 개념(토큰당 디코딩 소요 시간)을 가리키는 값이다 — 이 실습에서는 벤치마크 결과를 말할 때 주로 "ITL"을, RTX 4070 Nsight 프로파일링 결과를 말할 때 주로 "TPOT"을 쓴다. 값이 작을수록 스트리밍 출력이 매끄럽다.</dd></div>
+      <div class="gterm"><dt>Mean / Median / P99</dt><dd>Mean은 전체 총합 계산용, Median은 일반적인 사용자 경험, P99는 상위 1% 최악 상황(병목·장애 감지)을 보여준다.</dd></div>
+      <div class="glossary-cat">GPU·메모리</div>
+      <div class="gterm"><dt>KV 캐시(Key-Value Cache)</dt><dd>이전 토큰들의 Key/Value 값을 저장해 다음 토큰 생성 때 재사용하는 캐시. 크기가 클수록 더 많은 요청을 동시에 처리할 수 있다.</dd></div>
+      <div class="gterm"><dt>Concurrency(동시성)</dt><dd>KV 캐시 공간이 허용하는 동시 처리 가능 요청 배수. 값이 클수록 한 번에 더 많은 요청을 배칭할 수 있다.</dd></div>
+      <div class="gterm"><dt>Continuous Batching(연속 배칭)</dt><dd>먼저 끝난 요청 자리에 새 요청을 즉시 채워 넣어 GPU 유휴 시간을 줄이는 배칭 방식.</dd></div>
+      <div class="gterm"><dt>Prefix Caching(프리픽스 캐싱)</dt><dd>동일한 앞부분(프리픽스)을 가진 요청들 사이에 이미 계산된 KV 캐시를 재사용하는 기법.</dd></div>
+      <div class="gterm"><dt>AWQ (Activation-Aware Weight Quantization)</dt><dd>활성화 값의 중요도를 고려해 모델 가중치를 4비트 등 저비트로 압축하는 양자화 기법. 이 챕터의 핵심 실습 기법.</dd></div>
+      <div class="glossary-cat">분산 서빙</div>
+      <div class="gterm"><dt>Tensor Parallelism(TP, 텐서 병렬화)</dt><dd>하나의 모델 인스턴스를 여러 GPU에 걸쳐 쪼개 실행하는 수직 확장(Vertical Scaling) 방식. GPU 간 통신이 잦다.</dd></div>
+      <div class="gterm"><dt>Horizontal Scaling(수평 확장)</dt><dd>GPU마다 독립된 모델 레플리카를 실행해 총 처리량을 늘리는 방식. 한 요청의 지연시간 자체는 줄지 않는다.</dd></div>
+      <div class="gterm"><dt>NVLink / NVSwitch / PCIe</dt><dd>GPU 간 연결 기술. NVLink·NVSwitch(수백 GB/s급, 노드 내부 초고속)가 PCIe(범용 버스, 상대적으로 느림)보다 훨씬 빠르다.</dd></div>
+      <div class="glossary-cat">프로파일링 도구</div>
+      <div class="gterm"><dt>nvidia-smi</dt><dd>GPU 상태(드라이버, 메모리, 사용률, 전력)를 확인하는 기본 명령줄 도구. 벤치마크 전 "사전 점검"에 쓰인다.</dd></div>
+      <div class="gterm"><dt>NVIDIA Nsight Systems</dt><dd>시스템 전체 실행 타임라인을 보여주는 프로파일러. GPU 유휴 구간, API 호출 병목을 찾는 데 쓴다.</dd></div>
+      <div class="gterm"><dt>NVIDIA Nsight Compute</dt><dd>단일 CUDA 커널의 마이크로아키텍처(점유율, 메모리 스톨)를 분석하는 프로파일러.</dd></div>
+      <div class="gterm"><dt>cudaEventSynchronize</dt><dd>호스트(CPU)가 GPU 연산 완료를 기다리는 동기화 API. 이 대기 시간이 이 챕터에서 발견된 "진짜 병목"이다.</dd></div>
+    </dl>
+  </div>
+</details>
+<div class="layout">
+  <nav class="sidebar">
+    <div class="prev-link"><a href="../w4/ch7_ch8_llm_research/ch8_llm_serving_frameworks.html">← CH8. LLM 서빙 프레임워크 다시 보기</a></div>
+    <h2>목차</h2>
+    <ul>
+      <li><a href="#intro">시작하며: 8단계 최적화 계획</a></li>
+      <li><a href="#s1">Step 1. GPU 하드웨어 점검</a></li>
+      <li><a href="#s2">Step 2. 벤치마크 트래픽 생성</a></li>
+      <li><a href="#s3">Step 3. 평가 지표 정의</a></li>
+      <li><a href="#s4">Step 4. 서빙 서비스 구성</a></li>
+      <li><a href="#s5">Step 5. 베이스라인 벤치마크</a></li>
+      <li><a href="#s6">Step 6. AWQ 양자화 벤치마크</a>
+        <ul class="sub"><li><a href="#s6-widget">🧪 메모리 재분배 시각화</a></li></ul>
+      </li>
+      <li><a href="#s7">Step 7. 워크로드별 추가 최적화</a></li>
+      <li><a href="#s7b">RTX 4070 별도 실습 &amp; Nsight 심층 분석</a></li>
+      <li><a href="#s7c">도전과제: 모니터링 파이프라인</a></li>
+      <li><a href="#s8">Step 8. 분산 서빙 벤치마크</a></li>
+      <li><a href="#s9">공통 트레이드오프 &amp; 요약</a></li>
+      <li><a href="#outro">마무리: 질문과 답</a></li>
+      <li><a href="#refs">참고 자료</a></li>
+    </ul>
+    <div class="next-link"><a href="./ch10_advancements_in_llm_serving.html">다음: CH10. LLM 서빙의 발전 →</a></div>
+  </nav>
+  <main>
+    <details class="toc-mobile">
+      <summary>목차 펼치기</summary>
+      <ul>
+        <li><a href="#intro">시작하며</a></li>
+        <li><a href="#s1">Step 1~3</a></li>
+        <li><a href="#s4">Step 4~5</a></li>
+        <li><a href="#s6">Step 6 (AWQ)</a></li>
+        <li><a href="#s7">Step 7 &amp; RTX 실습</a></li>
+        <li><a href="#s8">Step 8 (분산 서빙)</a></li>
+        <li><a href="#outro">마무리</a></li>
+      </ul>
+    </details>
+    <div class="markdown-body">
+
+<h2 id="intro">시작하며: 8단계 최적화 계획</h2>
+<p>이 챕터의 핵심 메시지는 단순합니다. <b>"최적화는 고정된 정답이 없는 움직이는 목표(Moving Target)다."</b> 환경마다 최선의 전략이 달라지고, 자원은 한정되어 있어 모든 옵션을 무작정 다 시도해볼 수 없습니다. 그래서 이 챕터는 하드웨어 구성, 모델 선택, 메모리/KV 캐시 동작, 분산 서빙, 트래픽 패턴이 서빙 성능에 미치는 영향을 실제 사례로 보여주고, 이를 측정·해석하는 방법을 가르쳐 각자의 제약 조건 안에서 좋은 서빙 구성으로 수렴할 수 있는 "직관"을 길러주는 것이 목표입니다.</p>
+<p>실습 대상은 <b><code>Qwen/Qwen3-14B</code></b><sup><a href="#ref-1">[1]</a></sup> 모델 + <b>vLLM</b>이며, 목표는 온라인 서빙 환경에서 <b>단일 모델 인스턴스의 토큰 처리량(Total Token Throughput) 최대화</b>입니다. 대부분의 LLM 과금 모델이 처리된 토큰 수를 기준으로 하므로, 같은 GPU 비용으로 처리량을 3배 늘리면 토큰당 비용은 1/3로 줄어듭니다.</p>
+
+<div class="analogy-box">
+  <span class="emoji">🍳</span>
+  <div><b>비유: 같은 주방으로 더 많은 손님 받기</b><br>
+  이 챕터 전체는 "같은 주방(GPU)에서 더 많은 손님(요청)을 받으려면 무엇을 바꿔야 하는가"라는 질문에 답하는 실습입니다. 재료(하드웨어)부터 확인하고, 실제 주문 패턴(트래픽)을 파악하고, 조리대(KV 캐시)를 넓히고, 마지막엔 주방을 늘릴지(분산 서빙) 요리사를 더 뽑을지(레플리카)를 결정합니다.</div>
+</div>
+
+<h3>처리량과 지연시간의 트레이드오프</h3>
+<p>높은 처리량을 얻으려면 요청을 배칭하거나 큐잉해서 하드웨어 활용도를 높여야 하는데, 이는 대기 시간을 유발해 요청당 지연시간을 늘립니다. 반대로 최저 지연시간만 추구하면 요청이 도착하는 즉시 낮은 병렬성으로 처리하게 되어, 자원 활용도가 떨어지고 전체 처리량이 낮아집니다. 실무에서는 일반적으로 <b>지연시간을 허용 가능한 범위 내로 유지하면서 처리량 개선을 우선</b>합니다.</p>
+<div class="mermaid-diagram">
+<pre class="mermaid">
+flowchart TD
+    subgraph TradeOff["처리량 vs 지연시간 트레이드오프"]
+        A["배치 크기 &amp; 동시성 증가"] --> B["GPU 연산 포화 / 활용률 극대화"]
+        B --> C["총 처리량(TPS) 대폭 상승"]
+        A --> D["큐 대기 시간 &amp; 스케줄링 지연 증가"]
+        D --> E["요청당 지연시간(TTFT/ITL) 증가"]
+    end
+</pre>
+</div>
+
+<blockquote>
+<p>📌 <b>가장 중요한 결론 6가지 (원문 그대로 인용)</b></p>
+<ol>
+<li>무조건 Multi-GPU가 빠른 것이 아니다.</li>
+<li>모델을 작게 만들면 단순히 VRAM만 절약되는 것이 아니라 KV Cache 공간과 concurrency가 늘어 throughput까지 크게 증가할 수 있다.</li>
+<li>반복 Prefix가 많은 workload에서는 cache reuse가 엄청난 차이를 만든다.</li>
+<li>Throughput과 Latency는 종종 trade-off 관계다.</li>
+<li>대부분의 production workload에서는 single-GPU replica를 여러 개 두는 horizontal scaling이 throughput 측면에서 유리할 수 있다.</li>
+<li>반대로 모델이 한 GPU에 안 들어가거나 per-request latency를 줄여야 한다면 TP 기반 vertical scaling이 필요하다.</li>
+</ol>
+</blockquote>
+
+<p>이 6가지 결론이 이 챕터 전체의 결말이자 안내판입니다. 아래 8단계를 하나씩 밟아가며, 왜 이런 결론에 도달하는지 직접 확인해봅시다.</p>
+
+<div class="figure-box">
+<img src="images/ch9/01.png" alt="처리량-지연시간 트레이드오프 및 8단계 최적화 파이프라인 개념도">
+<figcaption>8단계 최적화 절차 개요 다이어그램. 하드웨어 점검 → 벤치마크 트래픽 생성 → 지표 정의 → 베이스라인 → 양자화 → 워크로드별 튜닝 → 분산 서빙 → SLO 판정 후 다시 트래픽 재분석으로 돌아가는 반복 루프를 보여줍니다.</figcaption>
+</div>
+
+<div class="demo" id="stepDemo">
+  <span class="demo__badge">🧪 직접 눌러보기: 8단계 최적화 파이프라인</span>
+  <div class="step__grid" id="stepGrid"></div>
+  <div class="step__caption" id="stepCaption"></div>
+  <div class="demo__controls">
+    <button data-act="prev">◀ 이전</button>
+    <button data-act="play" class="primary" id="stepPlayBtn">▶ 자동 재생</button>
+    <button data-act="next">다음 ▶</button>
+    <button data-act="reset">처음으로</button>
+    <span class="demo__step-label" id="stepLabel">1 / 8</span>
+  </div>
+</div>
+
+<p>실습 환경은 3가지 중 하나를 고를 수 있습니다: ① AWS EC2 <code>g6e.2xlarge</code>(NVIDIA L40S, G계열 quota 8 필요), ② Runpod A40 48GB(약 $0.44, PyTorch 2.8.0 + Jupyter), ③ 개인 RTX 데스크탑(VRAM 크기에 맞는 모델 선택 — 이 챕터에서는 RTX 4070 Ti SUPER 16GB로 Qwen3-4B bf16→AWQ 4bit을 별도 실습합니다).</p>
+
+<h2 id="s1">Step 1. GPU 하드웨어 점검 (Examine the GPU Hardware)</h2>
+<p>최적화 작업의 첫 단계는 코드를 짜기 전에 <b>하드웨어 스펙과 현재 상태를 파악</b>하는 것입니다. <code>nvidia-smi</code>는 벤치마크 시작 전 "사전 점검(pre-flight check)" 도구로, 드라이버/CUDA 호환성, 전력·사용률 지표, 메모리 여유분을 한눈에 보여줍니다.</p>
+<div class="analogy-box">
+  <span class="emoji">✈️</span>
+  <div><b>비유: 이륙 전 조종사의 계기판 점검</b><br>
+  엔진 출력, 잔여 연료, 통신 장비가 정상인지 확인하지 않고 활주로를 달리면 사고가 나듯, GPU의 드라이버 호환성, 유휴 상태(Idle), 전력 상태를 확인하지 않고 벤치마크를 돌리면 비정상적인 결과가 나옵니다.</div>
+</div>
+<ul>
+<li><b>CUDA/드라이버 버전</b>: 선택한 서빙 프레임워크와 호환되는지 확인</li>
+<li><b>Performance State</b>: <code>P8</code>은 GPU가 유휴(idle) 상태, 서빙이 활발히 진행 중일 때는 <code>P0</code> 또는 <code>P1</code>(최고 속도)</li>
+<li><b>전력 사용량 및 GPU 사용률</b>: 부하가 있는데 사용률이 낮으면 배칭/스케줄링 비효율, 전력은 높은데 처리량이 낮으면 메모리 병목/커널 비효율을 의심</li>
+<li><b>메모리 사용량</b>: 현재 할당된 GPU 메모리량</li>
+</ul>
+<div class="figure-box">
+<img src="images/ch9/03_Figure_9-1_AWS_EC2_g6e_2xlarge_instance에.png" alt="Figure 9-1. AWS EC2 g6e.2xlarge instance에서 nvidia-smi 출력">
+<figcaption>Figure 9-1. AWS EC2 <code>g6e.2xlarge</code>에서의 <code>nvidia-smi</code> 출력 — NVIDIA L40S, Driver 570.172.08, CUDA 12.8, Perf State P8(유휴), 26°C, 31W/350W, 0MiB/46,068MiB(약 46GB), GPU-Util 0%로 완전한 유휴 상태를 보여줍니다.</figcaption>
+</div>
+<blockquote class="fix">
+<p>⚠ <b>정정(교차검증 반영)</b>: 원문 텍스트에는 Figure 9-1 바로 아래에 <b>다른 GPU(RTX 4070 Ti SUPER, Driver 595.84, CUDA 13.2, 15W/285W, 18MiB/16,376MiB)</b>의 <code>nvidia-smi</code> 예시 코드블록이 그대로 남아 있어, 리서치 초안 중 하나는 이 값을 Figure 9-1(L40S)의 값으로 잘못 인용했습니다. 이 문서에서는 이미지를 직접 재확인해 <b>Figure 9-1은 L40S/570.172.08/12.8</b>이 맞다는 점을 정정했습니다. RTX 4070 Ti SUPER 수치는 이 챕터 뒤쪽의 "RTX 4070 별도 실습"에서 실제로 사용되는 값입니다.</p>
+</blockquote>
+<pre><code>nvidia-smi
+nvidia-smi --query-gpu=name,compute_cap,memory.free,memory.used,memory.total --format=csv</code></pre>
+
+<h2 id="s2">Step 2. 벤치마크 트래픽 생성 (Generate Benchmark Traffic)</h2>
+<p><b>"아무 프롬프트나 넣고 측정하면 실서비스와 전혀 다른 결과를 얻는다"</b> — 이것이 이 단계의 출발점입니다. 긴 입력이 지배적인 워크로드(프리필 위주)와 긴 출력이 지배적인 워크로드(디코딩 위주)는 서로 다른 최적화 전략을 요구하므로, 데이터셋 선택이 최적화 방향을 결정합니다.</p>
+<div class="analogy-box">
+  <span class="emoji">🛣️</span>
+  <div><b>비유: 맞춤형 도로 주행 테스트</b><br>
+  시내 주행용 연비와 고속도로 주행용 연비는 완전히 다릅니다. 시내 셔틀버스를 고속도로 최고속도로 테스트하면 엉뚱한 결론이 나오듯, 챗봇 모델은 실제 대화 패턴 데이터로 테스트해야 합니다.</div>
+</div>
+<p>두 데이터셋을 상호보완적으로 사용합니다:</p>
+<ul>
+<li><b>ShareGPT</b>: 실제 대화 트래픽을 근사, 서빙 효율·응답성(사용자 경험) 평가용. 100개 샘플 통계는 Prompt 평균 <b>232.60</b> 토큰(중앙값 141.50), Output 평균 <b>220.61</b> 토큰(중앙값 164.50)으로, 입출력 길이가 비교적 균형 잡힌 대화형 트래픽입니다.</li>
+<li><b>Prefix Repetition</b>: 공통 접두사(prefix) + 반복/유사 접미사(suffix) 구조의 합성 데이터셋. 모델의 반복 편향을 테스트하고, prefix caching이 실제로 처리량을 높이는지 확인하는 용도입니다. 고유 접두사 개수를 줄일수록 캐시 히트율이 높아지는 트래픽을 인위적으로 만들 수 있습니다.</li>
+</ul>
+<p><code>inspect_dataset.py</code><sup><a href="#ref-2">[2]</a></sup> 헬퍼 스크립트는 <code>vllm.benchmarks.datasets</code>의 실제 로더로 데이터셋을 불러와 길이 분포(min/max/mean/median/std)와 ASCII 히스토그램을 출력합니다 — 실제 부하 테스트 전에 "지금 어떤 트래픽을 보내려는가"를 먼저 눈으로 확인하는 것입니다.</p>
+<pre><code># ShareGPT 100개 샘플 통계 확인
+python3 inspect_dataset.py --dataset-name sharegpt \
+    --dataset-path ShareGPT_V3_unfiltered_cleaned_split.json \
+    --model Qwen/Qwen3-14B --num-prompts 100 --save-samples
+
+# Prefix Repetition 50개 샘플 확인
+python3 inspect_dataset.py --dataset-name prefix_repetition \
+    --model Qwen/Qwen3-14B --num-prompts 50 \
+    --prefix-repetition-prefix-len 256 --prefix-repetition-suffix-len 256 \
+    --prefix-repetition-num-prefixes 5 --prefix-repetition-output-len 128 \
+    --save-samples</code></pre>
+<p>실제 부하는 <code>vllm bench serve</code><sup><a href="#ref-3">[3]</a></sup> CLI로 생성합니다 — 프롬프트 수·request-rate·burstiness·max-concurrency를 지정해 재현 가능한 트래픽을 만들고 TPS/TTFT/지연시간을 자동 수집합니다 (Step 5에서 그대로 재사용됩니다).</p>
+<pre><code>vllm bench serve --backend vllm --base-url "http://localhost:8000" \
+    --dataset-name sharegpt --dataset-path ShareGPT_V3_unfiltered_cleaned_split.json \
+    --num-prompts 2000 --request-rate 10 --burstiness 1.0 \
+    --max-concurrency 10 --model Qwen/Qwen3-14B \
+    --save-result --result-filename test_serve_results.txt</code></pre>
+
+<h2 id="s3">Step 3. 평가 지표 정의 (Define Evaluation Metrics)</h2>
+<p>전체 지표 체계는 처리량 / 지연시간 / 자원 활용도 / 워크로드 특성 / 신뢰성·비용 5개 범주지만, 이 실습은 비교의 초점을 위해 4개로 좁혔습니다: <b>총 토큰 처리량(TPS)</b>, <b>출력 토큰 처리량(TPS)</b>, <b>평균 TTFT</b>, <b>평균 ITL</b>. TPOT과 P99는 의도적으로 생략했습니다(다만 Step 5 로그에는 P99 ITL이 별도로 나옵니다).</p>
+<div class="analogy-box">
+  <span class="emoji">🍽️</span>
+  <div><b>비유: 식당 서비스 품질 지표</b><br>
+  주문 후 첫 음식이 나오는 시간(TTFT), 다음 코스 요리가 나오는 간격(ITL), 주방이 분당 만들어내는 총 접시 수(TPS)를 종합 평가하는 것과 같습니다. 평균 배달 시간(Mean)만 보면 유독 늦은 배달을 놓치므로, Median(보통 손님)과 P99(가장 오래 기다린 손님)도 함께 봐야 합니다.</div>
+</div>
+<table>
+<thead><tr><th>지표</th><th>정의</th><th>무엇을 반영하는가</th></tr></thead>
+<tbody>
+<tr><td>총 토큰 처리량</td><td>(입력+출력 토큰)/초</td><td>시스템 전체 효율</td></tr>
+<tr><td>출력 토큰 처리량</td><td>생성 토큰/초</td><td>디코딩 성능, LLM 비용의 핵심</td></tr>
+<tr><td>평균 TTFT</td><td>요청→첫 토큰까지 시간</td><td>프리필(Prefill) 효율성</td></tr>
+<tr><td>평균 ITL</td><td>연속 출력 토큰 간 평균 지연</td><td>스트리밍 체감 속도</td></tr>
+</tbody>
+</table>
+
+<h2 id="s4">Step 4. 모델 서빙 서비스 구성 (베이스라인 확보)</h2>
+<pre><code>vllm serve Qwen/Qwen3-14B</code></pre>
+<p>기본 설정으로 기동한 로그에서 확인되는 수치:</p>
+<ul>
+<li>모델 로딩: <b>27.5185 GiB</b>, 가중치 로드 4.47초, 모델 로드 5.265852초</li>
+<li>KV 캐시: <b>11.00 GiB / 72,064 토큰</b></li>
+<li>요청당 40,960 토큰 기준 최대 동시성: <b>1.76x</b></li>
+<li>총 46GB(46,068MiB) 중 약 <b>38.5GiB</b> 사용 (모델 27.5GB + KV캐시 11GB)</li>
+</ul>
+<div class="analogy-box">
+  <span class="emoji">🧑‍🍳</span>
+  <div><b>비유: 좁은 작업대</b><br>
+  46평짜리 조리 공간에서 요리책과 도구(모델 가중치)가 27.5평을 차지하면, 식재료를 올려둘 도마(KV 캐시)는 11평밖에 남지 않아 한 번에 소수의 주문만 소화할 수 있습니다.</div>
+</div>
+<p>핵심 인과관계 체인(Step 6 양자화의 동기가 됩니다): <b>KV 캐시 공간 부족 → 배치 크기 축소/캐시 축출 증가 → 재계산 증가 → GPU 효율 저하 → 처리량 저하</b>.</p>
+<blockquote class="fix">
+<p>⚠ <b>정정(원문 자체의 내적 불일치)</b>: 원문은 같은 27.5GB/46GB 비율을 두 곳에서 다르게 표현합니다 — 한 곳은 "모델 가중치가 GPU 메모리의 <b>약 60%</b>"라고 쓰고, 다른 곳은 "모델 자체가 GPU 메모리의 <b>65% 이상</b>을 차지"라고 씁니다. 실제 계산은 27.5185÷46≈<b>59.8%</b>로, "약 60%" 쪽이 정확합니다. "65% 이상"은 과장된 표현입니다.</p>
+</blockquote>
+
+<h2 id="s5">Step 5. Qwen3 모델 벤치마크 (베이스라인 첫 실행)</h2>
+<table>
+<thead><tr><th>지표</th><th>ShareGPT (2,000 요청)</th><th>Prefix Repetition (1,000 요청)</th></tr></thead>
+<tbody>
+<tr><td>총 입력/출력 토큰</td><td>446,619 / 412,052</td><td>512,000 / 127,066</td></tr>
+<tr><td>출력 토큰 처리량</td><td>227.64 tok/s</td><td>223.31 tok/s</td></tr>
+<tr><td><b>총 토큰 처리량</b></td><td><b>474.38 tok/s</b></td><td><b>1,123.13 tok/s</b></td></tr>
+<tr><td>평균 TTFT</td><td>104.15 ms</td><td>104.64 ms</td></tr>
+<tr><td>평균 ITL</td><td>43.24 ms (P99 72.15ms)</td><td>43.95 ms (P99 59.22ms)</td></tr>
+<tr><td>GPU 사용률(부하 중)</td><td>-</td><td>97%</td></tr>
+</tbody>
+</table>
+<p>두 결과를 나란히 보면 총 처리량은 <b>약 2.37배</b>(474.38 vs 1,123.13) 차이 나지만 TTFT/ITL은 거의 동일합니다. 이는 GPU 연산 자체가 빨라진 게 아니라, prefix caching + continuous batching + 메모리 블록 공유로 <b>"같은 계산을 반복하지 않기"</b> 때문입니다.</p>
+<blockquote class="fix">
+<p>⚠ <b>정정(교차검증 반영)</b>: 리서치 초안 중 하나는 "GPU 사용률 97%는 GPU가 병목이 아니라 이미 최대로 활용되고 있음을 뒷받침한다"고 서술했는데, 이는 과도한 해석입니다. 높은 사용률은 GPU가 바쁘다는 뜻일 뿐, GPU가 병목이 <i>아니라는</i> 것을 증명하지는 않습니다. 정확히는 "GPU가 높은 수준으로 활용되고 있음을 보여주며, 병목 위치를 확정하려면 TPS·전력·타임라인 등 추가 관측이 필요하다"고 표현해야 합니다.</p>
+</blockquote>
+
+<h2 id="s6">Step 6. 양자화된 Qwen3 모델 벤치마크 (Qwen3-14B-AWQ)</h2>
+<p>AWQ(Activation-Aware Weight Quantization) 4비트 버전(<code>Qwen3-14B-AWQ</code><sup><a href="#ref-4">[4]</a></sup>)으로 재기동해 동일 벤치마크를 반복합니다.</p>
+<table>
+<thead><tr><th></th><th>원본 (bf16)</th><th>AWQ (4bit)</th></tr></thead>
+<tbody>
+<tr><td>모델 가중치</td><td>27.5185 GiB</td><td><b>9.3619 GiB</b> (로딩 10.65초)</td></tr>
+<tr><td>KV 캐시</td><td>11.00 GiB / 72,064 토큰</td><td><b>29.15 GiB / 191,056 토큰</b></td></tr>
+<tr><td>최대 동시성</td><td>1.76x</td><td><b>4.66x</b></td></tr>
+</tbody>
+</table>
+<p>모델 가중치 절감분(약 18.16GiB, 약 <b>66% 절감</b>)이 그대로 KV 캐시로 이동해 캐시 용량이 2.65배로 늘어났습니다.</p>
+<p><b>ShareGPT 성능 개선</b>: 총 처리량 474 → <b>1,280 TPS(2.7배)</b>, 평균 TTFT 103.61ms → <b>59.29ms(약 42% 개선)</b>. Prefix Repetition도 같은 방향으로 개선되었습니다(그림에만 제시, 본문 텍스트 수치 없음).</p>
+<div class="figure-box">
+<img src="images/ch9/04__Figure_9-2_ShareGPT_dataset에서_Qwen3-14B.png" alt="Figure 9-2. ShareGPT에서 원본과 AWQ 처리량/지연 비교">
+<figcaption>Figure 9-2. ShareGPT 데이터셋에서 Qwen3-14B 원본과 AWQ 4-bit 버전의 throughput/latency 비교. Total TPS 474.75→1,280.83, Output TPS 227.84→614.86, 평균 TTFT 103.61→59.29ms, 평균 ITL 43.20→15.91ms.</figcaption>
+</div>
+<div class="figure-box">
+<img src="images/ch9/05_Figure_9-3_Prefix_Repetition_dataset에서_Q.png" alt="Figure 9-3. Prefix Repetition에서 원본과 AWQ 비교">
+<figcaption>Figure 9-3. Prefix Repetition 데이터셋 비교. Total TPS 1,124.18→2,822.13, Output TPS 223.47→562.57, 평균 TTFT 102.97→64.18ms, 평균 ITL 43.95→17.16ms.</figcaption>
+</div>
+
+<h3 id="s6-widget">🧪 메모리 재분배 시각화</h3>
+<p>모델 가중치가 줄어든 공간이 그대로 KV 캐시로 이동하는 과정을 직접 토글해서 확인해보세요.</p>
+<div class="demo" id="memDemo">
+  <span class="demo__badge">🧪 직접 조작해보기: AWQ 양자화 전후 VRAM 재분배</span>
+  <div class="mem__wrap">
+    <div class="mem__row">
+      <div class="mem__label">VRAM 46 GiB</div>
+      <div class="mem__track" id="memTrack">
+        <div class="mem__seg weights" id="memWeights">가중치</div>
+        <div class="mem__seg kv" id="memKv">KV 캐시</div>
+        <div class="mem__seg free" id="memFree">여유</div>
+      </div>
+    </div>
+  </div>
+  <div class="mem__stat-row">
+    <div class="mem__stat"><b id="memWeightsVal">27.52 GiB</b><span>모델 가중치</span></div>
+    <div class="mem__stat"><b id="memKvVal">11.00 GiB / 72,064 tok</b><span>KV 캐시 용량</span></div>
+    <div class="mem__stat"><b id="memConcVal">1.76x</b><span>최대 동시성</span></div>
+    <div class="mem__stat"><b id="memTpsVal">474 TPS</b><span>ShareGPT 총 처리량</span></div>
+  </div>
+  <div class="demo__controls">
+    <button data-mem="base" class="primary" id="memBtnBase">원본 (bf16)</button>
+    <button data-mem="awq" id="memBtnAwq">AWQ (4bit)</button>
+  </div>
+</div>
+
+<p>"Quantization → 모델 메모리 감소 → KV 캐시 증가 → 동시 요청 증가 → 배칭 효율 증가 → 처리량 증가"가 이 결과의 인과 체인입니다. 다만 이는 <b>가중치 양자화</b>(메모리·데이터 이동 절감)이며, 연산량 자체를 줄이려면 활성화(activation) 양자화가 별도로 필요합니다. 원문은 <b>"양자화도 공짜는 아니다"</b>라고 경고합니다 — 정확도 저하, 토큰 불안정성 등 품질 트레이드오프가 있을 수 있습니다.</p>
+
+<h2 id="s7">Step 7. 추가 최적화 기법 적용 (워크로드 맞춤)</h2>
+<p>워크로드 유형에 따라 다른 기법을 적용합니다:</p>
+<ul>
+<li><b>프리필 위주(긴 입력, 공유 컨텍스트)</b> → LMCache(반복 접두사 KV 재사용)</li>
+<li><b>디코딩 위주(긴 출력)</b> → 스펙큘레이티브 디코딩(드래프트 모델)</li>
+</ul>
+<pre><code>vllm serve Qwen/Qwen3-14B-AWQ \
+  --quantization awq \
+  --gpu-memory-utilization 0.95 \
+  --max-model-len 1024 \
+  --block-size 16 \
+  --enable-prefix-caching \
+  --max-num-seqs 8 \
+  --max-num-batched-tokens 8192 \
+  --enable-chunked-prefill</code></pre>
+<p><code>--block-size</code>는 작을수록 캐시 활용도가 좋아지고, <code>--max-num-seqs</code>/<code>--max-num-batched-tokens</code>는 배칭·스케줄링을 조절합니다. 원문의 핵심 경고: <b>"설정을 과도하게 튜닝하지 마라"</b> — 특정 GPU/트래픽에 과최적화(overfitting)된 설정은 다른 환경에서 이식성이 떨어집니다.</p>
+<div class="analogy-box">
+  <span class="emoji">🗺️</span>
+  <div><b>비유: 한 도로에 맞춘 내비게이션</b><br>
+  출퇴근길 한 도로에 맞춰 내비게이션을 고정하면, 비 오는 날이나 다른 도시에서는 오히려 나빠집니다. 현대 서빙 프레임워크는 이미 합리적인 기본값을 추론하므로, 실무의 초점은 "완벽한 숫자 찾기"가 아니라 "어떤 기법을 쓸지 판단"에 있어야 합니다.</div>
+</div>
+
+<h2 id="s7b">RTX 4070 Ti SUPER 16GB 별도 실습 &amp; Nsight 심층 분석</h2>
+<p>책의 핵심 논리(양자화→메모리 재분배→처리량 향상)를 데스크탑 환경에서 재현합니다(<code>--max-model-len 8192</code> 고정, Qwen3-4B bf16 → Qwen3-4B-AWQ 4bit).</p>
+<table>
+<thead><tr><th>지표</th><th>ShareGPT(원본)</th><th>ShareGPT(AWQ)</th><th>Prefix Rep(원본)</th><th>Prefix Rep(AWQ)</th></tr></thead>
+<tbody>
+<tr><td>모델 가중치</td><td>7.56 GiB</td><td>2.50 GiB</td><td>동일</td><td>동일</td></tr>
+<tr><td>KV캐시/토큰</td><td>4.74GiB/34,512</td><td>10.45GiB/76,064</td><td>동일</td><td>동일</td></tr>
+<tr><td>최대 동시성</td><td>4.21x</td><td><b>9.29x</b></td><td>동일</td><td>동일</td></tr>
+<tr><td>총 처리량(TPS)</td><td>1,178</td><td><b>2,107 (+79%)</b></td><td>2,733</td><td><b>3,140 (+13%)</b></td></tr>
+<tr><td>평균 TTFT</td><td>66.2ms</td><td>43.5ms</td><td>87.2ms</td><td>49.0ms</td></tr>
+<tr><td>평균 ITL</td><td>16.0ms</td><td>7.5ms</td><td>17.0ms</td><td>7.2ms</td></tr>
+</tbody>
+</table>
+<p>가중치 약 66% 절감(7.56→2.5GiB)이 KV캐시를 2.2배(34,512→76,064 토큰)로 늘려 ShareGPT 처리량을 약 1.8배 높였습니다.</p>
+
+<h3>Nsight Systems 프로파일링: "진짜 병목"을 찾아서</h3>
+<p>별도로 100 prompts / max-concurrency 8 조건에서 <code>nsys profile --trace=cuda,nvtx,osrt</code>로 vllm serve를 감싸 실행했습니다.</p>
+<blockquote class="fix">
+<p>⚠ <b>주의(조건 구분)</b>: 아래 수치(967→2,105 TPS)는 위 메인 벤치마크 표(1,178→2,107 TPS)와 <b>서로 다른 실행 조건</b>입니다 — 프롬프트 수가 100개로 축소되었고 <code>nsys</code> 프로파일링 오버헤드가 포함되어 있습니다. 두 표를 같은 실행 결과처럼 섞어서 해석하면 안 됩니다.</p>
+</blockquote>
+<ul>
+<li>처리 시간: 46.9초 → <b>21.5초(2.18배 단축)</b>, 총 처리량 967 → <b>2,105 TPS(+118%)</b>, 평균 TPOT 15.3 → <b>7.0ms(2.19배 개선)</b></li>
+<li><b>핵심 발견 1</b>: 총 GPU 커널 실행 시간은 원본/AWQ 모두 약 <b>7.1초로 동일</b>합니다. 연산량 자체가 줄어든 게 아닌데 체감 처리시간은 2.2배 단축됐습니다 — <b>"GPU 연산 자체는 더 빨라지지 않았다"</b>는 뜻입니다.</li>
+<li><b>핵심 발견 2</b>: 커널 구성 — AWQ에서도 약 35.5%가 미양자화 bf16/f16 GEMM(lm_head 등 추정)으로 남고, Marlin GEMM(4bit)이 약 35.6%, FlashAttention은 15%대로 거의 동일(양자화 대상 아님).</li>
+<li><b>핵심 발견 3 (진짜 병목)</b>: <code>cudaEventSynchronize</code>(호스트-GPU 동기화 대기)가 원본 85.2%(13.92ms/호출) → AWQ 74.6%(5.67ms/호출)로 약 <b>2.45배 단축</b>됐습니다. 이는 벤치마크에서 관측된 TPOT 개선(2.19배)과 방향이 비슷합니다.</li>
+</ul>
+<div class="analogy-box">
+  <span class="emoji">👨‍🍳</span>
+  <div><b>비유: 요리는 똑같이 빠른데 서빙 신호가 빨라졌다</b><br>
+  요리(GPU 커널 연산) 자체는 예전과 같은 속도로 끝나는데, 서빙 담당(호스트-GPU 동기화)이 다음 주문을 준비하는 데 걸리는 시간이 줄어서 손님상에 더 빨리 나가는 것과 같습니다.</div>
+</div>
+<blockquote class="fix">
+<p>⚠ <b>정정(과장 주의, 교차검증 반영)</b>: <code>cudaEventSynchronize</code> 개선(2.45배)과 TPOT 개선(2.19배)은 방향은 같지만 배수 자체는 약 <b>12% 상대 차이</b>가 있습니다. 이를 "핵심 메커니즘임을 증명한다"거나 "통계적으로 동일하다"고 단정하는 것은 과장입니다 — 단일 프로파일링 비교이므로 반복·통계 검정 없이는 "같은 방향의 개선을 뒷받침하는 정황 증거" 정도로만 해석해야 합니다.</p>
+</blockquote>
+<p><b>Nsight Compute 커널 단위 분석</b>(<code>vllm bench latency --enforce-eager</code>, batch=8): GEMM occupancy가 bf16(원본)과 Marlin(4bit) 사이에 거의 동일(~16.7%)했습니다 — 즉 <b>커널 자체의 효율은 양자화로 바뀌지 않으며</b>, 처리량 차이는 "KV 캐시 확대가 만드는 배칭/스케줄링 효율화"에서 나온다는 결론을 커널 레벨에서 재확인합니다. (참고: 캐시 커널의 "Compute(SM) Throughput 25.9%/26.8%"와 "Achieved Occupancy 65.86%/65.77%"는 서로 다른 지표이므로 혼용하지 않도록 주의합니다.)</p>
+
+<h2 id="s7c">도전과제: 모니터링 파이프라인(프로메테우스+그라파나) vs Nsight 종합 분석</h2>
+<p><code>docker-compose.yml</code>로 prometheus, grafana(admin/admin), node-exporter, dcgm-exporter(GPU 메트릭)를 구성합니다. GeForce 카드는 dcgm-exporter가 PCIe TX/RX 처리량을 제공하지 못하는 한계가 있어, 이를 우회하는 커스텀 익스포터 <code>nvml_pcie_exporter.py</code>(pynvml + prometheus_client, 포트 9401)로 PCIe TX/RX bytes·link width·generation을 1초 간격으로 폴링해 노출합니다.</p>
+<div class="figure-box">
+<img src="images/ch9/07.png" alt="Grafana GPU 모니터링 대시보드">
+<figcaption>커스텀 Grafana 대시보드: GPU 사용률, GPU 메모리 프레임버퍼, GPU 온도, GPU 전력, PCIe TX/RX, PCIe 링크 폭/세대를 한눈에 보여주는 6분할 패널.</figcaption>
+</div>
+<div class="figure-box">
+<img src="images/ch9/08.png" alt="vLLM 자체 Grafana 대시보드">
+<figcaption>vLLM 자체 제공 Grafana 대시보드: 실행/대기 요청 수, KV 캐시 사용률, 토큰 처리량, TTFT/TPOT p50·p95, 엔드투엔드 요청 지연시간 패널.</figcaption>
+</div>
+<div class="figure-box">
+<img src="images/ch9/06.png" alt="Nsight Systems GUI 타임라인">
+<figcaption>Nsight Systems GUI로 <code>qwen3_4b_base_nsys.rep</code> 트레이스를 열어 CPU/프로세스/스레드 타임라인과 <code>cudaStreamSynchronize</code> 호출 지점을 확인하는 화면.</figcaption>
+</div>
+<div class="figure-box">
+<img src="images/ch9/09_XFCE_데스크톱.png" alt="XFCE 원격 데스크톱">
+<figcaption>Ubuntu Server + XFCE + TigerVNC + noVNC(웹 포트 6080)로 구성한 원격 GUI 환경. Nsight Systems/Compute처럼 GUI가 필요한 도구를 브라우저로 원격 사용할 수 있습니다.</figcaption>
+</div>
+
+<h2 id="s8">Step 8. 분산 서빙 벤치마크 (Vertical vs Horizontal Scaling)</h2>
+<p>4비트 양자화 <code>Qwen3-14B-AWQ</code>를 인터커넥트가 다른 두 인스턴스에서 비교합니다: <b>g6e.12xlarge</b>(NVIDIA <b>L40S x4, PCIe만</b>) vs <b>p4d.24xlarge</b>(NVIDIA <b>A100 x8, NVSwitch 600GB/s</b>).</p>
+<pre><code>vllm serve Qwen/Qwen3-14B-AWQ --tensor-parallel-size 2</code></pre>
+<div class="figure-box">
+<img src="images/ch9/13_그림_9-4_g6e_인스턴스에서_Qwen3-14B-AWQ를_GPU_1개_.png" alt="그림 9-4. g6e에서 1/2/4 GPU 벤치마크">
+<figcaption>그림 9-4. g6e(L40S, PCIe) — 1/2/4 GPU ShareGPT TPS 2,066.98 / 1,725.72 / 1,755.80, TTFT 67.92 / 104.58 / 106.24ms. GPU를 늘릴수록 오히려 성능이 나빠집니다.</figcaption>
+</div>
+<div class="figure-box">
+<img src="images/ch9/14_그림_9-5_p4d_인스턴스에서_Qwen3-14B-AWQ를_GPU_1개_.png" alt="그림 9-5. p4d에서 1/2/4 GPU 벤치마크">
+<figcaption>그림 9-5. p4d(A100, NVSwitch) — 1/2/4 GPU ShareGPT TPS 2,454.63 / 3,342.38 / 3,926.27, TTFT 66.73 / 44.18 / 33.46ms. GPU를 늘릴수록 개선됩니다.</figcaption>
+</div>
+<p>원인은 인터커넥트입니다. NVSwitch(A100/p4d)는 저지연·고대역 GPU 간 통신(600GB/s)을 제공해 텐서 병렬화의 이득이 통신 오버헤드를 상쇄하지만, PCIe만 있는 g6e/L40S는 통신 비용이 더 커서 GPU를 늘릴수록 손해를 봅니다.</p>
+
+<div class="mermaid-diagram">
+<pre class="mermaid">
+graph LR
+    subgraph g6e["g6e (L40S x4, PCIe)"]
+        G1["1-GPU: 2,067 TPS (최고)"] --> G2["2-GPU: 1,726 TPS"]
+        G2 --> G4["4-GPU: 1,756 TPS (최악)"]
+    end
+    subgraph p4d["p4d (A100 x8, NVSwitch)"]
+        P1["1-GPU: 2,455 TPS"] --> P2["2-GPU: 3,342 TPS"]
+        P2 --> P4["4-GPU: 3,926 TPS (최고, TTFT 33ms)"]
+    end
+</pre>
+</div>
+
+<p><b>오해 정정 (중요)</b>: p4d 4-GPU 텐서 병렬 구성이 처리량·지연시간 최고였음에도, GPU마다 독립 모델 인스턴스 4개(수평 확장)를 각각 돌리면 총 처리량이 <b>9,816 TPS</b>로, 텐서 병렬 4-GPU(3,926 TPS) 대비 원문 표현으로는 "거의 3배"지만 실제 계산값은 <b>약 2.5배</b>(9,816÷3,926≈2.50)입니다.</p>
+<blockquote class="fix">
+<p>⚠ <b>정정(plan.md 핵심 검증 항목)</b>: 3개 모델의 독립 리서치와 교차검증 모두 "거의 3배"라는 원문 표현이 과장된 반올림이며, 정확한 배수는 <b>2.50배</b>임을 확인했습니다. (9,816÷3,926.27=2.4999…)</p>
+</blockquote>
+<p><b>분산 서빙의 진짜 가치는 지연시간 감소</b>: p4d에서 GPU 1개→4개로 <b>TTFT가 66.73ms→33.46ms(약 50% 감소, 정확히는 49.86%)</b>. 이 지연시간 개선은 수평 확장(레플리카 추가)으로는 달성할 수 없습니다 — 레플리카를 아무리 늘려도 한 요청 자체의 처리 시간(service time)은 줄지 않기 때문입니다. (다만 대기 행렬이 짧아져 <i>큐잉 지연</i>을 포함한 종단 간 지연시간은 개선될 수 있다는 점은 별개입니다.)</p>
+
+<table>
+<thead><tr><th></th><th>Vertical(텐서 병렬)</th><th>Horizontal(독립 레플리카)</th></tr></thead>
+<tbody>
+<tr><td>장점</td><td>큰 모델을 GPU 1장 초과해도 실행 가능, per-request latency 감소</td><td>Total Throughput 증가, 장애 격리, 스케일링 단순</td></tr>
+<tr><td>단점</td><td>GPU 간 통신 오버헤드, 복잡도 증가</td><td>한 요청의 처리 시간 자체는 GPU를 늘려도 줄지 않음</td></tr>
+</tbody>
+</table>
+<div class="analogy-box">
+  <span class="emoji">👩‍🍳</span>
+  <div><b>비유: 조수를 붙일까, 요리사를 더 뽑을까</b><br>
+  Vertical Scaling은 "한 명의 초고속 요리사에게 조수를 붙여주는 것"(같은 주문을 더 빨리 끝냄)이고, Horizontal Scaling은 "같은 실력의 요리사를 더 채용하는 것"(동시에 더 많은 주문을 받음)입니다. 주방(GPU) 사이 통로가 좁으면(PCIe) 요리사끼리 부딪혀 오히려 늦어질 수 있습니다.</div>
+</div>
+<p><b>도전과제(원문 그대로 인용)</b>:</p>
+<ul>
+<li>"가급적 큰 최신의 MoE 모델 vLLM 서빙해보기: 예시) TP=2 x EP=2 = 4장 GPU 필요"</li>
+<li>"GPUx2 서버에서 vLLM <code>PP=2</code> vs <code>TP=2</code> vs <code>Router → Replica=2</code> 비교 측정" (K3s+HAMi, vLLM-Router<sup><a href="#ref-5">[5]</a></sup>/LoxiLB<sup><a href="#ref-6">[6]</a></sup>/NVIDIA Dynamo Router/llm-d<sup><a href="#ref-7">[7]</a></sup> 참고)</li>
+</ul>
+
+<h2 id="s9">공통 최적화 트레이드오프 &amp; 요약</h2>
+<table>
+<thead><tr><th>트레이드오프</th><th>이 챕터에서 확인한 사례</th></tr></thead>
+<tbody>
+<tr><td>처리량 ↔ 지연시간</td><td>Step 5~6: 배칭·양자화로 처리량 개선, 인터랙티브 워크로드는 TTFT/ITL도 함께 챙겨야 함</td></tr>
+<tr><td>메모리 효율 ↔ 모델 품질</td><td>Step 6: AWQ 4비트로 메모리 절감·처리량 향상, 정확도 손실 가능성은 별도 고려</td></tr>
+<tr><td>하드웨어 활용도 ↔ 유연성</td><td>Step 7: "과최적화 금지" 경고</td></tr>
+<tr><td>수직 확장 ↔ 수평 확장</td><td>Step 8: g6e에서는 분산이 손해, 독립 레플리카 4개가 텐서 병렬 4-GPU보다 처리량 약 2.5배</td></tr>
+<tr><td>정적 최적화 ↔ 적응형 서빙</td><td>이 실습 자체가 고정 파라미터 기반 정적 최적화</td></tr>
+</tbody>
+</table>
+<p>최적화는 보편적 최선의 설정을 찾는 것이 아니라 지배적 병목을 이해하고 적절한 레벨에서 기법을 적용하는 것입니다. 시나리오(비즈니스 사용 사례, 트래픽 패턴, 성능 목표) 이해부터 시작해, 대표성 있는 테스트 데이터셋과 의미 있는 지표를 마련하고, 일반적 처리량 최적화(베이스라인)부터 시작한 뒤 워크로드별 세부 튜닝으로 넘어갑니다. 분산 서빙은 선택적으로(모델 크기 초과 또는 저지연 요구 시만) 적용하며, 대부분은 단일 GPU + 수평 확장이 더 나은 처리량과 단순성을 줍니다. <b>"최적화는 반복적이다"</b> — 실제 사용자 시나리오에 뿌리를 둔 지속적인 실험·측정·트레이드오프 분석이 핵심입니다.</p>
+
+<h2 id="outro">마무리: 질문과 답</h2>
+<blockquote>
+<p><b>Q1. "처리량이 올랐다는 건 GPU가 더 빨리 계산해서인가, 아니면 그냥 덜 다시 계산해서인가?"</b></p>
+<p>→ <b>덜 다시 계산해서입니다.</b> Step 5~6의 벤치마크에서 GPU 연산 시간(커널 실행시간) 자체는 원본과 AWQ가 거의 동일했습니다(RTX 4070 Nsight 분석: ~7.1초로 동일). 처리량이 오른 이유는 KV 캐시 확대로 더 많은 요청을 동시에 배칭할 수 있게 되어 prefix 재사용·캐시 히트가 늘고, 재계산(recomputation)이 줄었기 때문입니다. 진짜 병목이었던 <code>cudaEventSynchronize</code>(호스트-GPU 동기화 대기) 시간이 줄어든 것이 체감 속도 향상의 실제 원인이었습니다.</p>
+</blockquote>
+<blockquote>
+<p><b>Q2. "GPU를 더 붙이면 무조건 더 빠른가?"</b></p>
+<p>→ <b>아닙니다.</b> Step 8에서 g6e(PCIe만 지원하는 L40S)는 GPU를 2개, 4개로 늘릴수록 오히려 처리량과 지연시간이 나빠졌습니다. 반면 p4d(NVSwitch를 지원하는 A100)는 GPU를 늘릴수록 개선됐습니다. 관건은 GPU 개수가 아니라 GPU 간 통신 인터커넥트의 품질(NVSwitch/NVLink vs PCIe)입니다. 심지어 인터커넥트가 좋은 p4d에서도, "총 처리량"만 본다면 텐서 병렬 4-GPU보다 독립 레플리카 4개(수평 확장)가 약 2.5배 더 높은 처리량을 냅니다.</p>
+</blockquote>
+<blockquote>
+<p><b>Q3. "이 챕터에서 찾은 '최적의 설정'은 다른 환경에서도 최적인가?"</b></p>
+<p>→ <b>아닙니다.</b> 이 챕터 자체가 반복 강조하는 경고입니다. AWQ 양자화·특정 block-size·max-num-seqs 값 등은 <code>Qwen3-14B</code> + <code>g6e.2xlarge</code>/<code>RTX 4070</code> + <code>ShareGPT/Prefix Repetition</code> 트래픽이라는 특정 조합에서 측정된 결과입니다. 다른 모델·GPU·트래픽 패턴에서는 병목의 위치 자체가 다를 수 있어(예: 인터커넥트가 다르면 분산 서빙의 유불리가 정반대로 뒤집힙니다) 설정을 그대로 옮기는 것은 위험합니다. Step 7의 "과도한 튜닝 금지" 경고와 Step 8의 g6e/p4d 대조 결과가 이를 직접적으로 뒷받침합니다.</p>
+</blockquote>
+
+<h2 id="refs">참고 자료</h2>
+<ol class="refs-list">
+<li id="ref-1"><a href="https://huggingface.co/Qwen/Qwen3-14B" target="_blank" rel="noopener">Qwen3-14B (Hugging Face)</a></li>
+<li id="ref-2">실습 코드 저장소 — <a href="https://github.com/orca3/llm-model-inference/tree/main/ch09" target="_blank" rel="noopener">github.com/orca3/llm-model-inference/ch09</a> (<code>model_optimization_in_practice.ipynb</code>, <code>inspect_dataset.py</code>)</li>
+<li id="ref-3"><a href="https://docs.vllm.ai/en/stable/cli/bench/serve/" target="_blank" rel="noopener">vLLM bench serve 공식 문서</a></li>
+<li id="ref-4"><a href="https://huggingface.co/Qwen/Qwen3-14B-AWQ" target="_blank" rel="noopener">Qwen3-14B-AWQ (Hugging Face)</a></li>
+<li id="ref-5"><a href="https://github.com/vllm-project/router" target="_blank" rel="noopener">vLLM Router (GitHub)</a></li>
+<li id="ref-6">LoxiLB Inference Gateway — <a href="https://github.com/loxilb-io/loxilb-inference-gateway" target="_blank" rel="noopener">GitHub</a> / <a href="https://www.youtube.com/watch?v=sVBWCp8W1WY" target="_blank" rel="noopener">소개 영상(YouTube)</a></li>
+<li id="ref-7"><a href="https://llm-d.ai/docs/architecture/core/router" target="_blank" rel="noopener">llm-d Router (Docs)</a></li>
+</ol>
+
+    </div>
+  </main>
+</div>
+<script>
+  mermaid.initialize({ startOnLoad: true, theme: 'default', securityLevel: 'loose' });
+</script>
+<script>
+(function () {
+  var steps = [
+    { t: '1. Hardware', d: '<b>Step 1 — GPU 하드웨어 점검</b><br>nvidia-smi로 드라이버/CUDA 호환성, 전력·사용률, 메모리 여유분을 사전 점검합니다.' },
+    { t: '2. Traffic', d: '<b>Step 2 — 벤치마크 트래픽 생성</b><br>ShareGPT(실제 대화)와 Prefix Repetition(캐시 재사용 테스트)으로 대표성 있는 부하를 만듭니다.' },
+    { t: '3. Metrics', d: '<b>Step 3 — 평가 지표 정의</b><br>총 토큰 TPS, 출력 토큰 TPS, 평균 TTFT, 평균 ITL 4가지로 비교 기준을 확정합니다.' },
+    { t: '4. Baseline 구성', d: '<b>Step 4 — 서빙 서비스 구성</b><br>vllm serve로 Qwen3-14B를 기동해 모델(27.5GiB)·KV캐시(11GiB) 메모리 분배를 확인합니다.' },
+    { t: '5. Baseline 측정', d: '<b>Step 5 — 베이스라인 벤치마크</b><br>ShareGPT 474 TPS, Prefix Repetition 1,123 TPS — 캐시 재사용만으로 2.37배 차이가 납니다.' },
+    { t: '6. Quantization', d: '<b>Step 6 — AWQ 양자화</b><br>가중치를 9.36GiB로 압축해 KV캐시를 29.15GiB로 확장, 처리량이 2.7배(1,280 TPS)로 오릅니다.' },
+    { t: '7. 튜닝', d: '<b>Step 7 — 워크로드별 최적화</b><br>LMCache(프리필 위주) 또는 스펙큘레이티브 디코딩(디코딩 위주)을 워크로드에 맞게 적용합니다.' },
+    { t: '8. 분산 서빙', d: '<b>Step 8 — 멀티 GPU 벤치마크</b><br>인터커넥트(PCIe vs NVSwitch)에 따라 결과가 정반대로 갈립니다 — GPU 개수보다 연결 방식이 중요합니다.' }
+  ];
+  var idx = 0, timer = null;
+  var grid = document.getElementById('stepGrid');
+  steps.forEach(function (s, i) {
+    var cell = document.createElement('div');
+    cell.className = 'step__cell';
+    cell.textContent = s.t;
+    cell.addEventListener('click', function () { pause(); render(i); });
+    grid.appendChild(cell);
+  });
+  function render(i) {
+    idx = i;
+    Array.prototype.forEach.call(grid.children, function (cell, ci) {
+      cell.classList.toggle('active', ci === idx);
+      cell.classList.toggle('done', ci < idx);
+    });
+    document.getElementById('stepCaption').innerHTML = steps[idx].d;
+    document.getElementById('stepLabel').textContent = (idx + 1) + ' / ' + steps.length;
+  }
+  function next() { render((idx + 1) % steps.length); }
+  function prev() { render((idx - 1 + steps.length) % steps.length); }
+  function pause() { if (timer) { clearInterval(timer); timer = null; document.getElementById('stepPlayBtn').textContent = '▶ 자동 재생'; } }
+  function play() {
+    if (timer) { pause(); return; }
+    document.getElementById('stepPlayBtn').textContent = '⏸ 정지';
+    timer = setInterval(next, 1800);
+  }
+  document.querySelector('#stepDemo [data-act="prev"]').addEventListener('click', function () { pause(); prev(); });
+  document.querySelector('#stepDemo [data-act="next"]').addEventListener('click', function () { pause(); next(); });
+  document.querySelector('#stepDemo [data-act="reset"]').addEventListener('click', function () { pause(); render(0); });
+  document.getElementById('stepPlayBtn').addEventListener('click', play);
+  render(0);
+})();
+</script>
+<script>
+(function () {
+  var data = {
+    base: { weightsPct: 60, kvPct: 24, weightsLbl: '27.52 GiB', kvLbl: '11.00 GiB / 72,064 tok', conc: '1.76x', tps: '474 TPS' },
+    awq:  { weightsPct: 20, kvPct: 63, weightsLbl: '9.36 GiB',  kvLbl: '29.15 GiB / 191,056 tok', conc: '4.66x', tps: '1,280 TPS' }
+  };
+  function render(mode) {
+    var d = data[mode];
+    document.getElementById('memWeights').style.width = d.weightsPct + '%';
+    document.getElementById('memKv').style.width = d.kvPct + '%';
+    document.getElementById('memFree').style.width = (100 - d.weightsPct - d.kvPct) + '%';
+    document.getElementById('memWeightsVal').textContent = d.weightsLbl;
+    document.getElementById('memKvVal').textContent = d.kvLbl;
+    document.getElementById('memConcVal').textContent = d.conc;
+    document.getElementById('memTpsVal').textContent = d.tps;
+    document.getElementById('memBtnBase').classList.toggle('primary', mode === 'base');
+    document.getElementById('memBtnAwq').classList.toggle('primary', mode === 'awq');
+  }
+  document.getElementById('memBtnBase').addEventListener('click', function () { render('base'); });
+  document.getElementById('memBtnAwq').addEventListener('click', function () { render('awq'); });
+  render('base');
+})();
+</script>
+</body>
+</html>

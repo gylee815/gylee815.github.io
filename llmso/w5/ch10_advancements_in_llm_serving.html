@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CH10. LLM 서빙의 발전 — 초보자를 위한 완전 가이드</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+  :root {
+    --bg: #ffffff; --bg-alt: #f6f7f9; --text: #1c1f24; --text-muted: #5b6270;
+    --border: #e2e5ea; --accent: #3457d5; --accent-soft: #eef1fd;
+    --callout-bg: #fff8e6; --callout-border: #e8c766;
+    --fix-bg: #fdeef0; --fix-border: #d9534f;
+    --code-bg: #f2f3f5; --success: #1a7f37; --success-soft: #dafbe1;
+    --danger: #cf222e; --danger-soft: #ffebe9; --max-width: 900px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #14161a; --bg-alt: #1b1e24; --text: #e7e9ec; --text-muted: #9aa2b1;
+      --border: #2c3038; --accent: #7c93ff; --accent-soft: #1e2330;
+      --callout-bg: #2a2410; --callout-border: #6b5a1c;
+      --fix-bg: #2a1516; --fix-border: #8a3a3a;
+      --code-bg: #1e2126; --success: #3fb950; --success-soft: #0f2e1a;
+      --danger: #f85149; --danger-soft: #3a1414;
+    }
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", Helvetica, Arial, sans-serif;
+    line-height: 1.75; font-size: 16px;
+  }
+  .site-header { padding: 3rem 1.5rem 1.25rem; text-align: center; border-bottom: 1px solid var(--border); background: var(--bg-alt); }
+  .site-title { margin: 0 0 .5rem; font-size: 1.9rem; }
+  .site-subtitle { margin: 0; color: var(--text-muted); font-size: .95rem; }
+  .badge-row { margin-top: 1rem; display: flex; gap: .5rem; justify-content: center; flex-wrap: wrap; }
+  .badge { font-size: .75rem; padding: .25rem .7rem; border-radius: 999px; background: var(--accent-soft); color: var(--accent); font-weight: 600; text-decoration: none; display: inline-block; }
+  a.badge:hover { text-decoration: underline; }
+  .layout { display: flex; align-items: flex-start; max-width: 1200px; margin: 0 auto; padding: 2rem 1.5rem 4rem; gap: 2.5rem; }
+  nav.sidebar { position: sticky; top: 1.5rem; flex: 0 0 260px; max-height: calc(100vh - 3rem); overflow-y: auto; font-size: .85rem; border-right: 1px solid var(--border); padding-right: 1.25rem; }
+  nav.sidebar h2 { font-weight: 700; margin: 0 0 .75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: .05em; font-size: .75rem; }
+  nav.sidebar ul { list-style: none; margin: 0; padding-left: 0; }
+  nav.sidebar li { margin: .45rem 0; }
+  nav.sidebar a { color: var(--text-muted); text-decoration: none; display: block; line-height: 1.4; }
+  nav.sidebar a:hover { color: var(--accent); }
+  nav.sidebar .sub { padding-left: .8rem; font-size: .92em; }
+  nav.sidebar .prev-link, nav.sidebar .next-link { margin-bottom: 1.25rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+  nav.sidebar .prev-link a, nav.sidebar .next-link a { color: var(--accent); font-weight: 600; }
+  main { flex: 1 1 auto; min-width: 0; }
+  .markdown-body { max-width: var(--max-width); }
+  .markdown-body h2 { margin-top: 3.5rem; padding-top: 1.5rem; border-top: 3px solid var(--accent); font-size: 1.5rem; }
+  .markdown-body h2:first-child { margin-top: 0; padding-top: 0; border-top: none; }
+  .markdown-body h3 { margin-top: 2.25rem; font-size: 1.18rem; }
+  .markdown-body h4 { margin-top: 1.5rem; font-size: 1.02rem; color: var(--text-muted); }
+  .markdown-body p { margin: 1rem 0; }
+  .markdown-body a { color: var(--accent); }
+  .markdown-body ul, .markdown-body ol { padding-left: 1.4rem; }
+  .markdown-body li { margin: .35rem 0; }
+  .markdown-body hr { border: none; border-top: 1px solid var(--border); margin: 3rem 0; }
+  .markdown-body table { width: 100%; border-collapse: collapse; margin: 1.25rem 0; font-size: .87rem; }
+  .markdown-body th, .markdown-body td { border: 1px solid var(--border); padding: .5rem .7rem; text-align: left; vertical-align: top; }
+  .markdown-body th { background: var(--bg-alt); }
+  .markdown-body blockquote { margin: 1.25rem 0; padding: .9rem 1.1rem; border-left: 4px solid var(--callout-border); background: var(--callout-bg); border-radius: 0 6px 6px 0; }
+  blockquote.fix { background: var(--fix-bg); border-left-color: var(--fix-border); }
+  blockquote.fix b { color: var(--fix-border); }
+  blockquote.note { background: var(--accent-soft); border-left-color: var(--accent); }
+  blockquote.note b { color: var(--accent); }
+  .markdown-body code { font-family: "SFMono-Regular", Consolas, Menlo, monospace; background: var(--code-bg); padding: .15em .4em; border-radius: 4px; font-size: .9em; }
+  .markdown-body pre { background: var(--code-bg); padding: 1rem 1.1rem; border-radius: 6px; overflow-x: auto; margin: 1.25rem 0; }
+  .markdown-body pre code { background: none; padding: 0; font-size: .85rem; }
+  .mermaid-diagram { text-align: center; margin: 1.5rem 0; padding: 1rem; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; overflow-x: auto; }
+  .mermaid-diagram svg { max-width: 100%; height: auto; }
+  .figure-box { margin: 1.5rem 0; text-align: center; }
+  .figure-box img { max-width: 100%; border-radius: 8px; border: 1px solid var(--border); }
+  .figure-box figcaption { margin-top: .6rem; font-size: .85em; color: var(--text-muted); text-align: left; }
+  .analogy-box { display: flex; gap: .85rem; align-items: flex-start; margin: 1.25rem 0; padding: 1rem 1.1rem; background: var(--accent-soft); border-radius: 8px; }
+  .analogy-box .emoji { font-size: 1.6rem; line-height: 1; }
+  .analogy-box b { color: var(--accent); }
+  details.toc-mobile { display: none; margin: 0 0 24px; }
+  details.toc-mobile summary { cursor: pointer; font-weight: 600; padding: 10px 14px; background: var(--bg-alt); border: 1px solid var(--border); border-radius: 6px; }
+  details.toc-mobile ul { list-style: none; padding-left: 8px; }
+  details.toc-mobile a { color: var(--accent); text-decoration: none; }
+  @media (max-width: 900px) {
+    nav.sidebar { display: none; } details.toc-mobile { display: block; } .layout { padding: 1.5rem 1rem 3rem; }
+  }
+
+  /* ---- glossary ---- */
+  .glossary { max-width: 1200px; margin: 0 auto; padding: 1.25rem 1.5rem 0.5rem; }
+  .glossary > summary { cursor: pointer; font-weight: 700; font-size: .95rem; padding: .8rem 1.1rem; background: var(--accent-soft); color: var(--accent); border-radius: 8px; list-style: none; }
+  .glossary > summary::-webkit-details-marker { display: none; }
+  .glossary > summary::before { content: "📖 "; }
+  .glossary[open] > summary { border-radius: 8px 8px 0 0; }
+  .glossary-body { border: 1px solid var(--border); border-top: none; border-radius: 0 0 8px 8px; padding: 1.1rem 1.3rem; background: var(--bg); }
+  .glossary-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: .9rem 1.5rem; }
+  .glossary-cat { grid-column: 1 / -1; margin: .6rem 0 -.2rem; font-size: .78rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: .04em; border-top: 1px solid var(--border); padding-top: .8rem; }
+  .glossary-cat:first-of-type { border-top: none; padding-top: 0; margin-top: 0; }
+  .gterm dt { font-weight: 700; color: var(--accent); font-size: .88rem; }
+  .gterm dd { margin: .15rem 0 0; font-size: .83rem; color: var(--text); line-height: 1.5; }
+  .refs-list { font-size: .88rem; color: var(--text-muted); }
+  .refs-list li { margin: .5rem 0; }
+
+  /* ---- semantic pipeline stepper widget ---- */
+  .demo { margin: 1.5rem 0 2rem; padding: 1.1rem 1.2rem 1.3rem; border: 1px solid var(--border); border-radius: 10px; background: var(--bg); }
+  .demo__badge { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: var(--accent); background: var(--accent-soft); border-radius: 999px; padding: 3px 10px; margin-bottom: 12px; }
+  .step__grid { display: flex; gap: 6px; flex-wrap: wrap; margin: 14px 0; }
+  .step__cell { flex: 1 1 100px; min-width: 90px; padding: 10px 8px; border-radius: 8px; border: 2px solid var(--border); background: var(--bg-alt); text-align: center; font-size: 12px; font-weight: 700; cursor: pointer; transition: all .3s ease; color: var(--text-muted); }
+  .step__cell.active { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); transform: scale(1.06); }
+  .step__cell.done { border-color: var(--success); color: var(--success); }
+  .step__caption { min-height: 5.5em; font-size: 13.5px; padding: 10px 12px; border-radius: 6px; background: var(--bg-alt); border: 1px solid var(--border); margin: 10px 0; }
+  .step__caption b { color: var(--accent); }
+  .demo__controls { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .demo__controls button { font-family: inherit; font-size: 13px; padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-alt); color: var(--text); cursor: pointer; }
+  .demo__controls button:hover { background: var(--accent-soft); }
+  .demo__controls button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .demo__step-label { font-size: 12px; color: var(--text-muted); margin-left: auto; }
+
+  /* ---- profiling decision-tree widget ---- */
+  .decide__wrap { margin: 14px 0; }
+  .decide__q { padding: 12px 14px; border-radius: 8px; background: var(--accent-soft); border: 1px solid var(--accent); font-size: 13.5px; margin-bottom: 10px; }
+  .decide__opts { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+  .decide__opts button { font-family: inherit; font-size: 13px; padding: 8px 14px; border-radius: 999px; border: 1px solid var(--border); background: var(--bg-alt); color: var(--text); cursor: pointer; }
+  .decide__opts button:hover { background: var(--accent-soft); }
+  .decide__result { padding: 12px 14px; border-radius: 8px; background: var(--success-soft); border: 1px solid var(--success); font-size: 13.5px; }
+  .decide__path { font-size: 11.5px; color: var(--text-muted); margin-bottom: 8px; }
+</style>
+</head>
+<body>
+<div class="site-header">
+  <h1 class="site-title">CH10. Advancements in LLM Serving</h1>
+  <p class="site-subtitle">LLM 서빙의 발전 — 시맨틱 라우팅부터 RL 서빙까지, 다음 6가지 트렌드</p>
+  <div class="badge-row">
+    <span class="badge">초보자용</span>
+    <a class="badge" href="https://app.notion.com/p/CH10-Advancements-in-LLM-Serving-3d2fc6d1ff388052b213c392f21cb72c" target="_blank" rel="noopener">원문 기반 (Notion CH10)</a>
+    <span class="badge">시리즈 마지막 챕터</span>
+    <span class="badge">← CH9에서 이어짐</span>
+  </div>
+</div>
+<details class="glossary" open>
+  <summary>핵심 용어 사전 (누르면 접기/펼치기) — 이 챕터에서 처음 보는 용어가 있다면 여기서 먼저 확인하세요</summary>
+  <div class="glossary-body">
+    <dl class="glossary-grid">
+      <div class="glossary-cat">시맨틱 캐싱·라우팅</div>
+      <div class="gterm"><dt>Semantic Caching(시맨틱 캐싱)</dt><dd>문자열이 정확히 같지 않아도 임베딩·벡터 검색으로 "의미"가 같은 요청을 찾아 캐시된 응답을 재사용하는 기법.</dd></div>
+      <div class="gterm"><dt>Semantic Routing(시맨틱 라우팅)</dt><dd>요청의 의미(복잡도, 도메인)를 분석해 적절한 모델 엔드포인트로 분배하는 기법.</dd></div>
+      <div class="gterm"><dt>임베딩(Embedding)</dt><dd>텍스트를 의미가 비슷할수록 가까운 위치에 놓이는 숫자 벡터로 바꾼 표현.</dd></div>
+      <div class="gterm"><dt>PII(Personally Identifiable Information)</dt><dd>이름·이메일 등 개인 식별 정보. 캐싱·라우팅 전에 마스킹 처리한다.</dd></div>
+      <div class="gterm"><dt>MCP(Model Context Protocol)</dt><dd>LLM이 외부 도구를 표준화된 방식으로 호출할 수 있게 하는 프로토콜.</dd></div>
+      <div class="gterm"><dt>LiteLLM</dt><dd>다양한 LLM 제공사 API를 하나의 통일된 인터페이스로 호출할 수 있게 해주는 AI 게이트웨이 라이브러리/프록시.</dd></div>
+      <div class="glossary-cat">프로파일링</div>
+      <div class="gterm"><dt>PyTorch Profiler</dt><dd>matmul·attention 등 연산자(operator) 단위 실행 시간을 분석하는 프레임워크 레이어 도구.</dd></div>
+      <div class="gterm"><dt>Nsight Systems / Compute</dt><dd>Systems는 시스템 전체 타임라인(GPU 유휴 구간), Compute는 단일 CUDA 커널의 미세 분석(점유율)을 담당하는 NVIDIA 프로파일러.</dd></div>
+      <div class="glossary-cat">멀티모달·엣지</div>
+      <div class="gterm"><dt>VLM(Vision-Language Model)</dt><dd>이미지 등 시각 입력과 텍스트를 함께 처리해 텍스트를 생성하는 모델.</dd></div>
+      <div class="gterm"><dt>Vision Encoder</dt><dd>이미지를 패치 단위로 분할해 LLM의 히든 차원으로 투영하는 인코더.</dd></div>
+      <div class="gterm"><dt>NPU(Neural Processing Unit)</dt><dd>신경망 연산에 특화된 저전력 가속기. 엣지 환경에서 TOPS/W(와트당 연산 성능)가 핵심 지표.</dd></div>
+      <div class="gterm"><dt>Adaptive Offloading(적응형 오프로딩)</dt><dd>배터리·대역폭·지연시간 조건에 따라 처리 위치를 엣지와 클라우드 사이에서 동적으로 결정하는 방식.</dd></div>
+      <div class="glossary-cat">Multi-LoRA·RL 서빙</div>
+      <div class="gterm"><dt>LoRA(Low-Rank Adaptation)</dt><dd>원본 가중치는 동결하고 작은 저랭크(low-rank) 레이어만 학습하는 파라미터 효율적 파인튜닝(PEFT) 기법.</dd></div>
+      <div class="gterm"><dt>Punica / SGMV 커널</dt><dd>하나의 배치 안에서 서로 다른 LoRA 어댑터를 쓰는 요청들의 베이스 모델 연산과 어댑터 연산을 함께 처리하는 특화 CUDA 커널.</dd></div>
+      <div class="gterm"><dt>RLHF(Reinforcement Learning from Human Feedback)</dt><dd>인간의 선호도를 반영한 보상 신호로 모델 응답을 정제하는 강화학습 기반 훈련 방법.</dd></div>
+      <div class="gterm"><dt>결정론적 추론(Deterministic Inference)</dt><dd>같은 입력에 항상 같은 출력을 내는 추론. RL 훈련의 안정성을 위해 배치 형태와 무관하게 결과가 일정해야 한다.</dd></div>
+    </dl>
+  </div>
+</details>
+<div class="layout">
+  <nav class="sidebar">
+    <div class="prev-link"><a href="./ch9_llm_optimization_in_practice.html">← CH9. 실전 LLM 최적화 다시 보기</a></div>
+    <h2>목차</h2>
+    <ul>
+      <li><a href="#intro">시작하며: 6가지 최신 트렌드</a></li>
+      <li><a href="#s1">1. Semantic Caching / Routing</a>
+        <ul class="sub"><li><a href="#s1-widget">🧪 5단계 파이프라인 체험</a></li></ul>
+      </li>
+      <li><a href="#s2">2. Performance Profiling Strategies</a>
+        <ul class="sub"><li><a href="#s2-widget">🧪 프로파일링 의사결정 트리</a></li></ul>
+      </li>
+      <li><a href="#s3">3. Multimodal Serving</a></li>
+      <li><a href="#s4">4. Edge AI: Drivers &amp; Enablers</a></li>
+      <li><a href="#s5">5. Multi-LoRA Serving</a></li>
+      <li><a href="#s6">6. Model Serving in Reinforcement Learning</a></li>
+      <li><a href="#s7">Summary</a></li>
+      <li><a href="#outro">마무리: 질문과 답</a></li>
+      <li><a href="#refs">참고 자료</a></li>
+    </ul>
+  </nav>
+  <main>
+    <details class="toc-mobile">
+      <summary>목차 펼치기</summary>
+      <ul>
+        <li><a href="#intro">시작하며</a></li>
+        <li><a href="#s1">1. Semantic Caching/Routing</a></li>
+        <li><a href="#s2">2. Profiling</a></li>
+        <li><a href="#s3">3. Multimodal</a></li>
+        <li><a href="#s4">4. Edge AI</a></li>
+        <li><a href="#s5">5. Multi-LoRA</a></li>
+        <li><a href="#s6">6. RL Serving</a></li>
+        <li><a href="#outro">마무리</a></li>
+      </ul>
+    </details>
+    <div class="markdown-body">
+
+<h2 id="intro">시작하며: 6가지 최신 트렌드</h2>
+<p>이 챕터는 책의 마무리 장으로, 지금까지 배운 LLM 서빙 기초를 바탕으로 최신 트렌드 6가지를 소개합니다. 원문은 스스로 "깊이 있는 완결된 내용이라기보다, 빠르게 발전하는 분야에 대한 '다음 학습 방향' 안내서 성격이 강합니다"라고 성격을 규정합니다.</p>
+<blockquote>
+<p>📌 <b>핵심 요약(원문 그대로)</b>: "LLM Serving은 더 이상 '하나의 모델을 빠르게 실행하는 시스템'이 아니라, 요청의 의미를 이해하고 적절한 모델·도구·하드웨어·실행 위치를 선택하는 지능형 inference system으로 발전하고 있다."</p>
+</blockquote>
+<div class="analogy-box">
+  <span class="emoji">🏨</span>
+  <div><b>비유: 주방에서 호텔 지배인으로</b><br>
+  지금까지의 서빙 엔진이 "정해진 메뉴 하나를 최대한 빨리 만드는 주방"이었다면, 이 챕터가 그리는 서빙 엔진은 "손님의 취향을 파악해 어떤 셰프·도구·주방을 쓸지까지 결정하는 지배인"에 가깝습니다.</div>
+</div>
+<div class="figure-box">
+<img src="images/ch10/01.png" alt="LLM 서빙 6대 트렌드 개요">
+<figcaption>User Request → Semantic Router(Tool Selection / Semantic Cache) → Model Selection → LLM/VLM Serving이 다시 Performance Profiling, Multimodal Serving, Multi-LoRA, RL Sampling으로 뻗어나가는 이 챕터 전체의 지도.</figcaption>
+</div>
+<ol>
+<li>요청을 의미적으로 분류·캐싱하는 <b>시맨틱 캐싱/라우팅</b></li>
+<li>성능 병목을 찾는 <b>프로파일링 기법</b></li>
+<li>텍스트를 넘어 <b>이미지 등 멀티모달</b>을 다루는 VLM 서빙</li>
+<li>클라우드가 아닌 <b>디바이스 단</b>에서 실행하는 <b>엣지 서빙</b></li>
+<li>여러 개의 LoRA 어댑터를 동시에 효율적으로 <b>서빙하는 Multi-LoRA</b></li>
+<li><b>강화학습 파이프라인</b>에서 추론 엔진이 담당하는 역할</li>
+</ol>
+
+<h2 id="s1">1. Semantic Caching / Semantic Routing</h2>
+<p>기존의 <b>정확 일치(exact match) 기반</b> 프롬프트 캐싱/라우팅과 달리, <b>임베딩 + 벡터 검색</b>으로 "의미"가 같은 요청을 인식해 처리합니다.</p>
+<div class="analogy-box">
+  <span class="emoji">📞</span>
+  <div><b>비유: 노련한 상담원</b><br>
+  "비행시간 얼마나 걸려?"와 "몇 시간 걸리는지 알려줘"를 매번 새 질문으로 취급하지 않고 같은 질문으로 알아채는, 노련한 상담원과 같습니다. 다만 이 상담원도 "머릿속 매뉴얼"을 찾아보는 데는(임베딩 계산·벡터 검색) 약간의 비용이 듭니다 — 거대 LLM을 다시 호출하는 비용만 피할 뿐, 완전히 공짜는 아닙니다.</div>
+</div>
+<p>시맨틱 라우팅을 쓰는 4가지 이유(원문):</p>
+<ol>
+<li><b>캐시 히트 증가</b>: 표현은 다르지만 의미가 같은 질문에 LLM 재호출 없이 캐시된 답변 반환 → 비용·지연시간 절감</li>
+<li><b>모델/추론 선택 최적화</b>: 경량 인코더(예: ModernBERT)로 프롬프트 복잡도를 판단해, 간단한 질문엔 소형 모델, 복잡한 질문엔 고급 모델+추론 기능 선택</li>
+<li><b>SLM으로의 라우팅</b>: 8B~32B 규모의 작업 특화 SLM이 거대 범용 LLM과 대등하거나 더 나은 성능·지연시간을 제공하는 경우가 많아, 라우터가 쿼리에 맞는 최적 모델 엔드포인트로 분배</li>
+<li><b>에이전틱 도구 필터링 및 정책 집행</b>: MCP 기반으로 등록된 전체 도구 중 관련 도구만 선별해 모델에 전달, 보안/정책/컴플라이언스 검사의 중앙 집행점 역할</li>
+</ol>
+<div class="figure-box">
+<img src="images/ch10/02_그림_10-1_엔드포인트_수준_라우팅_vs_복제본_수준_라우팅.png" alt="그림 10-1. 엔드포인트 수준 라우팅 vs 복제본 수준 라우팅">
+<figcaption>그림 10-1. 라우팅의 단위가 "모델 복제본"에서 "모델 엔드포인트" 수준으로 진화 — Router가 먼저 Endpoint(Model A/B)를 고르고, 그다음 해당 엔드포인트 안의 Instance 1~3 중 하나를 고르는 2층 구조.</figcaption>
+</div>
+
+<h3 id="s1-widget">🧪 5단계 시맨틱 라우팅 파이프라인 체험</h3>
+<div class="demo" id="pipeDemo">
+  <span class="demo__badge">🧪 직접 눌러보기: 요청이 지나가는 5단계</span>
+  <div class="step__grid" id="pipeGrid"></div>
+  <div class="step__caption" id="pipeCaption"></div>
+  <div class="demo__controls">
+    <button data-act="prev">◀ 이전</button>
+    <button data-act="play" class="primary" id="pipePlayBtn">▶ 자동 재생</button>
+    <button data-act="next">다음 ▶</button>
+    <span class="demo__step-label" id="pipeLabel">1 / 5</span>
+  </div>
+</div>
+<div class="mermaid-diagram">
+<pre class="mermaid">
+flowchart TD
+    U["사용자 원본 프롬프트"] --> S1["1. PII 마스킹"]
+    S1 --> S2["2. 임베딩 생성"]
+    S2 --> S3["3. 벡터 검색 (Semantic Cache)"]
+    S3 --> C1{"유사 캐시 존재?"}
+    C1 -->|Hit| OUT["캐시된 응답 즉시 반환"]
+    C1 -->|Miss| S4["4. 도구 필터링 (100개→5개)"]
+    S4 --> S5["5. 분류기 기반 모델 라우팅"]
+    S5 --> M1["소형 내부 모델"]
+    S5 --> M2["도메인 파인튜닝 모델"]
+    S5 --> M3["외부 최첨단 Reasoning LLM"]
+</pre>
+</div>
+<p><b>① PII 마스킹</b>: NER 기반 소형 인코더 + 정규식으로 이름·이메일 등을 탐지해 <code>&lt;NAME_1&gt;</code>, <code>&lt;EMAIL_1&gt;</code> 등으로 치환합니다.</p>
+<p><b>② 임베딩 생성 + 벡터 검색</b>: 프롬프트를 예를 들어 길이 768의 임베딩 벡터로 변환합니다. Semantic Cache가 Prefix Cache보다 넓은 이유는 "문장은 달라도 의미가 비슷하면 재사용 가능"하기 때문입니다 — Prefix Cache는 문자열/토큰 패턴 중심인 반면 Semantic Cache는 의미 중심입니다.</p>
+<p><b>③ 도구 필터링</b>: 에이전트가 쓸 수 있는 도구가 100개일 때 모든 스키마를 LLM에 보내면 Prompt Token↑·Latency↑·오작동 위험↑이 발생합니다. 시맨틱 라우터가 벡터 검색으로 관련 도구만(예: 100개→5개) 추려 전달합니다.</p>
+<p><b>④ 모델 선택(분류기)</b>: 임베딩을 입력으로 하는 소형 분류기가 소형/도메인/대형 모델 중 어디로 보낼지 결정합니다.</p>
+
+<h3>vLLM Semantic Router &amp; LiteLLM</h3>
+<p>vLLM Semantic Router<sup><a href="#ref-1">[1]</a></sup>는 Candle 프레임워크 기반 Rust Core로 고성능 분류를 수행하고, ModernBERT를 의도 분류용으로 파인튜닝하며, Envoy(ExtProc) 인터페이스에 연결해 클라우드 네이티브 프록시로 동작합니다.</p>
+<p>LiteLLM<sup><a href="#ref-2">[2]</a></sup>은 "AI Gateway for platform teams" — 다양한 LLM 제공사(OpenAI, Anthropic, Bedrock 등, 원문 기준 100개 이상) API를 하나의 통일된 인터페이스로 호출합니다. 요청 생명주기는 <b>가상 키 검증 → 속도 제한(RPM/TPM) → <code>proxy_server.py</code> → 라우터(Fallback/Retry/LB) → SDK 호출 → 비동기 로깅</b> 7단계로 이뤄집니다. 이미지 URL을 지원하지 않는 API를 위해 자동으로 base64 변환하며, 최대 10개의 변환 이미지를 메모리에 캐시하고 개별 다운로드는 기본 50MB로 제한합니다(<code>MAX_IMAGE_URL_DOWNLOAD_SIZE_MB</code>).</p>
+<blockquote class="note">
+<p>ℹ️ <b>최신성 참고</b>: 원문은 "100개 이상 제공사"라고 표기하지만, 조사 시점 기준 LiteLLM 공식 홈페이지는 "140개 이상 제공사"를 지원한다고 밝히고 있습니다. 이런 숫자는 계속 늘어나므로 실제 배포 시에는 설치된 버전의 공식 문서를 다시 확인하는 것이 좋습니다.</p>
+</blockquote>
+<p>라우팅 전략은 <b>Weighted Pick(기본/권장)</b>, Rate Limit Aware, Least Busy, Latency Based, Cost Based 5가지입니다. 기존 <b>Semantic Auto Router</b>는 utterances/<code>score_threshold</code> 방식으로 동작했으나 원문 시점에 <b>Deprecated</b> 상태이며, 시맨틱 키워드 매칭·복잡도 점수·적응형 라우팅을 통합한 <b><code>[Beta] Auto Routing</code></b>(<code>auto_router/complexity_router</code>)으로 대체 안내되고 있습니다. 이 문서 작성 시점에도 LiteLLM 공식 문서에 동일한 안내가 게재되어 있음을 확인했습니다.</p>
+<p><b>도전과제(원문 그대로 인용)</b>:</p>
+<ul>
+<li>"Client → vLLM Semantic Router → vLLM x 2대(프로세스 or 파드) 환경에서 라우팅, Failover, Semantic Routing + 모니터링 구성해보기"</li>
+<li>"LiteLLM Getting Started 설치 및 사용 해보기"</li>
+<li>"Client → LiteLLM GW/Proxy → vLLM x 2대(프로세스 or 파드) 환경에서 마스킹, 라우팅, Failover, Auto Routing + 모니터링 구성해보기"</li>
+</ul>
+
+<h2 id="s2">2. Performance Profiling Strategies</h2>
+<p>LLM 서빙은 비용이 많이 들기 때문에 워크로드 프로파일링의 중요성이 큽니다. <b>"대규모 서빙에서는 단 1퍼센트포인트의 개선만으로도 수백만 달러의 인프라 비용을 절감할 수 있다"</b>는 것이 핵심 메시지입니다. (이 책은 커스텀 CUDA/Triton 커널 작성법 자체는 다루지 않습니다.)</p>
+<div class="analogy-box">
+  <span class="emoji">🏥</span>
+  <div><b>비유: 종합병원 정밀 진단</b><br>
+  1단계로 체온·혈압 등 전신 상태(서빙 레이어)를 측정하고, 이상 발견 시 2단계로 엑스레이·혈액 검사(PyTorch Profiler)로 어느 장기(연산자)가 문제인지 찾으며, 마지막 3단계로 조직 검사(Nsight Compute)를 통해 세포 단위(CUDA 커널) 원인을 규명하는 것과 같습니다.</div>
+</div>
+<h3>3단계 레이어 구조</h3>
+<ol>
+<li><b>서빙 레이어</b>: TPS, TTFT, ITL, GPU/메모리 활용률 등 상위 지표 관찰</li>
+<li><b>프레임워크 레이어(PyTorch Profiler<sup><a href="#ref-3">[3]</a></sup>)</b>: matmul·attention·layernorm 등 오퍼레이터별 실행 시간, CPU-GPU 데이터 이동 분석. CPU 모드는 호스트측 병목, CUDA 모드는 GPU 시간 지배 오퍼레이터를 확인</li>
+<li><b>런타임 레이어(Nsight Systems → Nsight Compute)</b>: Nsight Systems는 시스템 전체 타임라인·GPU 유휴 구간을, Nsight Compute는 단일 커널의 점유율·메모리 스톨을 분석</li>
+</ol>
+
+<h3 id="s2-widget">🧪 프로파일링 의사결정 트리 체험</h3>
+<div class="demo" id="decideDemo">
+  <span class="demo__badge">🧪 직접 선택해보기: 지금 무엇을 봐야 할까?</span>
+  <div class="decide__wrap">
+    <div class="decide__path" id="decidePath">시작</div>
+    <div class="decide__q" id="decideQ">Nsight Systems로 시스템 전체 타임라인을 봤습니다. GPU 활용률이 충분히 높나요?</div>
+    <div class="decide__opts" id="decideOpts"></div>
+    <div class="decide__result" id="decideResult" style="display:none;"></div>
+  </div>
+</div>
+<div class="mermaid-diagram">
+<pre class="mermaid">
+flowchart TD
+    NS["Nsight Systems (시스템 전체 타임라인)"] --> GPU{"GPU 활용률 낮음?"}
+    GPU -->|Yes| CPUM["PyTorch Profiler (CPU 모드)<br/>호스트 측 병목 확인"]
+    GPU -->|"No, GPU는 바쁜데 지연시간 높음"| CUDAM["PyTorch Profiler (CUDA 모드)<br/>지배적 오퍼레이터 확인"]
+    CUDAM --> ONE{"단일 커널이 지배적?"}
+    ONE -->|Yes| NC["Nsight Compute로 미세 분석<br/>튜닝/교체/퓨전"]
+    ONE -->|No| RECHECK["launch 오버헤드/오버랩 부재/동기화 문제<br/>Nsight Systems로 재점검"]
+</pre>
+</div>
+<p><b>도전과제(원문 그대로 인용)</b>: "vLLM 벤치마크 실행 시, 'NVIDIA Nsight Systems/Compute'와 PyTorch Profiler(CPU/CUDA mode)로 프로파일링 후 분석해보기"</p>
+
+<h2 id="s3">3. Multimodal Serving</h2>
+<p>이 챕터는 <b>멀티모달 입력</b>(이미지/비디오/오디오) → <b>텍스트 출력</b>(자기회귀 디코더) 모델만 다룹니다. Midjourney, Sora, Veo처럼 <b>멀티모달 출력</b>을 생성하는(확산 모델 기반) 모델은 명시적으로 범위 밖입니다.<sup><a href="#ref-6">[6]</a></sup><sup><a href="#ref-7">[7]</a></sup></p>
+<p>이미지는 프롬프트 내에서 <code>&lt;|vision_start|&gt;...&lt;|image_pad|&gt;...&lt;|vision_end|&gt;</code> 형태의 플레이스홀더 토큰으로 표현됩니다. 실제 토큰 ID 예시에서는 <code>151655</code>가 <b>644회</b> 반복되어 이미지 임베딩 자리를 채웁니다. <b>Vision Encoder</b>가 이미지를 패치 단위로 분할하고 LLM 히든 차원으로 투영(projection)한 뒤, 텍스트 임베딩과 결합된 단일 시퀀스로 Transformer에 입력합니다.</p>
+<div class="figure-box">
+<img src="images/ch10/13_Figure_10-4_VLM에서_text_input과_vision_inp.png" alt="Figure 10-4. VLM dual-stream 처리">
+<figcaption>Figure 10-4. VLM에서 이미지/비디오 입력은 Vision Encoder로, 텍스트 입력은 Tokenizer로 각각 처리된 뒤 하나의 임베딩 시퀀스로 병합되어 LLM Decoder에 들어갑니다.</figcaption>
+</div>
+<h3>시스템 병목의 이동 (Bottleneck Shifting)</h3>
+<p>텍스트 토크나이징은 가볍지만, 이미지 전처리(디코딩→리사이즈→크롭→색공간 변환→정규화)는 <b>CPU 집약적</b>입니다. 이 작업이 LLM 실행 전에 완료돼야 하므로, 요청률이 높아지면 CPU가 포화되어 GPU가 유휴 상태가 됩니다 — <b>병목이 GPU에서 CPU 전처리 단계로 이동</b>합니다.</p>
+<div class="analogy-box">
+  <span class="emoji">🔪</span>
+  <div><b>비유: 재료 손질이 늦으면 주방장도 손을 놓는다</b><br>
+  아주 빠른 주방장(GPU)이 있어도, 재료를 손질하는 보조 조리사(CPU)가 느리면 요리를 시작조차 못 합니다.</div>
+</div>
+<h3>vLLM V0 → V1 해결책</h3>
+<ul>
+<li><b>V0</b>: 멀티모달 전처리 + API 서버 오버헤드가 CPU를 블로킹 → GPU 유휴 시간 발생</li>
+<li><b>V1</b>: Process 0(API 서버 + 입력 전처리 + 출력 후처리)과 Process 1(GPU 커널 스케줄링/실행 전담)을 완전히 분리, 두 프로세스가 비동기적으로 동시 실행</li>
+</ul>
+<div class="figure-box">
+<img src="images/ch10/15__Figure_10-5_Multimodal_input_preprocess.png" alt="Figure 10-5. vLLM V1 프로세스 분리">
+<figcaption>Figure 10-5. Process 0(API Server/AsyncLLM/출력 처리)과 Process 1(EngineCore: schedule/execute)이 큐/소켓으로 분리되어 비동기 실행됩니다.</figcaption>
+</div>
+<blockquote class="note">
+<p>ℹ️ <b>외부 검증 보강</b>: 원문은 이 개선을 "처리량이 상당히 향상됩니다"라고 정성적으로만 서술하며 구체적 수치는 제시하지 않습니다. 별도로 확인한 vLLM 공식 블로그(2025-01-27)는 V1이 V0 대비 <b>최대 1.7배 높은 처리량</b>을 달성하며 이 개선이 VLM에서 더 두드러진다고 밝혔고, Red Hat Developer 블로그(2025-04-28)는 생성 위주 워크로드에서 <b>최대 24% 처리량 향상</b>을 별도로 보고했습니다. 이 수치들은 원문 텍스트에는 없는 외부 공식 자료 기반 보강입니다.</p>
+</blockquote>
+<p><b>도전과제(원문 표기 그대로)</b>: "vLLM 에 Multi-Model 서빙 실습 해보기"</p>
+
+<h2 id="s4">4. Edge AI: Drivers and Enablers</h2>
+<h3>3대 동인 (Drivers)</h3>
+<ol>
+<li><b>지연시간</b>: 로보틱스/자율주행/AR-VR 등에서 클라우드 왕복 20~50ms조차 허용 불가</li>
+<li><b>데이터 로컬리티</b>: 의료·금융 등 민감 데이터를 로컬 처리해 GDPR/HIPAA 규제 준수</li>
+<li><b>비용</b>: IoT 센서/고해상도 카메라의 대용량 데이터를 로컬 필터링 후 요약 정보만 클라우드 전송</li>
+</ol>
+<h3>5대 인에이블러 (Enablers)</h3>
+<ol>
+<li><b>저전력 특화 하드웨어</b>: NPU 등, <b>TOPS/W</b>(와트당 초당 테라연산)가 핵심 지표</li>
+<li><b>모델 압축/최적화</b>: 양자화·프루닝·증류 + KV캐싱·스펙큘레이티브 디코딩</li>
+<li><b>이기종 컴퓨트(Heterogeneous Compute)</b>: CPU가 워크로드 특성에 따라 GPU에 적합한 작업과 NPU에 적합한 작업으로 <i>분기</i>해서 배분(고정된 순차 파이프라인이 아님)</li>
+<li><b>열 인지 스케줄링</b>: 팬리스 디바이스는 발열이 곧 스로틀링으로 직결 → 온도 기반 소형 모델 전환/프레임레이트 감소</li>
+<li><b>엣지-클라우드 하이브리드</b>: 웨이크워드 감지, 경량 전처리는 엣지에서, 무거운 추론은 클라우드에서 — 적응형 오프로딩으로 동적 결정</li>
+</ol>
+<div class="figure-box">
+<img src="images/ch10/16_Figure_10-6_CPU_GPU_NPU_heterogeneous_co.png" alt="Figure 10-6. 이기종 컴퓨트">
+<figcaption>Figure 10-6. CPU가 GPU에 적합한 워크로드와 NPU에 적합한 워크로드를 각각의 가속기로 분배하는 이기종 컴퓨트 구조.</figcaption>
+</div>
+<div class="figure-box">
+<img src="images/ch10/17_Figure_10-7_Edge-cloud_hybrid_inference_.png" alt="Figure 10-7. 엣지-클라우드 하이브리드">
+<figcaption>Figure 10-7. 엣지 디바이스가 전처리·특징 추출·PII 필터링·온디바이스 개인화를 수행하고, 압축된 임베딩만 클라우드로 전송해 대형 모델 추론을 맡깁니다.</figcaption>
+</div>
+<p>참고 프레임워크: <b>TensorFlow Lite</b>(모바일/엣지 경량 솔루션), <b>ONNX Runtime</b>(다양한 하드웨어 고성능 실행), <b>ExecuTorch</b>(PyTorch 온디바이스 추론), <b>Apache TVM</b>(하드웨어별 딥러닝 컴파일러).</p>
+
+<h2 id="s5">5. Multi-LoRA Serving</h2>
+<p>기업의 LLM 도입은 보통 <b>RAG</b>(컨텍스트 주입) → <b>파인튜닝</b>(더 깊은 정렬) 순서로 진행됩니다. <b>LoRA</b>는 원본 가중치를 동결하고 작은 저랭크 레이어만 학습하는 PEFT 방법으로, 빠르고 저렴하고 모듈화된 파인튜닝을 가능케 합니다.</p>
+<div class="analogy-box">
+  <span class="emoji">📷</span>
+  <div><b>비유: 렌즈 교환식 카메라</b><br>
+  카메라 바디(베이스 모델)는 한 대만 두고, 인물용/풍경용/야간용 렌즈(LoRA 어댑터)를 상황에 맞게 갈아 끼우는 것과 같습니다. 손님마다 다른 카메라를 10대 살 필요가 없습니다.</div>
+</div>
+<div class="figure-box">
+<img src="images/ch10/18_Figure_10-8_Main_model과_함께_GPU_memory에_c.png" alt="Figure 10-8. GPU 메모리에 co-located된 LoRA 어댑터">
+<figcaption>Figure 10-8. 활성 어댑터는 모두 GPU 메모리에 상주하며(하나씩 로드하는 방식이 아님), 베이스 모델과 함께 co-locate됩니다.</figcaption>
+</div>
+<p>활성 어댑터는 모두 GPU 메모리에 상주하며, 서로 다른 어댑터를 쓰는 요청도 연속 배칭으로 함께 처리됩니다. 이를 위해 Punica 논문(arXiv:2310.18547)<sup><a href="#ref-4">[4]</a></sup>이 제안한 <b>SGMV(Segmented Gather Matrix-Vector Multiplication)</b> 커널처럼, 베이스 모델 가중치 연산과 여러 어댑터별 델타 연산을 함께 처리한 뒤 결합하는 특화 커널이 쓰입니다.</p>
+<div class="figure-box">
+<img src="images/ch10/19__Figure_10-9_LoRA_adapter_없이_여러_fine-tun.png" alt="Figure 10-9. 독립 모델 서빙 vs Multi-LoRA 비교">
+<figcaption>Figure 10-9. 기존에는 파인튜닝 모델마다 별도 GPU가 필요했지만(N개 모델 → N개 GPU), Multi-LoRA는 1개 베이스 모델 + N개 어댑터를 1개 GPU로 대체합니다.</figcaption>
+</div>
+<blockquote>
+<p>⚠️ <b>언제 쓰면 안 되는가</b>: 어댑터별 트래픽이 이미 GPU를 포화시킬 만큼 많다면, 각 어댑터를 베이스 모델에 <b>병합(merge)</b>해 독립적으로 데이터 병렬 확장하는 것이 더 낫습니다. Multi-LoRA는 "어댑터별 트래픽은 낮지만 customization이 많은" 멀티테넌트 환경에 특화된 기법입니다. ("1 GPU로 N개 어댑터"가 항상 가능한 것은 아니며, VRAM 용량과 동시 활성 어댑터 수에 따라 달라집니다.)</p>
+</blockquote>
+
+<h2 id="s6">6. Model Serving in Reinforcement Learning</h2>
+<p>LoRA류 PEFT가 지도학습 기반 적응에 초점을 맞추는 반면, <b>RLHF</b>는 인간 선호도를 통합해 응답 방식을 정제합니다(개방형 생성 작업에 특히 유용). LLM 훈련은 Foundation 구축(사전학습) → Instruction Following(지도 파인튜닝) → Human Alignment(강화학습) 순서로 진행됩니다.</p>
+<div class="figure-box">
+<img src="images/ch10/20__Figure_10-10_Foundation_구축_instruction_.png" alt="Figure 10-10. LLM 3단계 학습 파이프라인">
+<figcaption>Figure 10-10. Foundation 구축(자기지도 사전학습) → Instruction Following(지도 파인튜닝) → Human Alignment(RLHF)로 이어지는 훈련 단계.</figcaption>
+</div>
+<p><b>OpenRLHF</b><sup><a href="#ref-5">[5]</a></sup>(인기 오픈소스 RLHF 프레임워크)는 <b>"RLHF 훈련 시간의 80%가 모델 서빙의 샘플 생성 단계에 사용된다"</b>고 명시합니다. 서빙 엔진(vLLM/SGLang)이 액터 모델(현재 정책)로 프롬프트를 보내 여러 레플리카에서 대량 후보 응답을 생성하면, 보상 모델이 품질 점수를 매기고 참조 모델이 정책 그래디언트 계산을 돕습니다. 액터 모델은 이 그래디언트로 업데이트되고, 새 가중치는 주기적으로 서빙 레플리카에 재동기화됩니다.</p>
+<div class="figure-box">
+<img src="images/ch10/21__Figure_10-11_Generation_serving_phase와_.png" alt="Figure 10-11. RLHF 서빙 루프">
+<figcaption>Figure 10-11. Generation(서빙, 전체 시간의 80%) phase와 Training phase가 반복되는 RL 서빙 루프 — Actor model(서빙 엔진) → 응답 → Reward/Reference model 평가 → Actor 업데이트 → Weight sync.</figcaption>
+</div>
+<blockquote class="fix">
+<p>⚠ <b>정정(교차검증 반영)</b>: 리서치 초안 중 하나는 OpenRLHF의 추정치를 "전체 시간의 약 70~80%"로 완화해 표기했으나, OpenRLHF 공식 GitHub README는 <b>"80%"라는 단일 수치</b>로 명시합니다("RLHF training spends 80% of the time on sample generation"). 또한 "이 서빙 가속으로 3~4배 이상의 훈련 속도 향상을 달성했다"는 서술은 공식 자료에서 확인되지 않는 근거 미제시 주장이므로 이 문서에는 포함하지 않았습니다.</p>
+</blockquote>
+<h3>RL 서빙의 결정론(Determinism) 요구사항</h3>
+<p>일반 production serving은 fast/cheap/scalable이 중요하지만, RL에서는 <b>Deterministic(결정론적)</b>이 추가로 중요합니다 — 레플리카·실행 간 미세한 비결정성이 일관되지 않은 보상, 불안정한 훈련, 재현 불가능한 결과로 이어질 수 있습니다. <b>Thinking Machines Lab</b>의 "Defeating Nondeterminism in LLM Inference" 연구는 배치 형태(batch-shape) 변화 같은 미묘한 구현 세부사항이 커널의 리덕션(reduction) 순서를 바꿔 작은 편차를 만들고, 이것이 수천 번의 RLHF 반복에 걸쳐 누적될 수 있음을 보여줍니다. 그래서 현대 서빙 엔진은 서빙 성능뿐 아니라 재현 가능한 토큰 출력을 보장하는 <b>배치 불변(batch-invariant) 결정론적 추론</b>에도 초점을 맞춥니다.</p>
+<blockquote class="fix">
+<p>⚠ <b>정정(연도 오류)</b>: 리서치 초안 중 하나는 이 연구를 "Horace He 등이 2024년 발표"라고 표기했으나, Thinking Machines Lab은 2025년에 공식 설립된 회사이므로 2024년에 이 회사 명의 블로그가 나올 수 없습니다. 실제로는 <b>2025년</b>(다른 독립 조사에서는 2025-09-10로 특정)에 게시된 글입니다.</p>
+</blockquote>
+<div class="analogy-box">
+  <span class="emoji">🍜</span>
+  <div><b>비유: 같은 레시피, 다른 맛</b><br>
+  같은 레시피로 요리해도 그날 주방에 몇 개의 다른 주문이 함께 들어와 있었는지(배치 크기)에 따라 맛이 미묘하게 달라진다면, 그 요리를 기준 삼아 평가·훈련하는 것 자체가 불가능해집니다. RL 서빙의 결정론은 "몇 명분을 동시에 요리하든 내 그릇의 맛은 항상 똑같아야 한다"는 요구입니다.</div>
+</div>
+
+<h2 id="s7">Summary</h2>
+<p>이번 챕터에서는 시맨틱 인지 캐싱과 라우팅, 시스템 수준 및 커널 수준 프로파일링, 멀티모달 추론, 확장 가능한 Multi-LoRA 배포, 강화학습 기반 서빙 아키텍처를 다뤘습니다. 이런 주제들은 이 분야가 순수한 텍스트를 넘어 더 풍부하고, 더 역동적이며, 더 개인화된 경험으로 얼마나 빠르게 확장되고 있는지를 보여줍니다. 하드웨어·모델·모달리티는 계속 변하겠지만, 이 시리즈에서 배운 원리(병목 진단, 트레이드오프 이해, 측정 기반 반복 개선)는 그대로 남을 것입니다.</p>
+
+<h2 id="outro">마무리: 질문과 답</h2>
+<blockquote>
+<p><b>Q1. "병목은 늘 GPU가 아니다" → 병목 이동(bottleneck shifting)을 어떻게 진단하고 대응하는가?</b></p>
+<p>→ 이 챕터에서만 최소 두 가지 사례가 등장합니다. 멀티모달 서빙에서는 이미지 전처리(CPU 집약적)가 포화되면 병목이 GPU에서 CPU로 이동하며, vLLM V1의 프로세스 분리가 그 해결책이었습니다. 진단 도구도 계층적입니다 — 서빙 레이어(TPS/TTFT) 지표에서 이상을 감지하면 Nsight Systems로 시스템 전체 타임라인을 보고, GPU 활용률이 낮으면 PyTorch Profiler CPU 모드로 호스트 병목을, GPU가 바쁜데 지연시간이 높으면 CUDA 모드로 지배적 오퍼레이터를 찾고, 마지막에 단일 커널이 문제면 Nsight Compute로 미세 분석합니다. 즉 "병목이 어디로 이동했는지"는 항상 계층을 하나씩 좁혀가며 진단해야 합니다.</p>
+</blockquote>
+<blockquote>
+<p><b>Q2. 최적화 기법을 "적용하지 말아야 할 때"를 판단하는 기준은 무엇인가?</b></p>
+<p>→ Multi-LoRA가 좋은 예시입니다: 어댑터별 트래픽이 이미 GPU를 포화시킬 만큼 크다면, 공유 메모리 경쟁을 만드는 Multi-LoRA 대신 어댑터를 베이스 모델에 병합해 독립 레플리카로 확장하는 것이 낫습니다. 시맨틱 캐싱도 마찬가지로, 캐시 조회(임베딩·벡터 검색) 자체에 비용이 들기 때문에 캐시 히트율이 낮은 워크로드에서는 오히려 오버헤드만 늘어날 수 있습니다. 일반화하면: <b>어떤 기법이든 "그 기법이 해결하려는 병목이 실제로 존재하는가"를 먼저 확인해야 하며, 그렇지 않다면 기법 자체가 새로운 오버헤드가 됩니다.</b></p>
+</blockquote>
+<blockquote>
+<p><b>Q3. "서빙 엔진"의 역할이 확장되고 있다는 챕터의 메타 메시지는 구체적으로 어떤 근거로 뒷받침되는가?</b></p>
+<p>→ 이 챕터에 등장한 6가지 트렌드 모두가 근거입니다. 서빙 엔진(또는 그 앞단의 게이트웨이)은 이제 ① 요청의 의미를 해석해 모델을 선택하고(시맨틱 라우팅), ② 자기 자신의 성능을 커널 단위까지 관찰하고(프로파일링), ③ 이미지 전처리를 위한 별도 프로세스를 관리하고(멀티모달), ④ 실행 위치를 엣지/클라우드 중 결정하고(엣지 AI), ⑤ 여러 고객사의 커스텀 모델을 하나의 GPU에서 공유시키고(Multi-LoRA), ⑥ 훈련 루프의 샘플 생성기 겸 결정론 보증자 역할(RL 서빙)까지 수행합니다. 단순히 "토큰을 빨리 뱉는 엔진"이었던 역할이 "요청 이해 → 자원 배분 → 실행 위치 결정 → 재현성 보증"까지 아우르는 지능형 오케스트레이션 시스템으로 확장됐다는 것이 이 모든 사례의 공통 근거입니다.</p>
+</blockquote>
+
+<h2 id="refs">참고 자료</h2>
+<ol class="refs-list">
+<li id="ref-1"><a href="https://github.com/vllm-project/semantic-router" target="_blank" rel="noopener">vLLM Semantic Router (GitHub)</a></li>
+<li id="ref-2">LiteLLM — <a href="https://www.litellm.ai/" target="_blank" rel="noopener">Home</a> · <a href="https://docs.litellm.ai/docs/proxy/docker_quick_start" target="_blank" rel="noopener">Docs</a> · <a href="https://docs.litellm.ai/docs/routing-load-balancing" target="_blank" rel="noopener">Routing/LB 문서</a></li>
+<li id="ref-3"><a href="https://tutorials.pytorch.kr/recipes/recipes/profiler_recipe.html" target="_blank" rel="noopener">PyTorch Profiler 공식 레시피</a></li>
+<li id="ref-4">Punica: Multi-Tenant LoRA Serving — <a href="https://arxiv.org/abs/2310.18547" target="_blank" rel="noopener">arXiv:2310.18547</a></li>
+<li id="ref-5"><a href="https://github.com/OpenRLHF/OpenRLHF" target="_blank" rel="noopener">OpenRLHF (GitHub)</a></li>
+<li id="ref-6">[임커밋] 시각화로 이해하는 Diffusion 언어 모델 — <a href="https://www.youtube.com/watch?v=JV0Fix2OB4Y" target="_blank" rel="noopener">YouTube</a></li>
+<li id="ref-7">Diffusion LLM 붐은 오는가 — <a href="https://www.youtube.com/watch?v=3rur_J298HA" target="_blank" rel="noopener">YouTube</a></li>
+</ol>
+
+    </div>
+  </main>
+</div>
+<script>
+  mermaid.initialize({ startOnLoad: true, theme: 'default', securityLevel: 'loose' });
+</script>
+<script>
+(function () {
+  var steps = [
+    { t: '1. PII 마스킹', d: '<b>PII 마스킹</b><br>이름·이메일 등을 NER+정규식으로 찾아 &lt;NAME_1&gt;, &lt;EMAIL_1&gt;로 치환합니다.' },
+    { t: '2. 임베딩', d: '<b>임베딩 생성</b><br>프롬프트를 768차원 등의 벡터로 변환합니다. 의미가 비슷하면 벡터도 가깝습니다.' },
+    { t: '3. 벡터 검색', d: '<b>Semantic Cache 조회</b><br>유사한 캐시가 있으면 LLM 재호출 없이 즉시 응답합니다(Prefix Cache보다 넓은 재사용).' },
+    { t: '4. 도구 필터링', d: '<b>Tool Filtering</b><br>도구 100개 중 벡터 검색으로 관련 5개만 골라 LLM에 전달합니다.' },
+    { t: '5. 모델 라우팅', d: '<b>분류기 기반 라우팅</b><br>소형 내부 모델 / 도메인 모델 / 외부 최첨단 모델 중 하나로 요청을 보냅니다.' }
+  ];
+  var idx = 0, timer = null;
+  var grid = document.getElementById('pipeGrid');
+  steps.forEach(function (s, i) {
+    var cell = document.createElement('div');
+    cell.className = 'step__cell';
+    cell.textContent = s.t;
+    cell.addEventListener('click', function () { pause(); render(i); });
+    grid.appendChild(cell);
+  });
+  function render(i) {
+    idx = i;
+    Array.prototype.forEach.call(grid.children, function (cell, ci) {
+      cell.classList.toggle('active', ci === idx);
+      cell.classList.toggle('done', ci < idx);
+    });
+    document.getElementById('pipeCaption').innerHTML = steps[idx].d;
+    document.getElementById('pipeLabel').textContent = (idx + 1) + ' / ' + steps.length;
+  }
+  function next() { render((idx + 1) % steps.length); }
+  function prev() { render((idx - 1 + steps.length) % steps.length); }
+  function pause() { if (timer) { clearInterval(timer); timer = null; document.getElementById('pipePlayBtn').textContent = '▶ 자동 재생'; } }
+  function play() {
+    if (timer) { pause(); return; }
+    document.getElementById('pipePlayBtn').textContent = '⏸ 정지';
+    timer = setInterval(next, 1800);
+  }
+  document.querySelector('#pipeDemo [data-act="prev"]').addEventListener('click', function () { pause(); prev(); });
+  document.querySelector('#pipeDemo [data-act="next"]').addEventListener('click', function () { pause(); next(); });
+  document.getElementById('pipePlayBtn').addEventListener('click', play);
+  render(0);
+})();
+</script>
+<script>
+(function () {
+  var qEl = document.getElementById('decideQ');
+  var optsEl = document.getElementById('decideOpts');
+  var resultEl = document.getElementById('decideResult');
+  var pathEl = document.getElementById('decidePath');
+
+  function showOptions(opts) {
+    optsEl.innerHTML = '';
+    resultEl.style.display = 'none';
+    opts.forEach(function (o) {
+      var btn = document.createElement('button');
+      btn.textContent = o.label;
+      btn.addEventListener('click', o.action);
+      optsEl.appendChild(btn);
+    });
+  }
+  function showResult(text, path) {
+    optsEl.innerHTML = '';
+    pathEl.textContent = path;
+    resultEl.style.display = 'block';
+    resultEl.innerHTML = text;
+    var restart = document.createElement('button');
+    restart.textContent = '처음부터 다시';
+    restart.style.marginTop = '10px';
+    restart.addEventListener('click', start);
+    resultEl.appendChild(document.createElement('br'));
+    resultEl.appendChild(restart);
+  }
+  function start() {
+    pathEl.textContent = '시작: Nsight Systems로 전체 타임라인 확인';
+    qEl.textContent = 'Nsight Systems로 시스템 전체 타임라인을 봤습니다. GPU 활용률이 충분히 높나요?';
+    showOptions([
+      { label: '낮다 (GPU가 자주 논다)', action: function () {
+          showResult('<b>→ PyTorch Profiler(CPU 모드)</b>를 사용하세요. 전처리 병목이나 Python 디스패치 오버헤드처럼 호스트(CPU) 측 문제일 가능성이 높습니다.', 'Nsight Systems → GPU 활용률 낮음'); } },
+      { label: '높다 (GPU는 바쁜데 지연시간이 김)', action: function () {
+          pathEl.textContent = 'Nsight Systems → GPU 바쁨';
+          qEl.textContent = 'PyTorch Profiler(CUDA 모드)로 오퍼레이터별 시간을 봤습니다. 단일 커널(예: 특정 GEMM)이 실행 시간을 지배하나요?';
+          showOptions([
+            { label: '그렇다 (하나가 대부분을 차지)', action: function () {
+                showResult('<b>→ Nsight Compute로 미세 분석</b>하세요. 점유율(occupancy)·메모리 스톨을 확인해 튜닝/교체/퓨전을 검토합니다.', 'Nsight Systems → GPU 바쁨 → CUDA 모드 → 단일 커널 지배'); } },
+            { label: '아니다 (짧은 커널이 많고 갭도 있음)', action: function () {
+                showResult('<b>→ Nsight Systems로 재점검</b>하세요. 커널 launch 오버헤드, 스트림 간 오버랩 부재, 동기화(cudaEventSynchronize 등) 문제일 가능성이 높습니다.', 'Nsight Systems → GPU 바쁨 → CUDA 모드 → 단일 커널 아님'); } }
+          ]);
+        } }
+    ]);
+  }
+  start();
+})();
+</script>
+</body>
+</html>
