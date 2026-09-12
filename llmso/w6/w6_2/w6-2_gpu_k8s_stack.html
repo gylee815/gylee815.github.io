@@ -1,0 +1,1136 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>W6-2. 로컬 GPU 서버에 K8s + NVIDIA 스택 구축 — 초보자를 위한 완전 가이드</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+  :root {
+    --bg: #ffffff; --bg-alt: #f6f7f9; --text: #1c1f24; --text-muted: #5b6270;
+    --border: #e2e5ea; --accent: #3457d5; --accent-soft: #eef1fd;
+    --callout-bg: #fff8e6; --callout-border: #e8c766;
+    --fix-bg: #fdeef0; --fix-border: #d9534f;
+    --code-bg: #f2f3f5; --success: #1a7f37; --success-soft: #dafbe1;
+    --danger: #cf222e; --danger-soft: #ffebe9; --max-width: 900px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #14161a; --bg-alt: #1b1e24; --text: #e7e9ec; --text-muted: #9aa2b1;
+      --border: #2c3038; --accent: #7c93ff; --accent-soft: #1e2330;
+      --callout-bg: #2a2410; --callout-border: #6b5a1c;
+      --fix-bg: #2a1516; --fix-border: #8a3a3a;
+      --code-bg: #1e2126; --success: #3fb950; --success-soft: #0f2e1a;
+      --danger: #f85149; --danger-soft: #3a1414;
+    }
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", Helvetica, Arial, sans-serif;
+    line-height: 1.75; font-size: 16px;
+  }
+  .site-header { padding: 3rem 1.5rem 1.25rem; text-align: center; border-bottom: 1px solid var(--border); background: var(--bg-alt); }
+  .site-title { margin: 0 0 .5rem; font-size: 1.9rem; }
+  .site-subtitle { margin: 0; color: var(--text-muted); font-size: .95rem; }
+  .badge-row { margin-top: 1rem; display: flex; gap: .5rem; justify-content: center; flex-wrap: wrap; }
+  .badge { font-size: .75rem; padding: .25rem .7rem; border-radius: 999px; background: var(--accent-soft); color: var(--accent); font-weight: 600; text-decoration: none; display: inline-block; }
+  a.badge:hover { text-decoration: underline; }
+  .layout { display: flex; align-items: flex-start; max-width: 1200px; margin: 0 auto; padding: 2rem 1.5rem 4rem; gap: 2.5rem; }
+  nav.sidebar { position: sticky; top: 1.5rem; flex: 0 0 260px; max-height: calc(100vh - 3rem); overflow-y: auto; font-size: .85rem; border-right: 1px solid var(--border); padding-right: 1.25rem; }
+  nav.sidebar h2 { font-weight: 700; margin: 0 0 .75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: .05em; font-size: .75rem; }
+  nav.sidebar ul { list-style: none; margin: 0; padding-left: 0; }
+  nav.sidebar li { margin: .45rem 0; }
+  nav.sidebar a { color: var(--text-muted); text-decoration: none; display: block; line-height: 1.4; }
+  nav.sidebar a:hover { color: var(--accent); }
+  main { flex: 1 1 auto; min-width: 0; }
+  .markdown-body { max-width: var(--max-width); }
+  .markdown-body h2 { margin-top: 3.5rem; padding-top: 1.5rem; border-top: 3px solid var(--accent); font-size: 1.5rem; }
+  .markdown-body h2:first-child { margin-top: 0; padding-top: 0; border-top: none; }
+  .markdown-body h3 { margin-top: 2.25rem; font-size: 1.18rem; }
+  .markdown-body p { margin: 1rem 0; }
+  .markdown-body a { color: var(--accent); }
+  .markdown-body ul, .markdown-body ol { padding-left: 1.4rem; }
+  .markdown-body li { margin: .35rem 0; }
+  .markdown-body hr { border: none; border-top: 1px solid var(--border); margin: 3rem 0; }
+  .markdown-body table { width: 100%; border-collapse: collapse; margin: 1.25rem 0; font-size: .87rem; }
+  .markdown-body th, .markdown-body td { border: 1px solid var(--border); padding: .5rem .7rem; text-align: left; vertical-align: top; }
+  .markdown-body th { background: var(--bg-alt); }
+  .markdown-body blockquote { margin: 1.25rem 0; padding: .9rem 1.1rem; border-left: 4px solid var(--callout-border); background: var(--callout-bg); border-radius: 0 6px 6px 0; }
+  blockquote.fix { background: var(--fix-bg); border-left-color: var(--fix-border); }
+  blockquote.fix b { color: var(--fix-border); }
+  .markdown-body code { font-family: "SFMono-Regular", Consolas, Menlo, monospace; background: var(--code-bg); padding: .15em .4em; border-radius: 4px; font-size: .9em; }
+  .markdown-body pre { background: var(--code-bg); padding: 1rem 1.1rem; border-radius: 6px; overflow-x: auto; margin: 1.25rem 0; }
+  .markdown-body pre code { background: none; padding: 0; font-size: .85rem; }
+  .mermaid-diagram { text-align: center; margin: 1.5rem 0; padding: 1rem; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; overflow-x: auto; }
+  .mermaid-diagram svg { max-width: 100%; height: auto; }
+  .gallery { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1rem; margin: 1.5rem 0; }
+  .figure-box { margin: 0; text-align: center; }
+  .figure-box img { max-width: 100%; border-radius: 8px; border: 1px solid var(--border); }
+  .figure-box figcaption { margin-top: .6rem; font-size: .85em; color: var(--text-muted); text-align: left; }
+  .analogy-box { display: flex; gap: .85rem; align-items: flex-start; margin: 1.25rem 0; padding: 1rem 1.1rem; background: var(--accent-soft); border-radius: 8px; }
+  .analogy-box .emoji { font-size: 1.6rem; line-height: 1; }
+  .analogy-box b { color: var(--accent); }
+  .callout-summary { max-width: var(--max-width); margin: 0 auto 1rem; padding: 1rem 1.25rem; background: var(--accent-soft); border-radius: 8px; }
+  details.toc-mobile { display: none; margin: 0 0 24px; }
+  details.toc-mobile summary { cursor: pointer; font-weight: 600; padding: 10px 14px; background: var(--bg-alt); border: 1px solid var(--border); border-radius: 6px; }
+  details.toc-mobile ul { list-style: none; padding-left: 8px; }
+  details.toc-mobile a { color: var(--accent); text-decoration: none; }
+  @media (max-width: 900px) {
+    nav.sidebar { display: none; } details.toc-mobile { display: block; } .layout { padding: 1.5rem 1rem 3rem; } .gallery { grid-template-columns: 1fr; }
+  }
+
+  /* ---- glossary ---- */
+  .glossary { max-width: 1200px; margin: 0 auto; padding: 1.25rem 1.5rem 0.5rem; }
+  .glossary > summary { cursor: pointer; font-weight: 700; font-size: .95rem; padding: .8rem 1.1rem; background: var(--accent-soft); color: var(--accent); border-radius: 8px; list-style: none; }
+  .glossary > summary::-webkit-details-marker { display: none; }
+  .glossary > summary::before { content: "📖 "; }
+  .glossary[open] > summary { border-radius: 8px 8px 0 0; }
+  .glossary-body { border: 1px solid var(--border); border-top: none; border-radius: 0 0 8px 8px; padding: 1.1rem 1.3rem; background: var(--bg); }
+  .glossary-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: .9rem 1.5rem; }
+  .glossary-cat { grid-column: 1 / -1; margin: .6rem 0 -.2rem; font-size: .78rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: .04em; border-top: 1px solid var(--border); padding-top: .8rem; }
+  .glossary-cat:first-of-type { border-top: none; padding-top: 0; margin-top: 0; }
+  .gterm dt { font-weight: 700; color: var(--accent); font-size: .88rem; }
+  .gterm dd { margin: .15rem 0 0; font-size: .83rem; color: var(--text); line-height: 1.5; }
+
+  /* ---- citations / references ---- */
+  .cite a { text-decoration: none; }
+  .ref-list { padding-left: 1.6rem; }
+  .ref-list li { margin: .5rem 0; }
+  .backref { margin-left: .4rem; text-decoration: none; }
+
+  /* ---- code copy button (new feature) ---- */
+  .code-block-wrap { position: relative; }
+  .copy-btn { position: absolute; top: 8px; right: 8px; font-family: inherit; font-size: 12px; padding: 4px 10px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-alt); color: var(--text); cursor: pointer; opacity: .85; }
+  .copy-btn:hover { opacity: 1; background: var(--accent-soft); color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="site-header">
+  <h1 class="site-title">W6-2. 로컬 GPU 서버에 K8s + NVIDIA 스택 구축</h1>
+  <p class="site-subtitle">드라이버 → 컨테이너 런타임 → K3s → 모니터링 → vLLM 서빙까지, 로컬 PC 한 대로 GPU 인식 원리를 밑바닥부터 확인하는 검증된 hands-on 가이드</p>
+  <div class="badge-row">
+    <span class="badge">초보자용</span>
+    <span class="badge">Hands-on 실습</span>
+  </div>
+</div>
+<details class="glossary" open>
+  <summary>핵심 용어 사전 (누르면 접기/펼치기) — 이 실습에서 처음 보는 용어가 있다면 여기서 먼저 확인하세요</summary>
+  <div class="glossary-body">
+    <dl class="glossary-grid">
+      <div class="glossary-cat">드라이버 · 커널 모듈</div>
+      <div class="gterm"><dt>DKMS</dt><dd>Dynamic Kernel Module Support. 커널 버전이 바뀔 때마다 NVIDIA 드라이버 커널 모듈을 자동으로 재빌드해주는 도구.</dd></div>
+      <div class="gterm"><dt>nvidia.ko / nvidia-uvm.ko</dt><dd>핵심 GPU 드라이버 커널 모듈과, CPU-GPU 통합 메모리(Unified Virtual Memory)를 담당하는 모듈.</dd></div>
+      <div class="gterm"><dt>NVML</dt><dd>NVIDIA Management Library. GPU 상태(사용률·온도·메모리 등)를 조회하는 라이브러리로 nvidia-smi, K8s device plugin, DCGM이 모두 이를 사용.</dd></div>
+      <div class="glossary-cat">컨테이너 · GPU 주입</div>
+      <div class="gterm"><dt>NVIDIA Container Toolkit</dt><dd>컨테이너 시작 직전(prestart hook)에 호스트 GPU 디바이스·드라이버 라이브러리를 컨테이너 안으로 주입하는 도구.</dd></div>
+      <div class="gterm"><dt>CDI / CSV / legacy</dt><dd>NVIDIA Container Toolkit이 GPU를 주입하는 3가지 방식. CDI는 표준 스펙 파일 기반(K8s 권장), CSV는 임베디드(Jetson) 환경용, legacy는 전통적인 nvidia-container-cli 방식.</dd></div>
+      <div class="gterm"><dt>OCI Hook</dt><dd>컨테이너 생성 파이프라인(containerd → shim → runc) 중간에 끼어들어 추가 작업(GPU 주입 등)을 수행하는 훅 메커니즘.</dd></div>
+      <div class="glossary-cat">쿠버네티스 · GPU 인식</div>
+      <div class="gterm"><dt>RuntimeClass</dt><dd>파드마다 다른 컨테이너 런타임(예: nvidia 런타임)을 지정할 수 있게 하는 K8s 리소스. 자동 등록이 보장되지 않으므로 직접 확인이 필요.</dd></div>
+      <div class="gterm"><dt>Device Plugin</dt><dd>K8s가 원래 이해하지 못하는 GPU 같은 특수 자원을 kubelet에게 gRPC로 등록·보고해주는 DaemonSet.</dd></div>
+      <div class="gterm"><dt>NFD / GFD</dt><dd>Node Feature Discovery(하드웨어 특성 자동 감지)와 GPU Feature Discovery(GPU 세부정보를 노드 라벨로 추가).</dd></div>
+      <div class="gterm"><dt>DCGM</dt><dd>Data Center GPU Manager. GPU 상세 메트릭(온도·전력·PCIe 대역폭·XID 에러 등)을 Prometheus로 노출하는 NVIDIA 공식 exporter.</dd></div>
+      <div class="glossary-cat">심화 주제</div>
+      <div class="gterm"><dt>HAMi</dt><dd>물리 GPU 1장을 여러 컨테이너가 메모리 단위로 나눠 쓸 수 있게 하는 CNCF Incubating 프로젝트(구 k8s-vGPU-scheduler).</dd></div>
+      <div class="gterm"><dt>K8s DRA</dt><dd>Dynamic Resource Allocation. 기존 Device Plugin보다 유연하게 ResourceClaim/DeviceClass 기반으로 특수 자원을 할당하는 K8s 메커니즘(버전에 따라 지원 범위가 다름).</dd></div>
+    </dl>
+  </div>
+</details>
+<div class="layout">
+  <nav class="sidebar">
+    <h2>목차</h2>
+    <ul>
+      <li><a href="#intro">실습 소개</a></li>
+      <li><a href="#s1">1. Ubuntu 24.04 설치</a></li>
+      <li><a href="#s2">2. NVIDIA Driver</a></li>
+      <li><a href="#s3">3. Docker + Container Toolkit</a></li>
+      <li><a href="#s4">4. K3s + Device Plugin</a></li>
+      <li><a href="#s5">5. 파드 기동 확인</a></li>
+      <li><a href="#s6">6. Prometheus + DCGM</a></li>
+      <li><a href="#s7">7. GPU Operator / NFD·GFD</a></li>
+      <li><a href="#s8">8. vLLM 배포</a></li>
+      <li><a href="#s9">9. HAMi (도전과제)</a></li>
+      <li><a href="#s10">10. K8s DRA (도전과제)</a></li>
+      <li><a href="#vars">Placeholder 정리</a></li>
+      <li><a href="#refs">참고 자료</a></li>
+    </ul>
+  </nav>
+  <main>
+    <details class="toc-mobile">
+      <summary>목차 펼치기</summary>
+      <ul>
+        <li><a href="#intro">실습 소개</a></li>
+        <li><a href="#s2">2. NVIDIA Driver</a></li>
+        <li><a href="#s3">3. Container Toolkit</a></li>
+        <li><a href="#s4">4. K3s + Device Plugin</a></li>
+        <li><a href="#s6">6. 모니터링</a></li>
+        <li><a href="#s8">8. vLLM 배포</a></li>
+      </ul>
+    </details>
+    <div class="markdown-body">
+<div class="callout-summary">
+<b>핵심 요약</b>
+<ol>
+<li>GPU가 장착된 로컬 PC 1대에 Ubuntu 24.04 → NVIDIA Driver → Docker/Container Toolkit(검증용) → K3s + NVIDIA device plugin → kube-prometheus-stack/DCGM Exporter 순서로 "로컬 PC → 컨테이너 → 쿠버네티스"의 각 계층에서 GPU가 실제로 어떻게 인식·주입되는지 직접 확인하는 실습입니다.</li>
+<li>NVIDIA GPU는 커널 드라이버(<code>nvidia.ko</code>)와 유저스페이스 라이브러리(<code>libcuda.so</code>, <code>libnvidia-ml.so</code>)가 버전 강결합이라 컨테이너 런타임(NVIDIA Container Toolkit)이 매번 호스트 라이브러리를 컨테이너 안으로 주입해야 하며, 이 원리가 Docker든 K8s Device Plugin이든 동일하게 적용됩니다.</li>
+<li>마지막에 K3s 위에 MinIO+vLLM(S3 스트리밍 로더)으로 실제 LLM을 서빙하고, HAMi(GPU 공유)와 K8s DRA는 "도전과제" 형태로 링크만 제공되는 심화 주제입니다.</li>
+</ol>
+</div>
+
+<div class="mermaid-diagram">
+<pre class="mermaid">
+flowchart TB
+    subgraph HOST["로컬 PC (Ubuntu 24.04, GPU 장착)"]
+        DRV["NVIDIA Driver<br/>(nvidia.ko, libcuda.so)"]
+        K3S["K3s (단일 노드 K8s)"]
+        RC["RuntimeClass: nvidia<br/>(containerd가 감지, 항상 보장되지 않음)"]
+        DP["NVIDIA device plugin<br/>(DaemonSet)"]
+        NFDGFD["NFD + GFD<br/>(GPU 노드 라벨링)"]
+        MON["kube-prometheus-stack<br/>+ DCGM Exporter"]
+        MINIO["MinIO<br/>(모델 오브젝트 스토리지)"]
+        VLLM["vLLM Deployment<br/>(S3 스트리밍 로더)"]
+        WEBUI["Open WebUI"]
+        K3S --> RC --> DP
+        DP --> NFDGFD
+        DRV --> RC
+        MON -.->|모니터링| DP
+        MINIO --> VLLM --> WEBUI
+        DP -.->|"nvidia.com/gpu 리소스"| VLLM
+    end
+</pre>
+</div>
+
+<h2 id="intro">실습 소개</h2>
+<p><code>요약</code>: '로컬 PC → 컨테이너 → 쿠버네티스' 단계별로 GPU 인식 및 실행을 확인하는 실습 가이드입니다.</p>
+<ul>
+<li><strong>로컬 PC</strong>에서 GPU 드라이버 로우레벨 내부구조(디바이스 노드, 커널 모듈, DKMS)부터,</li>
+<li><strong>컨테이너</strong> 레벨에서 Docker/NVIDIA Container Toolkit의 OCI 훅 메커니즘,</li>
+<li><strong>쿠버네티스</strong> 환경에서 K8s Device Plugin gRPC 프로토콜, CDI 스펙 파일 내부,</li>
+<li>마지막으로 Prometheus/Grafana/DCGM 기반 <strong>GPU 모니터링</strong>·알림까지 확인합니다.</li>
+</ul>
+<p><strong>실습 순서</strong>: ① Ubuntu 24.04 Server 설치 → ② NVIDIA Driver 설치 → ③ Docker+Container Toolkit
+설치(검증용) → ④ Docker 삭제 → K3s+device plugin 설치 → ⑤ 파드 기동 확인 → ⑥ kube-prometheus-stack+
+DCGM Exporter → ⑦ NVIDIA GPU Operator(개념) → ⑧ vLLM 배포 → ⑨ HAMi(도전과제) → ⑩ K8s DRA(도전과제)</p>
+<blockquote>📚 참고: NVIDIA GPU Operator는 Driver·Container Toolkit·Device Plugin·DCGM Exporter·MIG Manager 등을 한 번에 관리하는 도구입니다 (공식 문서<sup class="cite"><a id="cite1" href="#ref1">[1]</a></sup>). 이 실습은 이미 호스트에 드라이버가 있는 상태이므로 개별 구성요소를 하나씩 수동 설치하며 원리를 배우는 방식을 택했습니다. <b>주의</b>: 나중에 GPU Operator를 도입한다면, 이미 수동 설치한 host 위에 기본값으로 겹쳐 설치하지 말고 driver/toolkit/device-plugin 관련 컴포넌트를 비활성화해야 충돌을 피할 수 있습니다.</blockquote>
+
+<h2 id="s1">1. GPU 카드가 장착된 PC에 Ubuntu 24.04 Server 설치</h2>
+<ul>
+<li>2026년 7월 기준 Ubuntu 26.04도 있지만, K8s 관련 생태계 다수 도구가 아직 <strong>Ubuntu 24.04</strong>까지만
+  지원하므로 24.04 설치를 권장합니다.</li>
+<li>Desktop보다 <strong>Server</strong> 설치를 권장합니다(GUI 리소스 없이 최대 자원을 실습에 사용하기 위함).</li>
+</ul>
+<blockquote class="fix">⚠ <b>본인 환경에 맞게 확인 필요</b>: Secure Boot가 켜져 있으면 서명되지 않은 커널 모듈(NVIDIA 드라이버) 로드가 막힙니다. BIOS에서 Secure Boot를 꺼야 할 수 있습니다.</blockquote>
+
+<pre><code class="language-bash"># 기본 상태 확인
+mokutil --sb-state
+# SecureBoot enabled  (이 경우 BIOS에서 Secure Boot 비활성화 필요)
+
+# 비활성화 후 확인
+mokutil --sb-state
+# SecureBoot disabled
+</code></pre>
+<blockquote>📖 참고: Windows WSL 환경에서 GPU 기능 테스트는 권장하지 않습니다 — GPU-PV(반가상화) 구조라 PCIe 패스스루가 아니고 기능 제한이 있습니다 (NVIDIA WSL 문서<sup class="cite"><a id="cite2" href="#ref2">[2]</a></sup>).</blockquote>
+
+<h2 id="s2">2. NVIDIA Driver 설치 및 확인</h2>
+<p>NVIDIA 공식 드라이버 설치 절차<sup class="cite"><a id="cite3" href="#ref3">[3]</a></sup>를 Ubuntu 환경에 맞게 따라갑니다.</p>
+<pre><code class="language-bash"># GPU 장착 확인
+lspci | grep -i nvidia
+# 01:00.0 VGA compatible controller: NVIDIA Corporation ... [GeForce RTX 4070 Ti SUPER] (예시 — GPU마다 다름)
+
+# 권장 드라이버 확인 (recommended가 붙은 버전 설치)
+ubuntu-drivers devices
+ubuntu-drivers devices | grep -i recommended
+
+# NVIDIA Driver 설치 (버전 숫자는 recommended 결과에 맞게 교체)
+apt -y install nvidia-driver-&lt;RECOMMENDED_VERSION&gt;-open
+reboot
+</code></pre>
+<pre><code class="language-bash">nvidia-smi
+# NVIDIA-SMI ...  Driver Version: ...   CUDA Version: ...
+
+# DKMS(커널 버전마다 모듈 재빌드)가 관리하는 NVIDIA 모듈 빌드 상태
+dkms status | grep -i nvidia
+
+# 실제 로드된 커널 모듈
+lsmod | grep nvidia
+# nvidia_uvm, nvidia_drm, nvidia_modeset, nvidia ...
+
+# 디바이스 노드 확인
+ls -l /dev/nvidia0 /dev/nvidiactl /dev/nvidia-modeset /dev/nvidia-uvm
+</code></pre>
+<div class="analogy-box">
+<span class="emoji">🧩</span>
+<div><b>분석 노트 — NVIDIA 커널 모듈 5인방의 역할</b><br>
+<code>nvidia.ko</code>(핵심 드라이버, <code>/dev/nvidia0</code>·<code>/dev/nvidiactl</code> 생성), <code>nvidia-drm.ko</code>(디스플레이 서브시스템 연결), <code>nvidia-modeset.ko</code>(해상도/멀티모니터), <code>nvidia-uvm.ko</code>(CPU-GPU 통합 메모리), <code>nvidia-peermem.ko</code>(GPUDirect RDMA — 모든 설치에 필수인 것은 아니며, RDMA/InfiniBand NIC이 있는 환경에서만 실사용됨). <code>.ko.zst</code> 확장자는 zstd로 압축된 커널 오브젝트라는 뜻입니다.</div>
+</div>
+
+<div class="gallery">
+<figure class="figure-box"><img src="assets/images/678435f0_image.png" alt="NVIDIA 커널 모듈 계층 구조"><figcaption>NVIDIA 커널 모듈 계층 구조 (출처: project-hami.io).</figcaption></figure>
+<figure class="figure-box"><img src="assets/images/0ac3c9cd_image.png" alt="CUDA 드라이버 스택"><figcaption>CUDA Driver Stack 개념도 (출처: minzkn.com).</figcaption></figure>
+</div>
+
+<p><code>nvidia-smi</code> 조회 시 호출 체인과, 로컬 PC에서 GPU 코드를 실행할 때의 경로(유저 프로세스 → syscall →
+커널 → NVIDIA 커널 모듈 → GPU)를 아래 그림으로 확인할 수 있습니다.</p>
+<div class="gallery">
+<figure class="figure-box"><img src="assets/images/7fb06237_image.png" alt="nvidia-smi 호출 체인"><figcaption>nvidia-smi가 GPU 정보를 조회하는 call chain.</figcaption></figure>
+<figure class="figure-box"><img src="assets/images/6f00b5cf_image.png" alt="GPU 스택 개요"><figcaption>GPU 스택 개요 (project-hami.io).</figcaption></figure>
+<figure class="figure-box"><img src="assets/images/5640b133_image.png" alt="로컬 PC GPU 실행 경로"><figcaption>로컬 PC에서 GPU 코드 실행 경로 (출처: vcluster.com).</figcaption></figure>
+</div>
+
+<p><strong>동작 확인</strong>: <code>verify_gpu.py</code>로 4096×4096 GPU 행렬곱을 실행하고 <code>nvidia-smi</code>로 GPU 사용률을 실시간 확인합니다.</p>
+<pre><code class="language-bash">apt install -y python3-venv python3-pip
+python3 -m venv /root/gpu-test-venv
+/root/gpu-test-venv/bin/pip install --upgrade pip
+/root/gpu-test-venv/bin/pip install torch numpy   # ~2GB 다운로드
+</code></pre>
+<pre><code class="language-python"># verify_gpu.py
+import torch, time
+
+assert torch.cuda.is_available(), &quot;CUDA GPU를 찾을 수 없습니다&quot;
+device = torch.device(&quot;cuda&quot;)
+print(&quot;GPU:&quot;, torch.cuda.get_device_name(0))
+
+n = 4096
+a = torch.randn(n, n, device=device)
+b = torch.randn(n, n, device=device)
+
+torch.cuda.synchronize()
+start = time.time()
+while time.time() - start &lt; 5:
+    c = a @ b
+torch.cuda.synchronize()
+elapsed = time.time() - start
+
+print(f&quot;GPU 행렬곱 {n}x{n} 반복 실행: {elapsed:.1f}초&quot;)
+print(&quot;결과 checksum:&quot;, c.sum().item())
+print(&quot;GPU 메모리 사용량(MB):&quot;, torch.cuda.memory_allocated() / 1024**2)
+</code></pre>
+<pre><code class="language-bash"># 다른 터미널에서 모니터링
+watch -n 0.5 nvidia-smi
+# 실행
+/root/gpu-test-venv/bin/python /root/verify_gpu.py
+# GPU 행렬곱 4096x4096 반복 실행: 9.9초 (관측값, 환경마다 다를 수 있음)
+</code></pre>
+<h2 id="s3">3. Docker 설치 → NVIDIA Container Toolkit 설치 및 확인</h2>
+<pre><code class="language-bash"># Docker 설치
+apt install -y ca-certificates curl
+install -m 0755 -d /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+chmod a+r /etc/apt/keyrings/docker.asc
+echo &quot;deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu noble stable&quot; &gt; /etc/apt/sources.list.d/docker.list
+apt update
+apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+docker run --rm hello-world
+</code></pre>
+<pre><code class="language-bash"># NVIDIA Container Toolkit 설치
+curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | \
+  gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg
+curl -s -L https://nvidia.github.io/libnvidia-container/stable/deb/nvidia-container-toolkit.list | \
+  sed 's#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://#g' | \
+  tee /etc/apt/sources.list.d/nvidia-container-toolkit.list
+apt update
+apt install -y nvidia-container-toolkit
+
+# Docker 엔진에 nvidia 런타임 등록
+nvidia-ctk runtime configure --runtime=docker
+systemctl restart docker
+cat /etc/docker/daemon.json
+# {&quot;runtimes&quot;: {&quot;nvidia&quot;: {&quot;args&quot;: [], &quot;path&quot;: &quot;nvidia-container-runtime&quot;}}}
+
+# 검증
+docker run --rm --gpus all ubuntu nvidia-smi
+</code></pre>
+<blockquote>📚 <b>참고 자료</b>: NVIDIA Container Toolkit 공식 문서<sup class="cite"><a id="cite4" href="#ref4">[4]</a></sup> 확인 결과, <code>nvidia-ctk runtime configure --runtime=docker</code> → <code>systemctl restart docker</code> 절차가 원문과 정확히 일치합니다. 문서는 Docker/Containerd/CRI-O는 legacy 모드 기준으로 설명하고, Podman에서는 CDI 사용을 권장합니다 — <b>실제 어느 모드가 활성화되는지는 toolkit/runtime 버전에 따라 달라지므로</b>, <code>nvidia-ctk cdi list</code>나 컨테이너 내부 디바이스 마운트 결과로 직접 확인하는 것이 안전합니다.</blockquote>
+
+<p><code>/etc/nvidia-container-runtime/config.toml</code>을 보면 <code>mode = "auto"</code>로 <strong>cdi/csv/legacy</strong> 3가지 방식
+중 자동 감지합니다.</p>
+<ul>
+<li><strong>CDI(Container Device Interface)</strong>: <code>/etc/cdi</code>, <code>/var/run/cdi</code>의 스펙 파일로 GPU를 주입하는 표준 방식(K8s에서 <code>cdi.k8s.io/</code> 어노테이션 사용)</li>
+<li><strong>CSV</strong>: 주로 Jetson/임베디드 환경에서 파일 목록 마운트</li>
+<li><strong>legacy</strong>: 전통적인 <code>nvidia-container-cli</code> 기반 방식</li>
+</ul>
+<div class="analogy-box">
+<span class="emoji">🎫</span>
+<div><b>비유: 임시 출입증 발급</b><br>
+컨테이너는 원래 호스트의 GPU 디바이스 파일이나 드라이버 라이브러리를 볼 수 없는 격리된 공간입니다. NVIDIA Container Toolkit은 컨테이너가 시작되기 직전(prestart hook 시점)에 끼어들어 4가지 임시 출입증을 발급합니다: ①GPU 디바이스 파일 bind-mount ②호스트 드라이버 라이브러리 복사 ③환경변수 주입(어떤 GPU를 몇 개 노출할지) ④cgroup 권한 설정. <code>docker run --gpus all ubuntu nvidia-smi</code>가 CUDA 이미지가 아닌 순정 ubuntu에서도 동작하는 이유입니다.</div>
+</div>
+
+<div class="gallery">
+<figure class="figure-box"><img src="assets/images/dad4982c_image.png" alt="OCI 4단계 주입 다이어그램"><figcaption>NVIDIA Container Toolkit이 컨테이너 시작 직전(prestart hook)에 수행하는 4단계 주입 과정 (출처: vcluster.com).</figcaption></figure>
+</div>
+
+<pre><code class="language-bash"># 동작 확인
+docker run --rm -it --gpus all ubuntu bash
+nvidia-smi                 # toolkit이 호스트 것을 밀어줌
+which nvidia-smi           # /usr/bin/nvidia-smi
+ls -l /dev/nvidia*         # 컨테이너 내부에서도 디바이스 파일 보임
+env | grep -i nvidia       # NVIDIA_VISIBLE_DEVICES=void (중복 주입 방지)
+exit
+</code></pre>
+<h2 id="s4">4. Docker 삭제 → K3s 설치 → NVIDIA device plugin for Kubernetes 설치 및 확인</h2>
+<p>이 실습은 Docker를 지우고 <strong>K3s</strong>(경량 Kubernetes<sup class="cite"><a id="cite5" href="#ref5">[5]</a></sup>)로 전환합니다.</p>
+<blockquote class="fix">⚠ <b>주의 — 되돌릴 수 없는 작업</b>: 아래 명령은 Docker의 이미지·컨테이너·네트워크 설정을 전부 삭제합니다. 다른 용도로 쓰는 PC라면 먼저 백업하세요.</blockquote>
+
+<pre><code class="language-bash"># Docker 완전 삭제
+docker ps -a; docker images
+systemctl disable --now docker.service docker.socket containerd.service
+apt purge -y docker-ce docker-ce-cli docker-buildx-plugin docker-ce-rootless-extras docker-compose-plugin containerd.io
+apt autoremove -y --purge
+rm -rf /var/lib/docker /var/lib/containerd /etc/docker /etc/containerd
+rm -f /etc/apt/sources.list.d/docker.list /etc/apt/keyrings/docker.asc
+groupdel docker
+apt update
+for cmd in iptables ip6tables; do
+  for table in filter nat mangle raw; do $cmd -t $table -F; $cmd -t $table -X; done
+  $cmd -P INPUT ACCEPT; $cmd -P FORWARD ACCEPT; $cmd -P OUTPUT ACCEPT
+done
+ip link delete docker0
+</code></pre>
+<pre><code class="language-bash"># K3s 설치
+curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC=&quot;server \
+  --kube-controller-manager-arg=bind-address=0.0.0.0 \
+  --kube-scheduler-arg=bind-address=0.0.0.0 \
+  --kube-proxy-arg=metrics-bind-address=0.0.0.0 \
+  --write-kubeconfig-mode=644&quot; sh -
+
+systemctl is-active k3s.service
+</code></pre>
+<pre><code class="language-bash"># 확인
+kubectl cluster-info -v=6
+ln -s /etc/rancher/k3s/k3s.yaml ~/.kube/config
+kubectl get node -owide
+
+# K3s가 nvidia/nvidia-cdi/nvidia-experimental 등 런타임을 자동 감지해 RuntimeClass로 등록할 수 있음
+grep nvidia /var/lib/rancher/k3s/agent/etc/containerd/config.toml
+kubectl get runtimeclass nvidia
+</code></pre>
+<blockquote class="fix">⚠ <b>단정하지 말고 확인할 것</b>: K3s가 <code>nvidia</code> RuntimeClass를 <b>항상</b> 자동 등록하는 것은 아닙니다 — 설치 순서, PATH, K3s/containerd 버전에 따라 결과가 다를 수 있습니다. 반드시 <code>kubectl get runtimeclass</code>로 실제 존재 여부를 확인하고, 없다면 K3s가 <code>nvidia-container-runtime</code> 바이너리를 인식했는지(<code>which nvidia-container-runtime</code>, containerd config)부터 점검하세요.</blockquote>
+
+<p><strong>K8s가 GPU를 인식하게 하는 원리 — Device Plugin</strong></p>
+<p>Kubernetes는 CPU/메모리는 리눅스 cgroup으로 태생적으로 이해하지만 <strong>GPU는 전혀 모릅니다.</strong> 그래서
+"GPU를 이해하는 통역사" 역할의 <strong>Device Plugin</strong>이 필요합니다.</p>
+<div class="gallery">
+<figure class="figure-box"><img src="assets/images/d047e583_screenshot.png" alt="Device Plugin 개념"><figcaption>Device Plugin이 K8s에 GPU를 알려주는 역할 (출처: vcluster.com).</figcaption></figure>
+<figure class="figure-box"><img src="assets/images/74353be5_image.png" alt="NVML 기반 GPU 관리 스택"><figcaption>K8s Device Plugin, DCGM, nvtop 등 여러 관리 도구가 모두 NVML 라이브러리를 공유하는 구조 (출처: project-hami.io).</figcaption></figure>
+</div>
+
+<ol>
+<li><strong>DaemonSet으로 배포</strong>: 모든 GPU 노드에 하나씩 뜨는 DaemonSet</li>
+<li><strong>kubelet에 등록</strong>: "나는 GPU 담당 플러그인이야"라고 자기소개</li>
+<li><strong>GPU 탐색</strong>: NVML 라이브러리(<code>libnvidia-ml.so</code>)를 호출해 GPU 개수를 스스로 찾음</li>
+<li><strong>kubelet이 물어봄 → 보고</strong>: <code>ListAndWatch</code> gRPC 스트림으로 지속적으로 "1개 있어!"라고 알림
+   (heartbeat처럼 유지되는 이유: GPU가 고장 나거나 빠지면 즉시 스케줄링에서 제외해야 하므로)</li>
+</ol>
+<p>NVIDIA 공식 device plugin 저장소<sup class="cite"><a id="cite6" href="#ref6">[6]</a></sup>의 정적 매니페스트를 사용합니다.</p>
+<pre><code class="language-bash"># Device Plugin 설치 (매니페스트 방식)
+curl -sL https://raw.githubusercontent.com/NVIDIA/k8s-device-plugin/v0.20.0/deployments/static/nvidia-device-plugin.yml -o /root/nvidia-device-plugin.yml
+sed -i &quot;30a\\      runtimeClassName: nvidia&quot; /root/nvidia-device-plugin.yml   # k3s가 등록해둔 RuntimeClass 사용
+kubectl apply -f /root/nvidia-device-plugin.yml
+
+kubectl get ds -n kube-system nvidia-device-plugin-daemonset
+kubectl get nodes -o jsonpath='{.items[*].status.allocatable.nvidia\.com/gpu}'; echo
+# 1
+
+# (참고) Helm 설치 방법
+helm repo add nvdp https://nvidia.github.io/k8s-device-plugin
+helm install nvidia-device-plugin nvdp/nvidia-device-plugin \
+  --namespace kube-system --create-namespace --set runtimeClassName=nvidia
+</code></pre>
+<blockquote>📌 <b>실전 팁</b>: 위 <code>sed -i "30a..."</code>처럼 다운로드한 매니페스트의 특정 줄 번호에 패치를 삽입하는 방식은 upstream YAML이 바뀌면 깨질 수 있습니다. 가능하면 <code>kustomize</code> patch나 Helm(<code>--set runtimeClassName=nvidia</code>)처럼 줄 번호에 의존하지 않는 방식을 쓰는 것이 더 안전합니다.</blockquote>
+
+<div class="analogy-box">
+<span class="emoji">🔐</span>
+<div><b>분석 노트 — v0.20.0은 왜 최소권한인가</b><br>
+과거 방식은 device plugin 파드에 <code>privileged: true</code>와 <code>/dev</code> 전체 hostPath를 줘서 무엇이든 볼 수 있게 했습니다. 최신 v0.20.0은 그렇게 하지 않고, 파드 스펙에 <code>runtimeClassName: "nvidia"</code>만 지정합니다. 이 값 덕분에 containerd가 이 파드도 "GPU를 쓰는 평범한 파드"로 취급해서 OCI prestart 훅이 자동으로 필요한 접근권(NVML 조회 + kubelet 보고)만 주입합니다. 커널 capability는 전부 버리고, 호스트 <code>/dev</code> 전체 접근도 주지 않습니다.</div>
+</div>
+
+<h2 id="s5">5. 파드 기동 및 확인</h2>
+<div class="gallery">
+<figure class="figure-box"><img src="assets/images/6b57b152_image.png" alt="GPU 파드 기동 과정"><figcaption>실제 GPU 리소스를 요청하는 파드 기동 시 전체 과정 (출처: vcluster.com).</figcaption></figure>
+<figure class="figure-box"><img src="assets/images/33fad8a4_image.png" alt="파드 실행 역할 분담"><figcaption>Device Plugin·kubelet·컨테이너 런타임의 역할 분담 (project-hami.io).</figcaption></figure>
+</div>
+
+<p><strong>흐름</strong>: ① kubelet이 Device Plugin에 지속적으로 폴링(<code>ListAndWatch</code>) → ② GPU 필요한 파드가 오면
+kubelet이 <code>Allocate</code> API 호출 → ③ kubelet이 CRI(컨테이너 생성)에 GPU 마운트 정보 전달 → ④ containerd
+→ containerd-shim → runc가 컨테이너를 만드는 파이프라인 중 prestart 훅에서 NVIDIA Container
+Toolkit이 디바이스/라이브러리/환경변수/cgroup 4가지를 주입.</p>
+<blockquote>📖 <b>Device Plugin은 "어떤 GPU를 줄지 결정"만 하고, 실제 <code>/dev</code> 마운트 같은 물리적 작업은 컨테이너 런타임(toolkit)이 담당합니다.</b></blockquote>
+
+<pre><code class="language-bash">cat &lt;&lt; EOF | kubectl apply -f -
+apiVersion: v1
+kind: Pod
+metadata:
+  name: gpu-test
+  namespace: default
+spec:
+  runtimeClassName: nvidia
+  restartPolicy: Never
+  containers:
+  - name: gpu-test
+    image: ubuntu:24.04
+    command: [&quot;sleep&quot;, &quot;infinity&quot;]
+    resources:
+      limits:
+        nvidia.com/gpu: 1
+EOF
+
+kubectl exec -it gpu-test -- bash
+# 컨테이너 안:
+env | grep NVIDIA          # NVIDIA_VISIBLE_DEVICES=GPU-...
+nvidia-smi                  # toolkit이 호스트 것을 밀어줌
+apt update &amp;&amp; apt install -y python3-venv python3-pip
+python3 -m venv /root/venv &amp;&amp; /root/venv/bin/pip install torch numpy
+/root/venv/bin/python -c &quot;import torch; print(torch.cuda.is_available(), torch.cuda.get_device_name(0))&quot;
+exit
+
+kubectl delete pod gpu-test
+</code></pre>
+<blockquote>
+<p>(참고) <code>python</code>/<code>pytorch</code>가 이미 설치된 컨테이너 이미지(<code>pytorch/pytorch:2.9.0-cuda12.8-cudnn9-runtime</code>,
+약 4.5GB)를 대신 써도 됩니다.</p>
+</blockquote>
+<p><strong>CDI(Container Device Interface) 훅 정보 확인</strong></p>
+<pre><code class="language-bash"># K3s는 이 경로, 일반 K8s는 /etc/containerd/config.toml
+cat /etc/nvidia-container-runtime/config.toml | grep -i cdi
+cat /var/run/cdi/nvidia.yaml
+# cdiVersion: 0.7.0, kind: nvidia.com/gpu
+# devices: [{name: &quot;0&quot;, containerEdits: {deviceNodes: [...], hooks: [...]}}]
+</code></pre>
+<div class="gallery">
+<figure class="figure-box"><img src="assets/images/4a51b10f_k8s-cdi.jpeg" alt="CNI/CSI/CRI/CDI 비교"><figcaption>Kubernetes CNI/CSI/CRI/CDI 개념 비교.</figcaption></figure>
+</div>
+
+<h2 id="s6">6. kube-prometheus-stack 설치 → DCGM Exporter 설치 및 확인</h2>
+<p>커뮤니티 유지보수 Helm 차트<sup class="cite"><a id="cite7" href="#ref7">[7]</a></sup>로 Prometheus/Grafana/Alertmanager를 한 번에 설치합니다.</p>
+<pre><code class="language-bash">helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo update
+kubectl get sc   # K3s 기본: local-path (rancher.io/local-path)
+
+MYPCIP=&lt;YOUR_PC_IP&gt;   # 예시가 아니라 반드시 본인 PC의 로컬 IP로 교체 (ip addr 또는 hostname -I로 확인)
+
+cat &lt;&lt;EOT &gt; monitor-values.yaml
+prometheus:
+  service:
+    type: NodePort
+    nodePort: 30001
+  prometheusSpec:
+    serviceMonitorSelectorNilUsesHelmValues: false
+    retention: 7d
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: local-path
+          accessModes: [ReadWriteOnce]
+          resources:
+            requests: {storage: 20Gi}
+grafana:
+  defaultDashboardsTimezone: Asia/Seoul
+  adminPassword: &lt;YOUR_GRAFANA_ADMIN_PASSWORD&gt;
+  service:
+    type: NodePort
+    nodePort: 30002
+  persistence:
+    enabled: true
+    type: pvc
+    storageClassName: local-path
+    accessModes: [ReadWriteOnce]
+    size: 10Gi
+alertmanager:
+  alertmanagerSpec:
+    storage:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: local-path
+          accessModes: [ReadWriteOnce]
+          resources:
+            requests: {storage: 5Gi}
+prometheus-windows-exporter:
+  prometheus:
+    monitor: {enabled: false}
+kubeControllerManager:
+  enabled: true
+  endpoints: [$MYPCIP]
+  service: {enabled: true, port: 10257, targetPort: 10257}
+  serviceMonitor: {enabled: true, https: true, insecureSkipVerify: true}
+kubeScheduler:
+  enabled: true
+  endpoints: [$MYPCIP]
+  service: {enabled: true, port: 10259, targetPort: 10259}
+  serviceMonitor: {enabled: true, https: true, insecureSkipVerify: true}
+kubeProxy:
+  enabled: true
+  endpoints: [$MYPCIP]
+  service: {enabled: true, port: 10249, targetPort: 10249}
+  serviceMonitor: {enabled: true}
+kubeEtcd:
+  enabled: false   # K3s 단일 노드는 sqlite라서 etcd 없음 (--cluster-init 구성일 때만 true)
+EOT
+
+helm upgrade --install kube-prometheus-stack prometheus-community/kube-prometheus-stack --version 87.5.1 \
+  -f monitor-values.yaml --create-namespace --namespace monitoring
+
+open http://$MYPCIP:30001   # prometheus
+open http://$MYPCIP:30002   # grafana : admin / &lt;YOUR_GRAFANA_ADMIN_PASSWORD&gt;
+</code></pre>
+<div class="gallery">
+<figure class="figure-box"><img src="assets/images/7bd21973_image.png" alt="Prometheus 접속"><figcaption>Prometheus 웹 UI 접속 확인.</figcaption></figure>
+<figure class="figure-box"><img src="assets/images/bb6eed6c_image.png" alt="Grafana 접속"><figcaption>Grafana 웹 UI 접속 확인.</figcaption></figure>
+</div>
+
+<p><strong>DCGM Exporter 설치</strong><sup class="cite"><a id="cite8" href="#ref8">[8]</a></sup></p>
+<pre><code class="language-bash">helm repo add nvidia https://nvidia.github.io/dcgm-exporter/helm-charts
+helm repo update
+helm upgrade --install dcgm-exporter nvidia/dcgm-exporter \
+  -n monitoring \
+  --set runtimeClassName=nvidia \
+  --set serviceMonitor.enabled=true
+
+kubectl -n monitoring port-forward svc/dcgm-exporter 9400:9400
+curl -s http://localhost:9400/metrics | grep DCGM_FI_DEV_GPU_UTIL
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>메트릭</th>
+<th>의미</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>DCGM_FI_DEV_GPU_UTIL</code></td>
+<td>GPU Core 사용률</td>
+</tr>
+<tr>
+<td><code>DCGM_FI_DEV_MEM_COPY_UTIL</code></td>
+<td>GPU Memory Controller 사용률</td>
+</tr>
+<tr>
+<td><code>DCGM_FI_DEV_FB_USED</code> / <code>FB_FREE</code></td>
+<td>VRAM 사용량 / 여유</td>
+</tr>
+<tr>
+<td><code>DCGM_FI_DEV_GPU_TEMP</code></td>
+<td>GPU 온도</td>
+</tr>
+<tr>
+<td><code>DCGM_FI_DEV_POWER_USAGE</code></td>
+<td>GPU 전력 사용량</td>
+</tr>
+<tr>
+<td><code>DCGM_FI_DEV_SM_CLOCK</code> / <code>MEM_CLOCK</code></td>
+<td>SM/메모리 클럭</td>
+</tr>
+<tr>
+<td><code>DCGM_FI_DEV_PCIE_TX/RX_THROUGHPUT</code></td>
+<td>PCIe 대역폭</td>
+</tr>
+<tr>
+<td><code>DCGM_FI_DEV_XID_ERRORS</code></td>
+<td>NVIDIA XID 에러</td>
+</tr>
+</tbody>
+</table>
+<div class="gallery">
+<figure class="figure-box"><img src="assets/images/1439c582_image.png" alt="DCGM Exporter"><figcaption>DCGM Exporter 아키텍처.</figcaption></figure>
+<figure class="figure-box"><img src="assets/images/e7ba3ca5_image.png" alt="Grafana GPU 대시보드"><figcaption>Grafana 대시보드 ID 12239 임포트 화면.</figcaption></figure>
+</div>
+
+<blockquote>📌 (참고) GeForce 카드에서는 <code>DCGM_FI_PROF_*</code> 계열 메트릭이 드라이버 레벨 제품 세분화 제한으로 켤 수 없습니다.</blockquote>
+
+<p><strong>GPU 부하 발생 후 메트릭 확인</strong> (N-body 시뮬레이션, 약 4분 소요)</p>
+<pre><code class="language-bash">cat &lt;&lt;'EOF' | kubectl apply -f -
+apiVersion: v1
+kind: Pod
+metadata:
+  name: gpu-load
+spec:
+  restartPolicy: Never
+  runtimeClassName: nvidia
+  containers:
+  - name: cuda
+    image: nvcr.io/nvidia/k8s/cuda-sample:nbody
+    args: [&quot;nbody&quot;, &quot;-gpu&quot;, &quot;-benchmark&quot;, &quot;-numbodies=5000000&quot;]
+    resources:
+      limits:
+        nvidia.com/gpu: 1
+EOF
+kubectl logs gpu-load -f
+</code></pre>
+<p>원문 실측 결과 예시(특정 GPU·클럭 상태의 참고값이며 표준 벤치마크 수치가 아닙니다): 5,000,192개
+body(256의 배수로 자동 반올림)를 10회 반복, 총 211.78초, 약 1.18조 interactions/s, 약 23,611
+GFLOP/s(FP32). RTX 4070 Ti SUPER는 Ada Lovelace(Compute Capability 8.9)지만 이 CUDA 샘플이
+SM 8.9 매핑 테이블을 갖고 있지 않아 기본값(128 Cores/SM, "Ampere"로 표시)을 씁니다 — GPU가 실제로
+Ampere라는 뜻이 아니라 샘플 코드의 폴백 표시입니다. 이 수치들은 <strong>본인 GPU 모델에 그대로 일반화하지
+마세요.</strong></p>
+<blockquote>📌 CUDA 샘플은 공식 벤치마크 도구가 아닙니다 — 출력된 GFLOP/s는 참고용입니다.</blockquote>
+
+<div class="gallery">
+<figure class="figure-box"><img src="assets/images/e35c50f8_image.png" alt="nvtop"><figcaption>nvtop 실시간 GPU 모니터링.</figcaption></figure>
+<figure class="figure-box"><img src="assets/images/2c9c6b1f_image.png" alt="GPU 온도 상승"><figcaption>GPU 온도 상승 예시(부하 전후).</figcaption></figure>
+<figure class="figure-box"><img src="assets/images/153b1db9_image.png" alt="GPU 전력 상승"><figcaption>GPU 전력 상승 예시.</figcaption></figure>
+<figure class="figure-box"><img src="assets/images/7eb6c4af_image.png" alt="GPU 사용률 상승"><figcaption>GPU Utilization 0% → 100%.</figcaption></figure>
+<figure class="figure-box"><img src="assets/images/1d07f131_image.png" alt="SM Clock 상승"><figcaption>GPU SM Clock 상승 예시.</figcaption></figure>
+<figure class="figure-box"><img src="assets/images/719e1aad_image.png" alt="VRAM 사용량 상승"><figcaption>Framebuffer 메모리 사용량 상승 예시.</figcaption></figure>
+</div>
+
+<p><strong>Prometheus Alert Rule 예시</strong> (고온/XID 에러/메모리 과다 사용)</p>
+<pre><code class="language-yaml">cat &lt;&lt;'EOF' | kubectl apply -f -
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: gpu-alert-rules
+  namespace: monitoring
+  labels:
+    release: kube-prometheus-stack
+spec:
+  groups:
+  - name: gpu.rules
+    rules:
+    - alert: HighGpuTemperature
+      expr: DCGM_FI_DEV_GPU_TEMP &gt; 85
+      for: 5m
+      labels: {severity: warning}
+      annotations:
+        summary: &quot;GPU temperature is high&quot;
+    - alert: GpuXidError
+      expr: DCGM_FI_DEV_XID_ERRORS &gt; 0
+      for: 1m
+      labels: {severity: critical}
+      annotations:
+        summary: &quot;GPU XID error detected&quot;
+    - alert: HighGpuMemoryUsage
+      expr: DCGM_FI_DEV_FB_USED / (DCGM_FI_DEV_FB_USED + DCGM_FI_DEV_FB_FREE) * 100 &gt; 90
+      for: 10m
+      labels: {severity: warning}
+      annotations:
+        summary: &quot;GPU memory usage is high&quot;
+EOF
+</code></pre>
+<div class="gallery">
+<figure class="figure-box"><img src="assets/images/9d3bdfb0_image.png" alt="Prometheus Alert Rule"><figcaption>등록된 GPU 알림 규칙 확인.</figcaption></figure>
+</div>
+
+<blockquote>📖 (참고) <code>Utilyze</code>(GitHub<sup class="cite"><a id="cite9" href="#ref9">[9]</a></sup>)는 GPU 하드웨어 성능 카운터를 직접 샘플링해 실제 컴퓨팅 사용률(nvtop의 단순 읽기/쓰기율과 달리 행렬 크기별로 달라지는 실제 처리량)을 보여주는 참고 도구로 소개되었습니다.</blockquote>
+
+<div class="gallery">
+<figure class="figure-box"><img src="assets/images/e081a58d_image.png" alt="nvtop vs Utilyze"><figcaption>nvtop(단순 사용률)과 Utilyze(실제 처리량) 비교.</figcaption></figure>
+<figure class="figure-box"><img src="assets/images/dacddbd8_image.png" alt="Utilyze 실행 화면"><figcaption>Utilyze 실행 화면.</figcaption></figure>
+</div>
+
+<h2 id="s7">7. NVIDIA GPU Operator</h2>
+<p><strong>소개</strong>: K8s에서 GPU 관련 소프트웨어 스택(드라이버, Device Plugin, Container Toolkit, Feature
+Discovery, DCGM 모니터링)을 자동으로 프로비저닝/관리하는 오퍼레이터입니다. 여러 노드로 구성된
+클러스터에서 노드마다 수동 설정 없이 일관되게 GPU 스택을 배포하고 싶을 때 사용합니다.</p>
+<div class="gallery">
+<figure class="figure-box"><img src="assets/images/bacbf556_image.png" alt="GPU Operator 개념"><figcaption>NVIDIA GPU Operator가 관리하는 컴포넌트들.</figcaption></figure>
+<figure class="figure-box"><img src="assets/images/62b60448_image.png" alt="Container Toolkit 아키텍처"><figcaption>NVIDIA Container Toolkit 아키텍처 개요.</figcaption></figure>
+</div>
+
+<p>이 실습은 호스트에 이미 드라이버/툴킷이 있으므로 무거운 GPU Operator 대신, <strong>NFD + GFD</strong>를 통해
+"노드 라벨링"만 실습합니다.</p>
+<p><strong>NFD (Node Feature Discovery)</strong><sup class="cite"><a id="cite10" href="#ref10">[10]</a></sup>: 노드의 CPU/커널/PCI/GPU 등 하드웨어 특성을 자동 감지해 Node
+Label로 붙입니다.</p>
+<pre><code class="language-bash">helm install -n node-feature-discovery --create-namespace nfd \
+  oci://registry.k8s.io/nfd/charts/node-feature-discovery --version 0.18.3
+
+kubectl get pods -n node-feature-discovery
+kubectl get node -o json | jq '.items[].metadata.labels | with_entries(select(.key | startswith(&quot;feature.node.kubernetes.io/&quot;)))'
+</code></pre>
+<p><strong>GFD (GPU Feature Discovery)</strong>: NFD 위에서 NVIDIA GPU 세부 라벨을 붙입니다 (예전 독립 저장소는
+archived되었고 <code>NVIDIA/k8s-device-plugin</code>으로 통합됨).</p>
+<pre><code class="language-bash">helm upgrade --install nvidia-device-plugin nvdp/nvidia-device-plugin -n kube-system \
+  --set runtimeClassName=nvidia --set gfd.enabled=true
+
+kubectl get node -o json | jq '.items[].metadata.labels | with_entries(select(.key | startswith(&quot;nvidia.com/&quot;)))'
+# nvidia.com/gpu.product: &lt;GPU 모델명&gt;
+# nvidia.com/gpu.memory: &lt;VRAM MiB&gt;
+# nvidia.com/gpu.family: &lt;아키텍처 코드네임&gt;
+# nvidia.com/gpu.compute.major/minor: &lt;Compute Capability&gt;
+# nvidia.com/mig.capable: true/false
+</code></pre>
+<p>이렇게 라벨링된 정보로 특정 GPU 노드에만 파드를 스케줄링하는 등 활용이 가능합니다.</p>
+<pre><code class="language-bash"># 실습 후 정리 (기본 Device Plugin 복구 필요)
+helm uninstall -n kube-system nvidia-device-plugin
+helm uninstall -n node-feature-discovery nfd
+kubectl delete namespace node-feature-discovery
+kubectl apply -f /root/nvidia-device-plugin.yml
+</code></pre>
+<h2 id="s8">8. vLLM 배포 및 사용</h2>
+<p>이번 실습은 MinIO<sup class="cite"><a id="cite11" href="#ref11">[11]</a></sup>(S3 호환 오브젝트 스토리지)에 모델을 올리고, vLLM<sup class="cite"><a id="cite12" href="#ref12">[12]</a></sup>이 <code>runai_streamer</code>로 S3에서
+직접 스트리밍 로드하는 구조입니다.</p>
+<blockquote>📋 <b>시작 전 확인 사항</b>: 아래를 미리 확인하면 중간에 막히지 않습니다.
+<ul>
+<li><b>모델 접근 권한</b>: Hugging Face에서 skt/A.X-4.0-Light<sup class="cite"><a id="cite13" href="#ref13">[13]</a></sup> 페이지에 접속해 라이선스 동의(gated 모델인 경우)가 되어 있는지 먼저 확인하세요. 안 되어 있으면 Job이 다운로드 단계에서 실패합니다.</li>
+<li><b>GPU VRAM 여유</b>: 실습 PC의 GPU 메모리가 모델 크기보다 충분히 큰지 <code>nvidia-smi</code>로 확인하세요. 부족하면 vLLM 컨테이너가 OOM으로 죽습니다.</li>
+<li><b>이미지 태그 호환성</b>: <code>vllm/vllm-openai:v0.28.0</code>은 이 실습 시점 기준값입니다. 실제 사용 가능 여부와 설치된 드라이버/CUDA 버전과의 호환성을 Docker Hub 태그 목록<sup class="cite"><a id="cite14" href="#ref14">[14]</a></sup>에서 확인하세요.</li>
+<li><b>NodePort 접근성</b>: MinIO 콘솔(30003)/vLLM API(30005)/Open WebUI(30006) 포트가 실습 PC의 방화벽·LAN 설정에서 실제로 열려 있는지 확인하세요.</li>
+</ul>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>리소스</th>
+<th>내용</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Namespace</td>
+<td><code>vllm</code></td>
+</tr>
+<tr>
+<td>Secret <code>hf-token</code></td>
+<td>최초 1회 모델 다운로드에만 사용</td>
+</tr>
+<tr>
+<td>Secret <code>minio-credentials</code></td>
+<td>MinIO 계정 (반드시 직접 랜덤 생성)</td>
+</tr>
+<tr>
+<td>Deployment+PVC <code>minio</code></td>
+<td>replicas=1, PVC 30Gi(local-path), NodePort 30003(콘솔)</td>
+</tr>
+<tr>
+<td>Job <code>model-loader</code> (1회성)</td>
+<td>HF에서 <code>skt/A.X-4.0-Light</code> 다운로드 → MinIO에 업로드</td>
+</tr>
+<tr>
+<td>Deployment <code>vllm-server</code></td>
+<td><code>vllm/vllm-openai:v0.28.0</code>, <code>runtimeClassName: nvidia</code>, NodePort 30005</td>
+</tr>
+</tbody>
+</table>
+<blockquote class="fix">⚠ <b>본인 환경에 맞게 반드시 교체 필요</b>: MinIO root 비밀번호는 절대 예시 문자열을 그대로 쓰지 마세요. <code>openssl rand -base64 24</code> 등으로 직접 생성한 값을 <code>&lt;YOUR_MINIO_PASSWORD&gt;</code> 자리에 넣으세요. PC IP(<code>$MYPCIP</code>)도 실습마다 다릅니다.</blockquote>
+
+<pre><code class="language-bash">kubectl create namespace vllm
+kubectl create secret generic minio-credentials -n vllm \
+  --from-literal=MINIO_ROOT_USER=&lt;YOUR_MINIO_USER&gt; \
+  --from-literal=MINIO_ROOT_PASSWORD=&lt;YOUR_MINIO_PASSWORD&gt;
+kubectl create secret generic hf-token -n vllm \
+  --from-literal=HF_TOKEN=&lt;YOUR_HF_TOKEN&gt;
+</code></pre>
+<pre><code class="language-yaml">apiVersion: v1
+kind: PersistentVolumeClaim
+metadata: {name: minio-data, namespace: vllm}
+spec:
+  accessModes: [&quot;ReadWriteOnce&quot;]
+  storageClassName: local-path
+  resources: {requests: {storage: 30Gi}}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: minio, namespace: vllm}
+spec:
+  replicas: 1
+  selector: {matchLabels: {app: minio}}
+  template:
+    metadata: {labels: {app: minio}}
+    spec:
+      containers:
+        - name: minio
+          image: minio/minio:latest
+          args: [&quot;server&quot;, &quot;/data&quot;, &quot;--console-address&quot;, &quot;:9001&quot;]
+          envFrom: [{secretRef: {name: minio-credentials}}]
+          ports: [{containerPort: 9000, name: api}, {containerPort: 9001, name: console}]
+          volumeMounts: [{name: data, mountPath: /data}]
+      volumes: [{name: data, persistentVolumeClaim: {claimName: minio-data}}]
+---
+apiVersion: v1
+kind: Service
+metadata: {name: minio, namespace: vllm}
+spec:
+  selector: {app: minio}
+  ports: [{name: api, port: 9000, targetPort: 9000}]
+---
+apiVersion: v1
+kind: Service
+metadata: {name: minio-console, namespace: vllm}
+spec:
+  type: NodePort
+  selector: {app: minio}
+  ports: [{name: console, port: 9001, targetPort: 9001, nodePort: 30003}]
+</code></pre>
+<div class="gallery">
+<figure class="figure-box"><img src="assets/images/e93863ed_image.png" alt="MinIO 콘솔"><figcaption>MinIO 콘솔 접속 화면 (:30003).</figcaption></figure>
+<figure class="figure-box"><img src="assets/images/f241f842_image.png" alt="MinIO 버킷"><figcaption>MinIO 버킷 생성 확인.</figcaption></figure>
+</div>
+
+<p><strong>모델 다운로드 Job</strong> (HF → MinIO 업로드)</p>
+<pre><code class="language-yaml">apiVersion: batch/v1
+kind: Job
+metadata: {name: model-loader, namespace: vllm}
+spec:
+  backoffLimit: 1
+  template:
+    spec:
+      restartPolicy: Never
+      initContainers:
+        - name: hf-download
+          image: python:3.12-slim
+          command: [&quot;sh&quot;, &quot;-c&quot;, &quot;pip install --no-cache-dir -U \&quot;huggingface_hub[cli]\&quot; &amp;&amp; hf download skt/A.X-4.0-Light --local-dir /model --token \&quot;$HF_TOKEN\&quot;&quot;]
+          env: [{name: HF_TOKEN, valueFrom: {secretKeyRef: {name: hf-token, key: HF_TOKEN}}}]
+          volumeMounts: [{name: model, mountPath: /model}]
+      containers:
+        - name: s3-upload
+          image: minio/mc:latest
+          command: [&quot;sh&quot;, &quot;-c&quot;, &quot;mc alias set localminio http://minio.vllm.svc.cluster.local:9000 \&quot;$MINIO_ROOT_USER\&quot; \&quot;$MINIO_ROOT_PASSWORD\&quot; &amp;&amp; mc mb --ignore-existing localminio/models &amp;&amp; mc mirror --overwrite /model localminio/models/A.X-4.0-Light&quot;]
+          envFrom: [{secretRef: {name: minio-credentials}}]
+          volumeMounts: [{name: model, mountPath: /model}]
+      volumes: [{name: model, emptyDir: {sizeLimit: 20Gi}}]
+</code></pre>
+<p><strong>vLLM Deployment</strong> (S3 스트리밍 로더 사용)</p>
+<pre><code class="language-yaml">apiVersion: apps/v1
+kind: Deployment
+metadata: {name: vllm-server, namespace: vllm}
+spec:
+  replicas: 1
+  strategy: {type: Recreate}
+  selector: {matchLabels: {app: vllm-server}}
+  template:
+    metadata: {labels: {app: vllm-server}}
+    spec:
+      runtimeClassName: nvidia
+      containers:
+        - name: vllm
+          image: vllm/vllm-openai:v0.28.0
+          command: [&quot;/bin/sh&quot;, &quot;-c&quot;]
+          args:
+            - |
+              set -eu
+              python3 -c &quot;import runai_model_streamer&quot; 2&gt;/dev/null || pip install --no-cache-dir vllm[runai]
+              exec vllm serve s3://models/A.X-4.0-Light \
+                --served-model-name skt/A.X-4.0-Light \
+                --load-format runai_streamer \
+                --host 0.0.0.0 --port 8000 \
+                --max-model-len 8192 \
+                --enforce-eager \
+                --enable-auto-tool-choice \
+                --tool-call-parser hermes
+          env:
+            - {name: AWS_ENDPOINT_URL, value: &quot;http://minio.vllm.svc.cluster.local:9000&quot;}
+            - {name: AWS_EC2_METADATA_DISABLED, value: &quot;true&quot;}
+            - {name: RUNAI_STREAMER_S3_USE_VIRTUAL_ADDRESSING, value: &quot;0&quot;}
+            - {name: AWS_ACCESS_KEY_ID, valueFrom: {secretKeyRef: {name: minio-credentials, key: MINIO_ROOT_USER}}}
+            - {name: AWS_SECRET_ACCESS_KEY, valueFrom: {secretKeyRef: {name: minio-credentials, key: MINIO_ROOT_PASSWORD}}}
+          ports: [{containerPort: 8000}]
+          resources: {limits: {nvidia.com/gpu: 1}}
+          volumeMounts: [{name: shm, mountPath: /dev/shm}]
+      volumes: [{name: shm, emptyDir: {medium: Memory, sizeLimit: 1Gi}}]
+---
+apiVersion: v1
+kind: Service
+metadata: {name: vllm-server, namespace: vllm}
+spec:
+  type: NodePort
+  selector: {app: vllm-server}
+  ports: [{port: 8000, targetPort: 8000, nodePort: 30005}]
+</code></pre>
+<div class="analogy-box">
+<span class="emoji">🌊</span>
+<div><b>비유: 창고에서 바로 흘려보내기 (S3 스트리밍 로더)</b><br>
+전통적인 방식은 모델 파일을 로컬 디스크에 통째로 내려받은 뒤 읽습니다. S3 스트리밍 로더(<code>runai_streamer</code>)는 창고(MinIO/S3)에서 필요한 부분을 바로 읽어 GPU 메모리로 흘려보내, 큰 모델도 로컬 디스크 여유 공간 걱정 없이 빠르게 기동할 수 있게 해줍니다.</div>
+</div>
+
+<p><strong>참고 — AWS Kr Blog의 스트리밍 로더 최적화 팁</strong> (Gemma 4 서빙 사례)</p>
+<pre><code class="language-javascript">// 권고 1: FUSE 마운트 대신 s3:// 직접 지정
+containers:
+  - name: vllm
+    args:
+      - --model=s3://&lt;model-bucket&gt;/Gemma-4-31B-IT-NVFP4/
+      - --quantization=modelopt
+      - --load-format=runai_streamer
+      - '--model-loader-extra-config={&quot;concurrency&quot;:64,&quot;memory_limit&quot;:25769803776}'
+      - --served-model-name=gemma4-31b
+      - --max-model-len=8192
+    env:
+      - {name: AWS_REGION, value: ap-northeast-2}   # s3:// 직결의 필수 종속 env
+</code></pre>
+<pre><code class="language-javascript">// 권고 2: torch.compile 캐시를 노드에 영속화 (컨테이너 재시작에도 캐시 유지)
+containers:
+  - name: vllm
+    env:
+      - {name: VLLM_CACHE_ROOT, value: /vllm-cache}
+    volumeMounts:
+      - {name: vllm-cache, mountPath: /vllm-cache}
+volumes:
+  - name: vllm-cache
+    hostPath: {path: /var/cache/vllm, type: DirectoryOrCreate}   # 캐시 수명 = 노드 수명
+</code></pre>
+<div class="gallery">
+<figure class="figure-box"><img src="assets/images/4d8ef40d_image.png" alt="Gemma4 블로그 참고1"><figcaption>참고: EKS Gemma4 서빙 블로그 아키텍처.</figcaption></figure>
+<figure class="figure-box"><img src="assets/images/4126b1f9_image.png" alt="Gemma4 블로그 참고2"><figcaption>참고: 스트리밍 로더 성능 비교.</figcaption></figure>
+<figure class="figure-box"><img src="assets/images/3b7bce2f_image.png" alt="컴파일 캐시 미적용"><figcaption>이 실습 환경에서는 컴파일 캐시가 미적용 상태 — 과제로 직접 적용해볼 수 있습니다.</figcaption></figure>
+</div>
+
+<p><strong>vLLM 추론 호출 확인</strong></p>
+<pre><code class="language-bash">curl -s http://&lt;YOUR_PC_IP&gt;:30005/v1/models | python3 -m json.tool
+
+curl -s http://&lt;YOUR_PC_IP&gt;:30005/v1/chat/completions \
+  -H &quot;Content-Type: application/json&quot; \
+  -d '{
+    &quot;model&quot;: &quot;skt/A.X-4.0-Light&quot;,
+    &quot;messages&quot;: [{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;한국의 수도는 어디야?&quot;}],
+    &quot;max_tokens&quot;: 50
+  }' | jq .choices
+
+# 스트리밍
+curl -N http://&lt;YOUR_PC_IP&gt;:30005/v1/chat/completions \
+  -H &quot;Content-Type: application/json&quot; \
+  -d '{&quot;model&quot;: &quot;skt/A.X-4.0-Light&quot;, &quot;messages&quot;: [{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;한국의 수도는 어디야?&quot;}], &quot;max_tokens&quot;: 50, &quot;stream&quot;: true}'
+</code></pre>
+<p><strong>Open WebUI 배포</strong><sup class="cite"><a id="cite15" href="#ref15">[15]</a></sup></p>
+<pre><code class="language-yaml">apiVersion: v1
+kind: PersistentVolumeClaim
+metadata: {name: open-webui-data, namespace: vllm}
+spec:
+  accessModes: [&quot;ReadWriteOnce&quot;]
+  storageClassName: local-path
+  resources: {requests: {storage: 2Gi}}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: open-webui, namespace: vllm}
+spec:
+  replicas: 1
+  selector: {matchLabels: {app: open-webui}}
+  template:
+    metadata: {labels: {app: open-webui}}
+    spec:
+      containers:
+        - name: open-webui
+          image: ghcr.io/open-webui/open-webui:main
+          env:
+            - {name: OPENAI_API_BASE_URL, value: &quot;http://vllm-server.vllm.svc.cluster.local:8000/v1&quot;}
+            - {name: OPENAI_API_KEY, value: dummy}
+            - {name: WEBUI_AUTH, value: &quot;false&quot;}
+            - {name: ENABLE_OLLAMA_API, value: &quot;false&quot;}
+          ports: [{containerPort: 8080}]
+          volumeMounts: [{name: data, mountPath: /app/backend/data}]
+      volumes: [{name: data, persistentVolumeClaim: {claimName: open-webui-data}}]
+---
+apiVersion: v1
+kind: Service
+metadata: {name: open-webui, namespace: vllm}
+spec:
+  type: NodePort
+  selector: {app: open-webui}
+  ports: [{port: 8080, targetPort: 8080, nodePort: 30006}]
+</code></pre>
+<blockquote>📖 Open WebUI에서 도구 호출(auto tool choice)을 쓰려면 vLLM에 <code>--enable-auto-tool-choice</code>와 <code>--tool-call-parser hermes</code>가 설정되어 있어야 합니다(위 Deployment에 이미 포함됨).</blockquote>
+
+<div class="gallery">
+<figure class="figure-box"><img src="assets/images/2097cdb0_image.png" alt="Open WebUI 화면"><figcaption>Open WebUI 접속 화면 (:30006).</figcaption></figure>
+</div>
+
+<h2 id="s9">9. HAMi (심화 — 도전과제)</h2>
+<p>실습을 이어가려면 먼저 <code>kubectl delete ns vllm</code>으로 vLLM/Open WebUI를 정리합니다.</p>
+<p>HAMi(구 k8s-vGPU-scheduler)는 하나의 물리 GPU를 여러 컨테이너가 나눠 쓸 수 있게 하는 <strong>CNCF
+Incubating</strong> 오픈소스 프로젝트입니다. 컨테이너 내부 코드 수정 없이("Transparent to Workloads")
+메모리 한도를 MB 또는 퍼센트 단위로 지정해 여러 워크로드가 GPU를 공유하도록 합니다.</p>
+<p><code>도전과제</code>(원문 그대로): HAMi 설치 후 GPU 1장을 vLLM 2대의 파드로 나눠서 기동하고 서빙 테스트,
+HAMi Tutorial<sup class="cite"><a id="cite16" href="#ref16">[16]</a></sup> 따라해보기.</p>
+<blockquote>📚 <b>참고 자료</b>: HAMi 공식 문서<sup class="cite"><a id="cite17" href="#ref17">[17]</a></sup> 확인 결과, "이기종 AI 컴퓨팅 장치(GPU, NPU 등)를 관리하는 오픈소스 플랫폼"이며 CNCF와 CNAI 랜드스케이프에 모두 등재되어 있다고 소개합니다. 다만 문서에 세대별/칩별 하드웨어 지원 목록이 명시되어 있지 않아, 특정 칩(예: AWS Trainium/Inferentia)의 지원 버전을 단정하지 말고 실습 전 최신 설치 가이드를 직접 확인하는 것을 권장합니다.</blockquote>
+
+<h2 id="s10">10. K8s DRA (심화 — 도전과제)</h2>
+<p>K8s DRA(Dynamic Resource Allocation)는 기존 Device Plugin보다 유연하게 GPU 등 특수 자원을
+클레임 기반으로 할당하는 K8s 메커니즘입니다(알파 기능으로 시작해 버전을 거듭하며 발전 중). 이
+실습 페이지는 아래 3개 공식 자료 링크만 제공하고 있어, 실제 실습 절차는 각 링크를 참고해 별도로
+진행해야 합니다. <code>ResourceClaim</code>/<code>DeviceClass</code> 기반의 세밀한 장치 요청이 가능해지지만, 이는
+Kubernetes 버전과 벤더별 DRA 드라이버 지원 여부에 의존하므로 일반 NVIDIA GPU 공유가 바로 되는
+표준 YAML이 있는 것은 아닙니다.</p>
+<ul>
+<li>Kubernetes 공식 문서 — DRA로 디바이스 할당<sup class="cite"><a id="cite18" href="#ref18">[18]</a></sup></li>
+<li>Kubernetes v1.37 DRA 업데이트 블로그<sup class="cite"><a id="cite19" href="#ref19">[19]</a></sup></li>
+<li>Kubernetes v1.37 워크로드 인식 스케줄링 블로그<sup class="cite"><a id="cite20" href="#ref20">[20]</a></sup></li>
+</ul>
+<hr />
+<h2 id="vars">사용자 환경별로 반드시 바꿔야 하는 값</h2>
+<table>
+<thead>
+<tr>
+<th>자리표시자</th>
+<th>의미</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>&lt;YOUR_PC_IP&gt;</code> (<code>$MYPCIP</code>)</td>
+<td>실습 PC의 로컬 IP (<code>ip addr</code>/<code>hostname -I</code>로 확인) — NodePort 접속에 사용</td>
+</tr>
+<tr>
+<td><code>&lt;YOUR_GRAFANA_ADMIN_PASSWORD&gt;</code></td>
+<td>Grafana admin 비밀번호 — 직접 강한 값으로 설정</td>
+</tr>
+<tr>
+<td><code>&lt;YOUR_MINIO_USER&gt;</code> / <code>&lt;YOUR_MINIO_PASSWORD&gt;</code></td>
+<td>MinIO 계정 — 반드시 직접 랜덤 생성, 원문 예시값 재사용 금지</td>
+</tr>
+<tr>
+<td><code>&lt;YOUR_HF_TOKEN&gt;</code></td>
+<td>Hugging Face 개인 액세스 토큰</td>
+</tr>
+<tr>
+<td>GPU 모델명/드라이버 버전</td>
+<td><code>lspci</code>/<code>ubuntu-drivers devices</code> 조회 결과에 따라 다름</td>
+</tr>
+</tbody>
+</table>
+<h2 id="refs">참고 자료</h2>
+<ol class="ref-list">
+<li id="ref1"><a href="https://docs.nvidia.com/datacenter/cloud-native/gpu-operator/latest/overview.html" target="_blank" rel="noopener">NVIDIA GPU Operator 공식 문서</a> <a href="#cite1" class="backref">↩</a></li>
+<li id="ref2"><a href="https://docs.nvidia.com/cuda/wsl-user-guide/index.html#wsl-2-support-constraints" target="_blank" rel="noopener">NVIDIA CUDA on WSL User Guide</a> <a href="#cite2" class="backref">↩</a></li>
+<li id="ref3"><a href="https://docs.nvidia.com/datacenter/tesla/driver-installation-guide/index.html" target="_blank" rel="noopener">NVIDIA Driver Installation Guide</a> <a href="#cite3" class="backref">↩</a></li>
+<li id="ref4"><a href="https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html" target="_blank" rel="noopener">NVIDIA Container Toolkit 공식 설치 가이드</a> <a href="#cite4" class="backref">↩</a></li>
+<li id="ref5"><a href="https://docs.k3s.io/" target="_blank" rel="noopener">K3s 공식 문서</a> <a href="#cite5" class="backref">↩</a></li>
+<li id="ref6"><a href="https://github.com/NVIDIA/k8s-device-plugin" target="_blank" rel="noopener">NVIDIA/k8s-device-plugin GitHub</a> <a href="#cite6" class="backref">↩</a></li>
+<li id="ref7"><a href="https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack" target="_blank" rel="noopener">prometheus-community/helm-charts — kube-prometheus-stack</a> <a href="#cite7" class="backref">↩</a></li>
+<li id="ref8"><a href="https://github.com/NVIDIA/dcgm-exporter" target="_blank" rel="noopener">NVIDIA/dcgm-exporter GitHub</a> <a href="#cite8" class="backref">↩</a></li>
+<li id="ref9"><a href="https://github.com/systalyze/utilyze" target="_blank" rel="noopener">Utilyze GitHub</a> <a href="#cite9" class="backref">↩</a></li>
+<li id="ref10"><a href="https://kubernetes-sigs.github.io/node-feature-discovery/stable/get-started/index.html" target="_blank" rel="noopener">Node Feature Discovery 공식 문서</a> <a href="#cite10" class="backref">↩</a></li>
+<li id="ref11"><a href="https://min.io/docs/minio/linux/index.html" target="_blank" rel="noopener">MinIO 공식 문서</a> <a href="#cite11" class="backref">↩</a></li>
+<li id="ref12"><a href="https://docs.vllm.ai/" target="_blank" rel="noopener">vLLM 공식 문서</a> <a href="#cite12" class="backref">↩</a></li>
+<li id="ref13"><a href="https://huggingface.co/skt/A.X-4.0-Light" target="_blank" rel="noopener">skt/A.X-4.0-Light (Hugging Face)</a> <a href="#cite13" class="backref">↩</a></li>
+<li id="ref14"><a href="https://hub.docker.com/r/vllm/vllm-openai/tags" target="_blank" rel="noopener">Docker Hub — vllm/vllm-openai 태그 목록</a> <a href="#cite14" class="backref">↩</a></li>
+<li id="ref15"><a href="https://github.com/open-webui/open-webui" target="_blank" rel="noopener">Open WebUI GitHub</a> <a href="#cite15" class="backref">↩</a></li>
+<li id="ref16"><a href="https://project-hami.io/tutorials" target="_blank" rel="noopener">HAMi Tutorial</a> <a href="#cite16" class="backref">↩</a></li>
+<li id="ref17"><a href="https://project-hami.io/docs/" target="_blank" rel="noopener">HAMi 공식 문서</a> <a href="#cite17" class="backref">↩</a></li>
+<li id="ref18"><a href="https://kubernetes.io/ko/docs/tasks/configure-pod-container/assign-resources/allocate-devices-dra/" target="_blank" rel="noopener">Kubernetes 공식 문서 — DRA로 디바이스 할당</a> <a href="#cite18" class="backref">↩</a></li>
+<li id="ref19"><a href="https://kubernetes.io/blog/2026/09/03/kubernetes-v1-37-dra-updates/" target="_blank" rel="noopener">Kubernetes v1.37 DRA 업데이트 블로그</a> <a href="#cite19" class="backref">↩</a></li>
+<li id="ref20"><a href="https://kubernetes.io/blog/2026/09/08/kubernetes-v1-37-advancing-workload-aware-scheduling/" target="_blank" rel="noopener">Kubernetes v1.37 워크로드 인식 스케줄링 블로그</a> <a href="#cite20" class="backref">↩</a></li>
+</ol>    </div>
+  </main>
+</div>
+<script>
+  mermaid.initialize({ startOnLoad: true, theme: window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'default', securityLevel: 'loose' });
+</script>
+<script>
+(function () {
+  document.querySelectorAll('pre').forEach(function (pre) {
+    if (pre.classList.contains('mermaid')) return;
+    if (pre.parentElement.classList.contains('code-block-wrap')) return;
+    var wrap = document.createElement('div');
+    wrap.className = 'code-block-wrap';
+    pre.parentNode.insertBefore(wrap, pre);
+    wrap.appendChild(pre);
+    var btn = document.createElement('button');
+    btn.className = 'copy-btn';
+    btn.type = 'button';
+    btn.textContent = '복사';
+    btn.addEventListener('click', function () {
+      var codeEl = pre.querySelector('code') || pre;
+      navigator.clipboard.writeText(codeEl.innerText).then(function () {
+        btn.textContent = '복사됨 ✓';
+        setTimeout(function () { btn.textContent = '복사'; }, 1500);
+      }, function () {
+        btn.textContent = '복사 실패';
+        setTimeout(function () { btn.textContent = '복사'; }, 1500);
+      });
+    });
+    wrap.appendChild(btn);
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,1518 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>W6-1. vLLM과 AWS Trainium으로 LLM 추론 확장 — 초보자를 위한 완전 가이드</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+  :root {
+    --bg: #ffffff; --bg-alt: #f6f7f9; --text: #1c1f24; --text-muted: #5b6270;
+    --border: #e2e5ea; --accent: #3457d5; --accent-soft: #eef1fd;
+    --callout-bg: #fff8e6; --callout-border: #e8c766;
+    --fix-bg: #fdeef0; --fix-border: #d9534f;
+    --code-bg: #f2f3f5; --success: #1a7f37; --success-soft: #dafbe1;
+    --danger: #cf222e; --danger-soft: #ffebe9; --max-width: 900px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #14161a; --bg-alt: #1b1e24; --text: #e7e9ec; --text-muted: #9aa2b1;
+      --border: #2c3038; --accent: #7c93ff; --accent-soft: #1e2330;
+      --callout-bg: #2a2410; --callout-border: #6b5a1c;
+      --fix-bg: #2a1516; --fix-border: #8a3a3a;
+      --code-bg: #1e2126; --success: #3fb950; --success-soft: #0f2e1a;
+      --danger: #f85149; --danger-soft: #3a1414;
+    }
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", Helvetica, Arial, sans-serif;
+    line-height: 1.75; font-size: 16px;
+  }
+  .site-header { padding: 3rem 1.5rem 1.25rem; text-align: center; border-bottom: 1px solid var(--border); background: var(--bg-alt); }
+  .site-title { margin: 0 0 .5rem; font-size: 1.9rem; }
+  .site-subtitle { margin: 0; color: var(--text-muted); font-size: .95rem; }
+  .badge-row { margin-top: 1rem; display: flex; gap: .5rem; justify-content: center; flex-wrap: wrap; }
+  .badge { font-size: .75rem; padding: .25rem .7rem; border-radius: 999px; background: var(--accent-soft); color: var(--accent); font-weight: 600; text-decoration: none; display: inline-block; }
+  a.badge:hover { text-decoration: underline; }
+  .layout { display: flex; align-items: flex-start; max-width: 1200px; margin: 0 auto; padding: 2rem 1.5rem 4rem; gap: 2.5rem; }
+  nav.sidebar { position: sticky; top: 1.5rem; flex: 0 0 260px; max-height: calc(100vh - 3rem); overflow-y: auto; font-size: .85rem; border-right: 1px solid var(--border); padding-right: 1.25rem; }
+  nav.sidebar h2 { font-weight: 700; margin: 0 0 .75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: .05em; font-size: .75rem; }
+  nav.sidebar ul { list-style: none; margin: 0; padding-left: 0; }
+  nav.sidebar li { margin: .45rem 0; }
+  nav.sidebar a { color: var(--text-muted); text-decoration: none; display: block; line-height: 1.4; }
+  nav.sidebar a:hover { color: var(--accent); }
+  main { flex: 1 1 auto; min-width: 0; }
+  .markdown-body { max-width: var(--max-width); }
+  .markdown-body h2 { margin-top: 3.5rem; padding-top: 1.5rem; border-top: 3px solid var(--accent); font-size: 1.5rem; }
+  .markdown-body h2:first-child { margin-top: 0; padding-top: 0; border-top: none; }
+  .markdown-body h3 { margin-top: 2.25rem; font-size: 1.18rem; }
+  .markdown-body p { margin: 1rem 0; }
+  .markdown-body a { color: var(--accent); }
+  .markdown-body ul, .markdown-body ol { padding-left: 1.4rem; }
+  .markdown-body li { margin: .35rem 0; }
+  .markdown-body hr { border: none; border-top: 1px solid var(--border); margin: 3rem 0; }
+  .markdown-body table { width: 100%; border-collapse: collapse; margin: 1.25rem 0; font-size: .87rem; }
+  .markdown-body th, .markdown-body td { border: 1px solid var(--border); padding: .5rem .7rem; text-align: left; vertical-align: top; }
+  .markdown-body th { background: var(--bg-alt); }
+  .markdown-body blockquote { margin: 1.25rem 0; padding: .9rem 1.1rem; border-left: 4px solid var(--callout-border); background: var(--callout-bg); border-radius: 0 6px 6px 0; }
+  blockquote.fix { background: var(--fix-bg); border-left-color: var(--fix-border); }
+  blockquote.fix b { color: var(--fix-border); }
+  .markdown-body code { font-family: "SFMono-Regular", Consolas, Menlo, monospace; background: var(--code-bg); padding: .15em .4em; border-radius: 4px; font-size: .9em; }
+  .markdown-body pre { background: var(--code-bg); padding: 1rem 1.1rem; border-radius: 6px; overflow-x: auto; margin: 1.25rem 0; }
+  .markdown-body pre code { background: none; padding: 0; font-size: .85rem; }
+  .mermaid-diagram { text-align: center; margin: 1.5rem 0; padding: 1rem; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; overflow-x: auto; }
+  .mermaid-diagram svg { max-width: 100%; height: auto; }
+  .gallery { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1rem; margin: 1.5rem 0; }
+  .figure-box { margin: 0; text-align: center; }
+  .figure-box img { max-width: 100%; border-radius: 8px; border: 1px solid var(--border); }
+  .figure-box figcaption { margin-top: .6rem; font-size: .85em; color: var(--text-muted); text-align: left; }
+  .analogy-box { display: flex; gap: .85rem; align-items: flex-start; margin: 1.25rem 0; padding: 1rem 1.1rem; background: var(--accent-soft); border-radius: 8px; }
+  .analogy-box .emoji { font-size: 1.6rem; line-height: 1; }
+  .analogy-box b { color: var(--accent); }
+  .callout-summary { max-width: var(--max-width); margin: 0 auto 1rem; padding: 1rem 1.25rem; background: var(--accent-soft); border-radius: 8px; }
+  details.toc-mobile { display: none; margin: 0 0 24px; }
+  details.toc-mobile summary { cursor: pointer; font-weight: 600; padding: 10px 14px; background: var(--bg-alt); border: 1px solid var(--border); border-radius: 6px; }
+  details.toc-mobile ul { list-style: none; padding-left: 8px; }
+  details.toc-mobile a { color: var(--accent); text-decoration: none; }
+  @media (max-width: 900px) {
+    nav.sidebar { display: none; } details.toc-mobile { display: block; } .layout { padding: 1.5rem 1rem 3rem; } .gallery { grid-template-columns: 1fr; }
+  }
+
+  /* ---- glossary ---- */
+  .glossary { max-width: 1200px; margin: 0 auto; padding: 1.25rem 1.5rem 0.5rem; }
+  .glossary > summary { cursor: pointer; font-weight: 700; font-size: .95rem; padding: .8rem 1.1rem; background: var(--accent-soft); color: var(--accent); border-radius: 8px; list-style: none; }
+  .glossary > summary::-webkit-details-marker { display: none; }
+  .glossary > summary::before { content: "📖 "; }
+  .glossary[open] > summary { border-radius: 8px 8px 0 0; }
+  .glossary-body { border: 1px solid var(--border); border-top: none; border-radius: 0 0 8px 8px; padding: 1.1rem 1.3rem; background: var(--bg); }
+  .glossary-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: .9rem 1.5rem; }
+  .glossary-cat { grid-column: 1 / -1; margin: .6rem 0 -.2rem; font-size: .78rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: .04em; border-top: 1px solid var(--border); padding-top: .8rem; }
+  .glossary-cat:first-of-type { border-top: none; padding-top: 0; margin-top: 0; }
+  .gterm dt { font-weight: 700; color: var(--accent); font-size: .88rem; }
+  .gterm dd { margin: .15rem 0 0; font-size: .83rem; color: var(--text); line-height: 1.5; }
+
+  /* ---- citations / references ---- */
+  .cite a { text-decoration: none; }
+  .ref-list { padding-left: 1.6rem; }
+  .ref-list li { margin: .5rem 0; }
+  .backref { margin-left: .4rem; text-decoration: none; }
+
+  /* ---- code copy button (new feature) ---- */
+  .code-block-wrap { position: relative; }
+  .copy-btn { position: absolute; top: 8px; right: 8px; font-family: inherit; font-size: 12px; padding: 4px 10px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-alt); color: var(--text); cursor: pointer; opacity: .85; }
+  .copy-btn:hover { opacity: 1; background: var(--accent-soft); color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="site-header">
+  <h1 class="site-title">W6-1. vLLM과 AWS Trainium으로 LLM 추론 확장</h1>
+  <p class="site-subtitle">Amazon EKS · AWS Neuron · S3 컴파일 캐시 · 관측 · 성능시험까지 한 번에 배우는 검증된 hands-on 가이드</p>
+  <div class="badge-row">
+    <span class="badge">초보자용</span>
+    <span class="badge">원문 워크샵 (AWS Workshop Studio)<sup class="cite"><a id="cite1" href="#ref1">[1]</a></sup></span>
+    <span class="badge">Hands-on 실습</span>
+  </div>
+</div>
+<details class="glossary" open>
+  <summary>핵심 용어 사전 (누르면 접기/펼치기) — 이 실습에서 처음 보는 용어가 있다면 여기서 먼저 확인하세요</summary>
+  <div class="glossary-body">
+    <dl class="glossary-grid">
+      <div class="glossary-cat">Neuron과 병렬화</div>
+      <div class="gterm"><dt>NeuronCore</dt><dd>Trainium/Inferentia 칩 내부의 실제 연산 유닛. GPU의 SM(Streaming Multiprocessor)과 비슷한 개념. trn1.2xlarge는 NeuronCore-v2 2개를 가진다.</dd></div>
+      <div class="gterm"><dt>neuronx-cc</dt><dd>모델 그래프를 Neuron 실행 파일(.neff)로 정적 컴파일하는 Neuron 컴파일러.</dd></div>
+      <div class="gterm"><dt>NxD (NeuronX Distributed)</dt><dd>Neuron에서 대형 모델을 여러 NeuronCore에 분산 배치·추론하는 라이브러리 계열 (NxD Core + NxD Inference).</dd></div>
+      <div class="gterm"><dt>Tensor Parallelism (텐서 병렬)</dt><dd>모델 가중치를 여러 코어에 나눠 올리는 방식. 이 실습은 TP=2로 trn1.2xlarge의 코어 2개를 모두 사용한다.</dd></div>
+      <div class="glossary-cat">서빙 · 캐싱</div>
+      <div class="gterm"><dt>Init Container</dt><dd>메인 서버 컨테이너보다 먼저 실행되어 준비 작업(모델 다운로드·컴파일·캐시 업로드)을 마치는 컨테이너.</dd></div>
+      <div class="gterm"><dt>S3 Mountpoint (FUSE)</dt><dd>S3 API를 파일시스템처럼 보이게 하는 유저스페이스 파일시스템. 커널 블록 디바이스가 아니다.</dd></div>
+      <div class="gterm"><dt>KV 캐시</dt><dd>이전 토큰 계산 결과를 저장해 다음 토큰 생성 때 재사용하는 메모리.</dd></div>
+      <div class="glossary-cat">성능 지표</div>
+      <div class="gterm"><dt>TTFT (Time To First Token)</dt><dd>요청 전송부터 첫 토큰 생성까지 걸리는 시간. Prefill 효율성을 반영.</dd></div>
+      <div class="gterm"><dt>ITL (Inter-Token Latency)</dt><dd>연속 출력 토큰 사이의 생성 간격. Decode 효율성과 스트리밍 체감 속도를 반영.</dd></div>
+      <div class="gterm"><dt>TPS (Tokens Per Second)</dt><dd>초당 처리 토큰 수. 요청 1개 기준(request throughput)과 전체 동시 요청 합산(overall throughput)을 구분해야 한다.</dd></div>
+      <div class="glossary-cat">오토스케일링</div>
+      <div class="gterm"><dt>HPA (Horizontal Pod Autoscaler)</dt><dd>메트릭 기준으로 Pod 개수를 자동 조절하는 Kubernetes 리소스.</dd></div>
+      <div class="gterm"><dt>KEDA / External Scaler</dt><dd>KEDA는 외부 메트릭을 HPA에 연결해주는 오토스케일러. External Scaler는 gRPC 인터페이스(IsActive/GetMetrics 등)로 커스텀 메트릭 소스를 붙이는 방식.</dd></div>
+      <div class="gterm"><dt>NVML</dt><dd>NVIDIA GPU 상태를 읽는 라이브러리. AWS Neuron/Trainium 메트릭은 읽을 수 없다.</dd></div>
+    </dl>
+  </div>
+</details>
+<div class="layout">
+  <nav class="sidebar">
+    <h2>목차</h2>
+    <ul>
+      <li><a href="#neuron">AWS Neuron 소개</a></li>
+      <li><a href="#arch">Workshop 아키텍처</a></li>
+      <li><a href="#lab1">실습 환경 배포 (Lab1)</a></li>
+      <li><a href="#lab2">Lab2 · vLLM Deployment</a></li>
+      <li><a href="#lab3">Lab3 · NGINX Ingress</a></li>
+      <li><a href="#lab4">Lab4 · Observability</a></li>
+      <li><a href="#lab5">Lab5 · Performance Testing</a></li>
+      <li><a href="#lab6">Lab6 · HPA / KEDA</a></li>
+      <li><a href="#cleanup">실습 환경 제거</a></li>
+      <li><a href="#vars">Placeholder 정리</a></li>
+      <li><a href="#refs">참고 자료</a></li>
+    </ul>
+  </nav>
+  <main>
+    <details class="toc-mobile">
+      <summary>목차 펼치기</summary>
+      <ul>
+        <li><a href="#neuron">Neuron 소개 / 아키텍처</a></li>
+        <li><a href="#lab1">Lab1 환경배포</a></li>
+        <li><a href="#lab2">Lab2 vLLM</a></li>
+        <li><a href="#lab4">Lab4 Observability</a></li>
+        <li><a href="#lab5">Lab5 성능시험</a></li>
+        <li><a href="#lab6">Lab6 HPA/KEDA</a></li>
+        <li><a href="#cleanup">Cleanup</a></li>
+      </ul>
+    </details>
+    <div class="markdown-body">
+<div class="callout-summary">
+<b>핵심 요약</b>
+<ol>
+<li><code>trn1.2xlarge</code>(AWS Trainium1, NeuronCore-v2 2개) 노드 1대를 Amazon EKS에 붙이고, Neuron 전용 device plugin/scheduler/S3 CSI를 깐 뒤, init-container 패턴으로 <code>TinyLlama-1.1B-Chat-v1.0</code> 모델을 Neuron용으로 컴파일·캐싱해서 vLLM(OpenAI 호환 API)로 서빙합니다.</li>
+<li>NGINX Ingress로 외부 노출 → Prometheus/Grafana로 vLLM 전용 메트릭 대시보드 구축 → 자체 스크립트와 llmperf로 처리량/지연시간을 벤치마크 → (실습 환경 쿼터 제약으로) HPA/KEDA GPU 스케일러는 개념만 확인하고 넘어갑니다.</li>
+<li><b>환경변수(계정 ID, 리전, IP, 엔드포인트, HF 토큰 등)는 실습마다 다르므로 이 문서의 <code>&lt;YOUR_...&gt;</code> 자리에 반드시 본인 값을 넣어야 하며, 비밀값은 터미널 히스토리에 남기지 않도록 주의합니다.</b></li>
+</ol>
+</div>
+
+<h2 id="neuron">AWS Neuron 소개</h2>
+<p>AWS Neuron은 AWS가 설계한 ML 가속기(Inferentia, Trainium)를 위한 SDK/소프트웨어 스택입니다. 컴파일러(<code>neuronx-cc</code>), 런타임, 프로파일링 도구, PyTorch/JAX 프레임워크 통합을 포함합니다.</p>
+<div class="analogy-box">
+<span class="emoji">🚗</span>
+<div><b>비유: CUDA와 Neuron</b><br>
+NVIDIA GPU 생태계에 CUDA가 있듯, AWS 실리콘 생태계에는 Neuron이 있습니다. 모델(설계도)을 Trainium 칩(공장)에서 돌리려면 <code>neuronx-cc</code>(번역가)가 설계도를 그 공장의 작업대(NeuronCore)에 맞는 작업지시서로 바꿔줘야 합니다.</div>
+</div>
+
+<ul>
+<li><strong>AWS Inferentia</strong>: 추론 전용 가속기. Inf1(초기 세대), Inf2(LLM 대상 성능 강화, NeuronLink로 분산 추론 지원)</li>
+<li><strong>AWS Trainium</strong>: 학습 전용으로 설계됐지만 추론에도 사용 가능. Trn1(대규모 학습용, GPU 대비 저비용), Trn2(더 강력한 성능, Trn2 UltraServer로 초대형 모델 학습)</li>
+<li><strong>NeuronCore</strong>: 칩 내부의 실제 연산 유닛(GPU의 SM과 비슷한 개념). Trn1 칩 1개당 NeuronCore-v2 2개.</li>
+</ul>
+<div class="gallery">
+<figure class="figure-box"><img src="assets/images/ede845e1_image.png" alt="Trainium 칩 아키텍처"><figcaption>Trainium 칩 아키텍처 — 1개 물리 칩 안에 NeuronCore-v2 2개와 32GB HBM, 칩 간 NeuronLink-v2가 집적되어 있습니다.</figcaption></figure>
+<figure class="figure-box"><img src="assets/images/91c8ca47_image.png" alt="Inf2 아키텍처"><figcaption>Amazon EC2 Inf2 아키텍처 — NeuronLink-v2로 여러 칩에 걸친 AllReduce/AllGather 통신을 가속합니다.</figcaption></figure>
+<figure class="figure-box"><img src="assets/images/4b4e2a1e_image.png" alt="NeuronCore-v2 아키텍처"><figcaption>NeuronCore-v2 내부 — Tensor/Vector/Scalar/GPSIMD 4개 엔진과 컴파일러가 관리하는 온칩 SRAM.</figcaption></figure>
+<figure class="figure-box"><img src="assets/images/d34e2c5a_image.png" alt="NeuronCore-v2 스펙"><figcaption>NeuronCore-v2 듀얼 코어 결합 성능 — 380 INT8 TOPS / 190 FP16 TFLOPS / 47.5 FP32 TFLOPS.</figcaption></figure>
+</div>
+
+<p><code>관계 정리</code></p>
+<pre><code class="language-bash">AWS Neuron SDK (소프트웨어)
+        │
+        ├── Inferentia 칩 (추론용 하드웨어) ─┐
+        │                                ├── 내부에 NeuronCore 여러 개 탑재
+        └── Trainium 칩 (학습용 하드웨어)   ─┘
+</code></pre>
+<p>Neuron 소프트웨어 스택의 핵심 구성 요소:</p>
+<ol>
+<li><strong>Neuron Compiler(<code>neuronx-cc</code>)</strong>: 모델 그래프를 Neuron 실행 파일(<code>.neff</code>)로 정적 컴파일</li>
+<li><strong>Neuron Runtime</strong>: 컴파일된 아티팩트를 디바이스에 로드, I/O 텐서 버퍼 할당, 칩 간 통신 오케스트레이션</li>
+<li><strong>NKI(Neuron Kernel Interface)</strong>: 저수준 커스텀 커널 작성용 인터페이스</li>
+<li><strong>NxD(NeuronX Distributed)</strong>: 대규모 모델을 여러 NeuronCore에 분산 배치하는 라이브러리 (NxD Core + NxD Inference)</li>
+<li><strong>도구</strong>: <code>neuron-ls</code>(토폴로지 조회), <code>neuron-top</code>(실시간 사용률), <code>neuron-monitor</code>(Prometheus/CloudWatch 연동)</li>
+</ol>
+<div class="gallery">
+<figure class="figure-box"><img src="assets/images/6a0e1677_image.png" alt="Neuron 추론 배포 방법"><figcaption>Neuron에서의 추론 배포 방법 — (a) NxD 추론을 사용하는 vLLM(권장) vs (b) NxD 추론 API 직접 사용.</figcaption></figure>
+<figure class="figure-box"><img src="assets/images/77e3c394_image.png" alt="NxD 추론 고수준 개요"><figcaption>NxD 추론 고수준 개요.</figcaption></figure>
+<figure class="figure-box"><img src="assets/images/6a34c55a_image.png" alt="NxD 추론 다양한 추상화"><figcaption>NxD 추론의 계층별 추상화 — vLLM(사용자 인터페이스)부터 NKI 커널, Neuron 런타임까지.</figcaption></figure>
+<figure class="figure-box"><img src="assets/images/c0b59785_image.png" alt="AI Chip Architectures 비교"><figcaption>주요 AI 칩 아키텍처 비교(NVIDIA GPU, Google TPU, AMD GPU, Cerebras WSE, AWS Trainium, Groq LPU).</figcaption></figure>
+</div>
+
+<blockquote>
+📚 <b>참고 자료</b>: AWS Neuron 공식 문서<sup class="cite"><a id="cite2" href="#ref2">[2]</a></sup> — Neuron은 Trainium/Inferentia용 컴파일러·런타임·프레임워크 통합 도구 묶음이며, Trn1 칩 1개에 NeuronCore-v2 2개라는 설명과 일치합니다.
+</blockquote>
+
+<h2 id="arch">AWS Workshop 소개 및 전체 아키텍처</h2>
+<p>이 워크샵은 대규모 언어 모델을 서빙할 때 마주치는 핵심 문제(가속기 메모리 제약, 추론 비용)를 Amazon EKS<sup class="cite"><a id="cite3" href="#ref3">[3]</a></sup> + AWS Trainium(<code>trn1.2xlarge</code>) + vLLM 조합으로 해결하는 엔드투엔드 실습입니다. <code>TinyLlama-1.1B-Chat-v1.0</code>을 NeuronX Distributed(NxD)로 2개 NeuronCore에 분산 서빙하고, 모니터링·오토스케일링·부하테스트까지 다룹니다.</p>
+<div class="gallery">
+<figure class="figure-box"><img src="assets/images/6374486e_image.png" alt="Complete Inference Stack"><figcaption>AWS Trainium 위에서의 완전한 추론 스택 — 인프라부터 Neuron SDK, NxD, vLLM, 서빙 API까지.</figcaption></figure>
+<figure class="figure-box"><img src="assets/images/27938e23_image.png" alt="메모리 제약과 텐서 병렬 필요성"><figcaption>단일 가속기 메모리 한계와 모델 샤딩(텐서 병렬)의 필요성.</figcaption></figure>
+</div>
+
+<p><strong>텐서 병렬(Tensor Parallelism)</strong>: 모델의 Linear/Attention 가중치를 여러 NeuronCore에 나눠(Sharding) 동시 연산 후 결과를 병합(All-Reduce)합니다. <code>trn1.2xlarge</code>는 NeuronCore-v2 2개이므로 <code>TENSOR_PARALLEL_SIZE=2</code>로 두 코어를 모두 사용합니다.</p>
+<div class="mermaid-diagram">
+<pre class="mermaid">
+flowchart LR
+    M["모델 가중치<br/>TinyLlama-1.1B"] --> A["NeuronCore 0<br/>shard 0"]
+    M --> B["NeuronCore 1<br/>shard 1"]
+    A --> C["All-Reduce<br/>(NeuronLink)"]
+    B --> C
+    C --> O["vLLM 토큰 출력<br/>(OpenAI 호환 API)"]
+</pre>
+</div>
+
+<div class="gallery">
+<figure class="figure-box"><img src="assets/images/a2abb60f_image.png" alt="텐서 병렬 처리 원리"><figcaption>텐서 병렬 처리 3단계 — ①가중치 분산 ②병렬 연산 ③결과 결합.</figcaption></figure>
+<figure class="figure-box"><img src="assets/images/6be7db26_image.png" alt="vLLM 아키텍처"><figcaption>vLLM 엔진 아키텍처 — LLM Engine·Memory Manager·Scheduler·Worker Process 구조.</figcaption></figure>
+<figure class="figure-box"><img src="assets/images/b582d862_image.png" alt="vLLM과 Neuron SDK 통합"><figcaption>vLLM과 AWS Neuron SDK의 네이티브 통합 구조.</figcaption></figure>
+<figure class="figure-box"><img src="assets/images/4c1e00cc_image.png" alt="NxD 프레임워크 병렬화 기법"><figcaption>NxD 프레임워크의 Tensor/Pipeline/Data/Context Parallelism 지원.</figcaption></figure>
+<figure class="figure-box"><img src="assets/images/12356e7c_image.png" alt="Amazon EKS 아키텍처"><figcaption>Amazon EKS 아키텍처 — 관리형 컨트롤 플레인, VPC CNI, IAM OIDC 통합.</figcaption></figure>
+<figure class="figure-box"><img src="assets/images/85a669f2_image.png" alt="AWS Trainium 1세대"><figcaption>AWS 1세대 Trainium 칩 및 Trn1 서버 구조.</figcaption></figure>
+<figure class="figure-box"><img src="assets/images/9c81e9e0_image.png" alt="Trainium2 아키텍처"><figcaption>차세대 Trainium2 아키텍처(참고).</figcaption></figure>
+<figure class="figure-box"><img src="assets/images/049351d5_image.png" alt="NeuronCore-v3"><figcaption>NeuronCore-v3(Trainium2) — 칩당 8코어, HBM 96GiB @2.9TB/s(참고).</figcaption></figure>
+</div>
+
+<p><strong>전체 아키텍처</strong>: 인프라 레이어(<code>t3.2xlarge</code> bastion EC2) → EKS 클러스터(K8s 1.33, <code>neuron-trn1-2x</code> 노드그룹) → Neuron 통합(device plugin + scheduler extension) → vLLM 배포(Init Container + S3 캐싱) → 네트워크/Ingress(NGINX) → 모니터링(Prometheus/Grafana).</p>
+<div class="mermaid-diagram">
+<pre class="mermaid">
+flowchart TB
+    subgraph EKS["Amazon EKS 클러스터 (K8s 1.33)"]
+        NG["managed node group<br/>neuron-trn1-2x (trn1.2xlarge)"]
+        NDP["Neuron Device Plugin<br/>(DaemonSet)"]
+        NSE["Neuron Scheduler Extension<br/>(my-scheduler)"]
+        S3CSI["S3 Mountpoint CSI Driver"]
+        VLLM["vLLM Deployment<br/>(Init Container 컴파일 + 메인 서버)"]
+        ING["NGINX Ingress Controller"]
+        PROM["Prometheus"]
+        GRAF["Grafana"]
+        HPA["metrics-server / KEDA GPU Scaler<br/>(개념만, Neuron엔 미적용)"]
+        NG --> NDP --> VLLM
+        NSE --> VLLM
+        S3CSI --> VLLM
+        ING --> VLLM
+        PROM --> VLLM
+        GRAF --> PROM
+        HPA -. 개념 참고 .-> VLLM
+    end
+    S3["S3 버킷<br/>ai-infra-summit-vllm-models-cache-&lt;ACCOUNT_ID&gt;"]
+    HF["Hugging Face<br/>TinyLlama-1.1B-Chat-v1.0"]
+    USER["사용자 / llmperf / curl"]
+    VLLM <-->|모델 컴파일 캐시 R/W| S3
+    VLLM -->|최초 1회 다운로드| HF
+    USER -->|OpenAI 호환 API| ING
+</pre>
+</div>
+<div class="gallery">
+<figure class="figure-box"><img src="assets/images/ea502480_image.png" alt="워크샵 전체 아키텍처"><figcaption>이 실습 워크샵의 엔드투엔드 아키텍처 다이어그램.</figcaption></figure>
+</div>
+
+<h2 id="lab1">실습 환경 배포 — 사전 준비 + Lab1</h2>
+<h3>사전 준비: 배스천 EC2 접속</h3>
+<blockquote class="fix">⚠ <b>본인 환경에 맞게 교체 필요</b>: 아래 IP·리전·계정 값은 예시입니다. 반드시 본인에게 할당된 워크샵 EC2 IP와 AWS 콘솔에서 확인한 리전으로 바꿔서 실행하세요.</blockquote>
+
+<div class="gallery">
+<figure class="figure-box"><img src="assets/images/b0ae97fd_console_region.png" alt="AWS 콘솔 리전 선택"><figcaption>워크샵 Join 후 AWS 콘솔에서 리전(us-west-2 또는 us-east-1) 확인.</figcaption></figure>
+<figure class="figure-box"><img src="assets/images/2e12af39_image.png" alt="SSH 키 다운로드"><figcaption>배스천 EC2 접속용 SSH 개인 키 다운로드.</figcaption></figure>
+</div>
+
+<pre><code class="language-bash">chmod 400 &quot;ws-default-keypair.pem&quot;
+
+MYEC2IP=&lt;YOUR_EC2_PUBLIC_IP&gt;
+ssh -i ws-default-keypair.pem ubuntu@$MYEC2IP
+
+whoami
+hostnamectl
+htop
+df -hT
+ip -c addr
+docker info
+
+sudo apt update &amp;&amp; sudo apt install tree jq -y
+tree -a workshop/
+cat workshop/.env
+# HF_TOKEN=&quot;&lt;YOUR_HF_TOKEN&gt;&quot;  (워크샵이 미리 발급한 값 — 본인 실습에서는 다른 값일 수 있습니다)
+</code></pre>
+<div class="gallery">
+<figure class="figure-box"><img src="assets/images/03656e23_image.png" alt="VS Code Remote-SSH 접속"><figcaption>VS Code Remote-SSH로 배스천 EC2에 접속하는 화면.</figcaption></figure>
+<figure class="figure-box"><img src="assets/images/784d96c6_image.png" alt="EC2 터미널 초기 상태"><figcaption>배스천 EC2 접속 후 터미널 초기 상태.</figcaption></figure>
+<figure class="figure-box"><img src="assets/images/7d932fe8_image.png" alt="workshop 폴더와 .env"><figcaption>workshop 디렉토리 구조와 .env 파일 안의 Hugging Face 토큰 확인.</figcaption></figure>
+</div>
+
+<blockquote class="fix">🔒 <b>비밀값 노출 주의</b>: <code>.env</code>의 <code>HF_TOKEN</code>은 Hugging Face 개인 액세스 토큰입니다. 본인 실습 환경의 토큰은 절대 커밋하거나 공유 문서·스크린샷에 남기지 마세요.</blockquote>
+
+<h3>Lab 1: EKS Cluster Setup</h3>
+<p><strong>필수 도구 설치</strong></p>
+<pre><code class="language-bash">cd workshop
+sudo apt update
+sudo apt install -y python3-pip jq unzip
+
+curl &quot;https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip&quot; -o &quot;awscliv2.zip&quot;
+unzip awscliv2.zip
+sudo ./aws/install --update
+
+curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+
+source &lt;(kubectl completion bash) &amp;&amp; echo &quot;source &lt;(kubectl completion bash)&quot; &gt;&gt; ~/.bashrc
+
+aws --version
+helm version --short
+jq --version
+</code></pre>
+<p><strong>클러스터 접속용 환경변수</strong></p>
+<blockquote class="fix">⚠ <b>본인 환경에 맞게 확인 필요</b>: <code>AWS_REGION</code>은 워크샵 계정마다 <code>us-west-2</code> 또는 <code>us-east-1</code> 중 하나로 배정됩니다(위 콘솔 리전 확인 스크린샷 참고). 아래 값은 예시이니 실제 배정된 리전으로 바꿔서 실행하세요. <code>CLUSTER_NAME</code>도 워크샵이 자동 생성한 이름과 다를 수 있으니 AWS 콘솔에서 실제 EKS 클러스터 이름을 확인하세요.</blockquote>
+<pre><code class="language-bash">export AWS_REGION=us-west-2
+export CLUSTER_NAME=ai-infra-summit-test-cluster
+export EKS_VERSION=1.33
+export INSTANCE_TYPE=trn1.2xlarge
+export DESIRED_NODES=1
+export WORKER_AMI=$(aws ssm get-parameter \
+    --name /aws/service/eks/optimized-ami/1.33/amazon-linux-2023/x86_64/neuron/recommended/image_id \
+    --region $AWS_REGION --query &quot;Parameter.Value&quot; --output text)
+export AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+export BUCKET_NAME=ai-infra-summit-vllm-models-cache-${AWS_ACCOUNT_ID}
+echo &quot;$CLUSTER_NAME $WORKER_AMI $AWS_ACCOUNT_ID $BUCKET_NAME&quot;
+</code></pre>
+<pre><code class="language-bash">aws eks update-kubeconfig --region $AWS_REGION --name $CLUSTER_NAME
+kubectl get pod -A
+kubectl cluster-info
+# Kubernetes control plane is running at https://&lt;YOUR_EKS_ENDPOINT&gt;.&lt;region&gt;.eks.amazonaws.com
+</code></pre>
+<div class="gallery">
+<figure class="figure-box"><img src="assets/images/f4452438_image.png" alt="EKS Control Plane 확인"><figcaption>EKS Control Plane 생성 및 CoreDNS 상태 확인.</figcaption></figure>
+</div>
+
+<p>클러스터 상태를 TUI로 보기 위해 <code>k9s</code><sup class="cite"><a id="cite4" href="#ref4">[4]</a></sup>를 설치합니다.</p>
+<pre><code class="language-bash">curl -sL https://github.com/derailed/k9s/releases/download/$(curl -s https://api.github.com/repos/derailed/k9s/releases/latest | grep tag_name | cut -d '&quot;' -f 4)/k9s_Linux_amd64.tar.gz | sudo tar xfz - -C /usr/local/bin k9s
+k9s version
+k9s
+</code></pre>
+<div class="gallery">
+<figure class="figure-box"><img src="assets/images/a45e1444_image.png" alt="k9s 대시보드"><figcaption>k9s 대시보드로 클러스터 네임스페이스/파드 상태 확인.</figcaption></figure>
+</div>
+
+<p><strong>네트워킹 구성 — Trainium 지원 AZ의 퍼블릭 서브넷 자동 탐색</strong></p>
+<pre><code class="language-bash">VPC_ID=$(aws eks describe-cluster --name $CLUSTER_NAME --region $AWS_REGION --query 'cluster.resourcesVpcConfig.vpcId' --output text)
+PUBLIC_ROUTE_TABLE=$(aws ec2 describe-route-tables --filters &quot;Name=vpc-id,Values=$VPC_ID&quot; &quot;Name=route.destination-cidr-block,Values=0.0.0.0/0&quot; --query 'RouteTables[0].RouteTableId' --output text)
+
+SUPPORTED_AZS=($(aws ec2 describe-instance-type-offerings --location-type availability-zone --filters &quot;Name=instance-type,Values=$INSTANCE_TYPE&quot; --query 'InstanceTypeOfferings[*].Location' --output text))
+
+VALID_SUBNETS=()
+for az in &quot;${SUPPORTED_AZS[@]}&quot;; do
+  subnet=$(aws ec2 describe-subnets --filters &quot;Name=vpc-id,Values=$VPC_ID&quot; &quot;Name=map-public-ip-on-launch,Values=true&quot; &quot;Name=availability-zone,Values=$az&quot; --query 'Subnets[0].SubnetId' --output text)
+  [ &quot;$subnet&quot; != &quot;None&quot; ] &amp;&amp; [ &quot;$subnet&quot; != &quot;&quot; ] &amp;&amp; VALID_SUBNETS+=(&quot;$subnet&quot;)
+done
+
+[ ${#VALID_SUBNETS[@]} -lt 2 ] &amp;&amp; { echo &quot;Error: Need at least 2 public subnets in AZs that support $INSTANCE_TYPE&quot;; exit 1; }
+
+PUBLIC_SUBNET_1=${VALID_SUBNETS[0]}
+PUBLIC_SUBNET_2=${VALID_SUBNETS[1]}
+AZ_1=$(aws ec2 describe-subnets --subnet-ids $PUBLIC_SUBNET_1 --query 'Subnets[0].AvailabilityZone' --output text)
+AZ_2=$(aws ec2 describe-subnets --subnet-ids $PUBLIC_SUBNET_2 --query 'Subnets[0].AvailabilityZone' --output text)
+</code></pre>
+<p><strong>노드그룹 정의 및 배포</strong> (<code>eksctl</code><sup class="cite"><a id="cite5" href="#ref5">[5]</a></sup> 사용)</p>
+<pre><code class="language-bash">cat &gt; eks_nodegroup.yaml &lt;&lt;EOF
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+metadata:
+  name: $CLUSTER_NAME
+  region: $AWS_REGION
+  version: &quot;$EKS_VERSION&quot;
+vpc:
+  id: $VPC_ID
+  subnets:
+    public:
+      $AZ_1: { id: $PUBLIC_SUBNET_1 }
+      $AZ_2: { id: $PUBLIC_SUBNET_2 }
+  securityGroup: $(aws eks describe-cluster --name $CLUSTER_NAME --region $AWS_REGION --query 'cluster.resourcesVpcConfig.clusterSecurityGroupId' --output text)
+managedNodeGroups:
+- name: neuron-trn1-2x
+  ami: $WORKER_AMI
+  amiFamily: AmazonLinux2023
+  subnets: [&quot;$PUBLIC_SUBNET_1&quot;, &quot;$PUBLIC_SUBNET_2&quot;]
+  iam:
+    attachPolicyARNs:
+    - arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy
+    - arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly
+    - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
+    - arn:aws:iam::aws:policy/AmazonS3FullAccess
+    - arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy
+  instanceType: $INSTANCE_TYPE
+  desiredCapacity: $DESIRED_NODES
+  volumeSize: 100
+  volumeType: gp2
+  ssh:
+     allow: true
+     publicKeyPath: ~/.ssh/id_rsa.pub
+EOF
+
+eksctl create nodegroup --config-file=eks_nodegroup.yaml
+
+kubectl wait --for=condition=Ready nodes --all --timeout=300s
+NODE_NAME=$(kubectl get nodes -o jsonpath='{.items[0].metadata.name}')
+kubectl label node $NODE_NAME alpha.eksctl.io/nodegroup-name=neuron-trn1-2x
+</code></pre>
+<pre><code class="language-bash">kubectl get nodes -o wide
+kubectl describe nodes -l alpha.eksctl.io/nodegroup-name=neuron-trn1-2x
+# Capacity에 aws.amazon.com/neuron: 1, aws.amazon.com/neuroncore: 2 가 보여야 정상입니다.
+
+kubectl get pods -n kube-system | grep neuron
+kubectl describe pod -n kube-system -l name=neuron-device-plugin-ds
+</code></pre>
+<div class="gallery">
+<figure class="figure-box"><img src="assets/images/05837ea0_image.png" alt="Neuron device plugin 파드"><figcaption>kube-system 네임스페이스의 neuron-device-plugin 파드 상태.</figcaption></figure>
+<figure class="figure-box"><img src="assets/images/249daddf_image.png" alt="Neuron 바이너리 확인"><figcaption>/opt/aws/neuron 디렉토리 내부의 CLI 도구들.</figcaption></figure>
+<figure class="figure-box"><img src="assets/images/624e385a_image.png" alt="neuron-top 실행"><figcaption>워커 노드에 Session Manager로 접속해 neuron-top 실행 — 2개 NeuronCore 상태 확인.</figcaption></figure>
+</div>
+
+<div class="analogy-box">
+<span class="emoji">🔌</span>
+<div><b>분석 노트 — NVIDIA GPU와 달리 전용 컨테이너 런타임이 필요 없는 이유</b><br>
+NVIDIA GPU는 컨테이너 런타임 레벨(<code>nvidia-container-runtime</code> 또는 CDI hook)이 개입해 드라이버 라이브러리를 컨테이너 안으로 주입해야 합니다. 반면 AWS Neuron은 커널이 이미 <code>/dev/neuron0</code>(칩 전체), <code>/dev/ng0n1</code>(코어 단위) 같은 디바이스 노드를 세분화해 노출하고, Neuron SDK는 pip 패키지로 컨테이너 이미지 안에 이미 포함되어 있어서 표준 <code>runc</code>만으로 충분합니다. 대신 "어떤 코어를 어떤 파드에 줄지"는 Neuron 전용 커스텀 스케줄러(<code>my-scheduler</code>)가 담당합니다.</div>
+</div>
+
+<div class="gallery">
+<figure class="figure-box"><img src="assets/images/6b57b152_image.png" alt="NVIDIA GPU 파드 기동 과정"><figcaption>(비교) NVIDIA GPU 리소스를 쓰는 파드 기동 시 컨테이너 런타임이 드라이버 라이브러리를 주입하는 과정.</figcaption></figure>
+<figure class="figure-box"><img src="assets/images/4a51b10f_k8s-cdi.jpeg" alt="K8s CNI vs CSI vs CRI vs CDI"><figcaption>Kubernetes CNI/CSI/CRI/CDI 개념 비교.</figcaption></figure>
+</div>
+
+<p><strong>Neuron 캐시용 S3 버킷 생성</strong></p>
+<pre><code class="language-bash">aws s3 mb &quot;s3://$BUCKET_NAME&quot; --region &quot;$AWS_REGION&quot;
+aws s3 ls
+</code></pre>
+<div class="gallery">
+<figure class="figure-box"><img src="assets/images/f3e37569_image.png" alt="S3 버킷 생성 확인"><figcaption>모델 아티팩트 캐시용 S3 버킷 생성 완료.</figcaption></figure>
+</div>
+
+<p><strong>Neuron device plugin 재설치 + Scheduler Extension 설치</strong><sup class="cite"><a id="cite6" href="#ref6">[6]</a></sup></p>
+<p>Neuron-optimized AMI가 자동 설치한 <code>neuron-device-plugin</code>은 Helm 소유(annotation)가 아니라서, <code>scheduler.enabled=true</code> 옵션으로 재배포하려면 충돌이 납니다. 기존 것을 지우고 Helm으로 다시 설치합니다.</p>
+<pre><code class="language-bash">kubectl delete daemonset neuron-device-plugin -n kube-system
+kubectl delete clusterrole neuron-device-plugin
+kubectl delete serviceaccount neuron-device-plugin -n kube-system
+kubectl delete clusterrolebinding neuron-device-plugin
+
+helm upgrade --install neuron-helm-chart oci://public.ecr.aws/neuron/neuron-helm-chart --set &quot;npd.enabled=false&quot;
+kubectl get ds neuron-device-plugin -n kube-system
+kubectl get nodes &quot;-o=custom-columns=NAME:.metadata.name,NeuronCore:.status.allocatable.aws\.amazon\.com/neuroncore&quot;
+
+helm upgrade --install neuron-helm-chart oci://public.ecr.aws/neuron/neuron-helm-chart \
+    --set &quot;scheduler.enabled=true&quot; \
+    --set &quot;npd.enabled=false&quot;
+
+kubectl get deploy -n kube-system k8s-neuron-scheduler
+kubectl get deploy -n kube-system my-scheduler
+</code></pre>
+<p><strong>Amazon S3 CSI Driver 설치</strong><sup class="cite"><a id="cite7" href="#ref7">[7]</a></sup></p>
+<pre><code class="language-bash">helm repo add aws-mountpoint-s3-csi-driver https://awslabs.github.io/mountpoint-s3-csi-driver
+helm repo update
+
+helm upgrade --install aws-mountpoint-s3-csi-driver \
+    --namespace kube-system \
+    aws-mountpoint-s3-csi-driver/aws-mountpoint-s3-csi-driver
+
+kubectl get pods -n kube-system -l app.kubernetes.io/name=aws-mountpoint-s3-csi-driver
+</code></pre>
+<p><strong>최종 확인</strong></p>
+<pre><code class="language-bash">kubectl get nodes
+kubectl describe nodes -l alpha.eksctl.io/nodegroup-name=neuron-trn1-2x | grep &quot;aws.amazon.com/neuron&quot;
+kubectl get storageclass
+kubectl config get-contexts
+</code></pre>
+<p>이 시점까지: (1) EKS 1.33 클러스터, (2) <code>trn1.2xlarge</code> 노드 1대, (3) Neuron Device Plugin, (4) S3 모델 캐시 버킷, (5) 확장된 IAM 권한이 모두 준비되었습니다.</p>
+<h2 id="lab2">Lab2 — vLLM Deployment와 S3 컴파일 캐시</h2>
+<p><strong>목표</strong>: init container 패턴으로 모델을 준비(다운로드→컴파일→S3 캐싱)한 뒤 vLLM<sup class="cite"><a id="cite8" href="#ref8">[8]</a></sup> 서버를 배포합니다.</p>
+<div class="analogy-box">
+<span class="emoji">📦</span>
+<div><b>비유: 이사 전 미리 조립해두기</b><br>
+Init Container는 손님(메인 vLLM 서버)이 들어오기 전에 가구(모델)를 조립해서 창고(S3)에 저장해두는 준비 작업자입니다. 처음 한 번만 조립(컴파일)이 오래 걸리고, 이후에는 이미 조립된 가구를 그대로 옮기기만 하면(캐시 재사용) 되어 훨씬 빠릅니다.</div>
+</div>
+
+<p><strong>HF 토큰 시크릿 생성</strong></p>
+<blockquote class="fix">🔒 <b>보안 경고</b>: 아래 원문 그대로의 ConfigMap 구성은 <code>HF_TOKEN</code>을 Secret뿐 아니라 ConfigMap에도 평문으로 중복 저장합니다. ConfigMap은 암호화되지 않고 <code>kubectl get cm -o yaml</code>로 누구나 평문을 볼 수 있으므로, <b>실제로는 ConfigMap에 <code>HF_TOKEN</code> 줄을 넣지 말고 Secret(<code>hf-token-secret</code>)의 <code>secretRef</code>만으로 주입하는 것을 권장합니다.</b> 아래 예시는 원문을 그대로 보존하되 이 위험을 인지하고 실습하세요.</blockquote>
+
+<pre><code class="language-bash">rm -rf /home/ubuntu/workshop/.env
+echo 'HF_TOKEN=&quot;&lt;YOUR_HF_TOKEN&gt;&quot;' &gt; /home/ubuntu/workshop/.env
+
+source /home/ubuntu/workshop/.env
+kubectl create secret generic hf-token-secret \
+    --from-literal=HF_TOKEN=&quot;$HF_TOKEN&quot; \
+    --dry-run=client -o yaml | kubectl apply -f -
+
+kubectl get secret hf-token-secret
+</code></pre>
+<p><strong>공유 ConfigMap 생성</strong></p>
+<pre><code class="language-bash">cat &gt; vllm-configmap.yaml &lt;&lt;EOF
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vllm-shared-config
+data:
+  HF_TOKEN: &quot;$HF_TOKEN&quot;
+  MODEL_NAME: &quot;tinyLlama/TinyLlama-1.1B-Chat-v1.0&quot;  # 서빙할 대상 모델 (경량 1.1B, 컴파일이 빠름)
+  S3_BUCKET: &quot;ai-infra-summit-vllm-models-cache-$(aws sts get-caller-identity | jq -r .Account)&quot;
+  S3_PREFIX: &quot;compiled-models&quot;
+  MAX_NUM_SEQS: &quot;4&quot;                                 # continuous batching 최대 동시 시퀀스 상한
+  PORT: &quot;8080&quot;
+  NEURON_COMPILED_ARTIFACTS: &quot;/shared/model/cache&quot;  # neuronx-cc가 컴파일 결과를 읽고 쓰는 경로
+  NEURON_COMPILE_CACHE_URL: &quot;/shared/model/cache&quot;
+  TENSOR_PARALLEL_SIZE: &quot;2&quot;                         # 2개 NeuronCore에 텐서 병렬 분할
+  MAX_MODEL_LEN: &quot;1024&quot;                             # 최대 시퀀스 길이, KV 캐시 크기 산정 기준
+  NEURON_RT_VISIBLE_CORES: &quot;0-1&quot;
+  NEURON_RT_LOG_LEVEL: &quot;ERROR&quot;
+  NEURON_RT_ASYNC_EXEC_MAX_INFLIGHT_REQUESTS: &quot;4&quot;
+  VLLM_NEURON_FRAMEWORK: &quot;neuronx-distributed-inference&quot;
+EOF
+kubectl apply -f vllm-configmap.yaml
+kubectl get cm vllm-shared-config
+</code></pre>
+<p><strong>S3 기반 PV/PVC 생성</strong></p>
+<pre><code class="language-bash">cat &gt; vllm-storage.yaml &lt;&lt;EOF
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: s3-model-cache-pv
+spec:
+  capacity:
+    storage: 100Gi # Mountpoint는 실제 쿼터를 강제하지 않음 — S3는 사실상 무제한, K8s 스케줄링용 논리값
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  csi:
+    driver: s3.csi.aws.com
+    volumeHandle: ai-infra-summit-vllm-models-cache-$(aws sts get-caller-identity | jq -r .Account)
+    volumeAttributes:
+      bucketName: ai-infra-summit-vllm-models-cache-$(aws sts get-caller-identity | jq -r .Account)
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: s3-model-cache-pvc
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 100Gi
+  volumeName: s3-model-cache-pv
+EOF
+kubectl apply -f vllm-storage.yaml
+kubectl get pvc,pv
+</code></pre>
+<div class="analogy-box">
+<span class="emoji">🗄️</span>
+<div><b>분석 노트 — S3를 파일시스템처럼 마운트한다는 것</b><br>
+<code>s3.csi.aws.com</code>(Mountpoint for S3)은 커널 블록 디바이스가 아니라 <b>유저스페이스 FUSE 파일시스템</b>입니다. 파일 read/write가 커널을 거쳐 <code>mount-s3</code> 데몬으로 전달되고, 그 데몬이 S3 API 호출로 변환합니다. append나 부분 쓰기는 제한적이지만(통짜 파일 복사는 문제없음), 업로드 직후 다른 파드가 즉시 최신 데이터를 읽는 강한 일관성은 보장됩니다.</div>
+</div>
+
+<p><strong>vLLM Deployment 배포 (Init Container + 메인 컨테이너)</strong></p>
+<pre><code class="language-yaml">cat &gt; vllm-deployment.yaml &lt;&lt;EOF
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vllm-deployment
+  labels:
+    app.kubernetes.io/name: vllm-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: vllm-server
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: vllm-server
+    spec:
+      restartPolicy: Always
+      schedulerName: my-scheduler
+      nodeSelector:
+        alpha.eksctl.io/nodegroup-name: neuron-trn1-2x
+      tolerations:
+        - key: &quot;node.kubernetes.io/disk-pressure&quot;
+          operator: &quot;Exists&quot;
+          effect: &quot;NoSchedule&quot;
+      volumes:
+        - name: model-storage
+          persistentVolumeClaim:
+            claimName: s3-model-cache-pvc
+      initContainers:
+        - name: model-prep
+          image: public.ecr.aws/neuron/pytorch-inference-vllm-neuronx:0.9.1-neuronx-py310-sdk2.25.0-ubuntu22.04
+          imagePullPolicy: Always
+          envFrom:
+            - configMapRef:
+                name: vllm-shared-config
+            - secretRef:
+                name: hf-token-secret
+          command: [&quot;/bin/bash&quot;, &quot;-c&quot;]
+          args:
+            - |
+              set -e
+              echo &quot;Starting model prep for \$MODEL_NAME...&quot;
+              huggingface-cli login --token &quot;\$HF_TOKEN&quot;
+              mkdir -p /tmp/cache /shared/model/cache
+
+              if [ ! &quot;\$(ls -A /shared/model/cache 2&gt;/dev/null)&quot; ]; then
+                export NEURON_COMPILED_ARTIFACTS=/tmp/cache NEURON_COMPILE_CACHE_URL=/tmp/cache
+                python3 -c &quot;
+              import os
+              from vllm import LLM
+              LLM(model=os.environ['MODEL_NAME'], max_num_seqs=int(os.environ['MAX_NUM_SEQS']),
+                  max_model_len=int(os.environ['MAX_MODEL_LEN']), tensor_parallel_size=int(os.environ['TENSOR_PARALLEL_SIZE']),
+                  device='neuron', override_neuron_config={'enable_bucketing': False})
+              print('Model compiled successfully!')&quot;
+                cp -r /tmp/cache/* /shared/model/cache/ 2&gt;/dev/null || true
+              else
+                echo &quot;Model cache exists, skipping compilation&quot;
+              fi
+          resources:
+            limits:
+              aws.amazon.com/neuron: 1
+              ephemeral-storage: 50Gi
+            requests:
+              aws.amazon.com/neuron: 1
+              ephemeral-storage: 50Gi
+          volumeMounts:
+            - name: model-storage
+              mountPath: /shared/model
+      containers:
+        - name: vllm-server
+          image: public.ecr.aws/neuron/pytorch-inference-vllm-neuronx:0.9.1-neuronx-py310-sdk2.25.0-ubuntu22.04
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+              name: http-vllm
+          envFrom:
+            - configMapRef:
+                name: vllm-shared-config
+            - secretRef:
+                name: hf-token-secret
+          command: [&quot;/bin/bash&quot;, &quot;-c&quot;]
+          args:
+            - |
+              python -m vllm.entrypoints.openai.api_server \\
+                --model=&quot;\$MODEL_NAME&quot; \\
+                --max-num-seqs=\$MAX_NUM_SEQS \\
+                --max-model-len=\$MAX_MODEL_LEN \\
+                --tensor-parallel-size=\$TENSOR_PARALLEL_SIZE \\
+                --port=\$PORT \\
+                --device=neuron \\
+                --override-neuron-config='{&quot;enable_bucketing&quot;:false}'
+          volumeMounts:
+            - name: model-storage
+              mountPath: /shared/model
+              readOnly: true
+          resources:
+            limits:
+              aws.amazon.com/neuron: 1
+              ephemeral-storage: 50Gi
+              cpu: &quot;8000m&quot;
+            requests:
+              aws.amazon.com/neuron: 1
+              ephemeral-storage: 50Gi
+              cpu: &quot;4000m&quot;
+EOF
+kubectl apply -f vllm-deployment.yaml
+
+kubectl logs -l app.kubernetes.io/name=vllm-server -c model-prep -f
+kubectl logs -l app.kubernetes.io/name=vllm-server -c vllm-server -f
+kubectl get pod -l app.kubernetes.io/name=vllm-server -w
+
+aws s3 ls s3://$BUCKET_NAME --recursive --human-readable
+</code></pre>
+<blockquote>ℹ️ <b>최초 배포 소요 시간</b>: 이미지 가져오기·예약 약 4분 + 모델 컴파일 약 4분 + vLLM 서버 기동 약 20초 ≈ <b>총 8분</b>. S3 캐시가 이미 있는 재배포는 Pod 시작에 <b>약 20초</b>만 걸립니다 (네트워크·SDK 버전에 따라 달라질 수 있는 관측값입니다).</blockquote>
+
+<blockquote class="fix">⚠ <b>버전 확인 필요</b>: vLLM-Neuron GitHub<sup class="cite"><a id="cite9" href="#ref9">[9]</a></sup> 저장소에는 사실 <b>두 세대가 공존</b>합니다 — ① NxD Inference에 의존하는 구버전(0.5.x대, 현재 유지보수 단계)은 <b>Trn1/Inf2/Trn2/Trn3</b>를 지원하고, ② NxD Inference 의존성을 제거한 최신 베타(0.21.0+)는 <b>Trn2/Trn3만</b> 지원합니다. 이 둘을 구분하지 않고 "베타 plugin"이라고만 보면 마치 최신 버전이 Trn1도 지원하는 것처럼 오해하기 쉽습니다. <b>이 워크샵은 고정 컨테이너 이미지(<code>pytorch-inference-vllm-neuronx:0.9.1...</code>, ① 계열의 통합)를 쓰므로 Trn1에서 정상 동작합니다.</b> 다만 이 이미지를 최신 <code>pip install vllm-neuron</code> 등으로 임의로 덮어쓰지 말고, 실습 전 GitHub의 최신 compatibility matrix에서 본인이 쓸 버전이 어느 계열인지 직접 확인하세요.</blockquote>
+
+<p><strong>배포 확인 및 API 테스트</strong></p>
+<pre><code class="language-bash">kubectl wait --for=condition=Available deployment/vllm-deployment --timeout=1800s
+kubectl get deployment vllm-deployment -o wide
+kubectl get pods -l app.kubernetes.io/name=vllm-server -o wide
+kubectl describe pods -l app.kubernetes.io/name=vllm-server
+
+BUCKET_NAME=$(kubectl get pv s3-model-cache-pv -o jsonpath='{.spec.csi.volumeAttributes.bucketName}')
+aws s3 ls $BUCKET_NAME --recursive
+
+kubectl port-forward svc/vllm-service 8080:8080 &amp;
+sleep 3
+export VLLM_ENDPOINT=&quot;http://localhost:8080&quot;
+
+curl -X POST &quot;$VLLM_ENDPOINT/v1/chat/completions&quot; \
+  -H &quot;Content-Type: application/json&quot; \
+  -d '{
+    &quot;model&quot;: &quot;tinyLlama/TinyLlama-1.1B-Chat-v1.0&quot;,
+    &quot;messages&quot;: [{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;Hello, how are you?&quot;}],
+    &quot;max_tokens&quot;: 100,
+    &quot;temperature&quot;: 0.7
+  }' | jq -r '.choices[0].message.content'
+</code></pre>
+<p>문제가 생기면:</p>
+<pre><code class="language-bash">kubectl get events --sort-by=.metadata.creationTimestamp
+kubectl logs -l app.kubernetes.io/name=vllm-server -c model-prep
+kubectl logs -l app.kubernetes.io/name=vllm-server -c vllm-server
+kubectl describe nodes -l alpha.eksctl.io/nodegroup-name=neuron-trn1-2x
+kubectl describe pods -l app.kubernetes.io/name=vllm-server | grep -A 10 &quot;Requests&quot;
+kubectl get endpoints vllm-service
+</code></pre>
+<div class="gallery">
+<figure class="figure-box"><img src="assets/images/1fb318f5_image.png" alt="S3 FUSE 마운트 확인"><figcaption>워커 노드에서 S3 FUSE 마운트 정보 확인 (mount | grep -i s3).</figcaption></figure>
+<figure class="figure-box"><img src="assets/images/a792e4e3_image.png" alt="S3 캐시 아티팩트"><figcaption>S3 버킷에 캐시된 컴파일 모델 아티팩트 목록.</figcaption></figure>
+</div>
+
+<p><strong>로드밸런서 서비스 &amp; 대화형 클라이언트</strong></p>
+<pre><code class="language-bash">cat &gt; vllm-service.yaml &lt;&lt;EOF
+apiVersion: v1
+kind: Service
+metadata:
+  name: vllm-service
+spec:
+  selector:
+    app.kubernetes.io/name: vllm-server
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: http-vllm
+  type: LoadBalancer
+EOF
+kubectl apply -f vllm-service.yaml
+kubectl get svc,ep vllm-service
+</code></pre>
+<div class="gallery">
+<figure class="figure-box"><img src="assets/images/7684d889_image.png" alt="vLLM 서비스 LoadBalancer"><figcaption>vLLM 서비스용 LoadBalancer 및 엔드포인트 확인.</figcaption></figure>
+<figure class="figure-box"><img src="assets/images/dc39c4b2_image.png" alt="LoadBalancer 경유 models API"><figcaption>LoadBalancer 엔드포인트를 통한 /v1/models 응답 확인.</figcaption></figure>
+</div>
+
+<pre><code class="language-python"># test-vllm-pod.py — 대화형 테스트 클라이언트
+from openai import OpenAI
+import sys, os
+
+def main():
+    base_endpoint = os.getenv(&quot;VLLM_ENDPOINT&quot;)
+    if not base_endpoint:
+        print(&quot;Error: VLLM_ENDPOINT environment variable is not set&quot;)
+        sys.exit(1)
+    client = OpenAI(api_key=&quot;EMPTY&quot;, base_url=f&quot;{base_endpoint}/v1&quot;)
+    model_name = client.models.list().data[0].id
+    print(f&quot;Connected! Using model: {model_name}&quot;)
+
+    print(&quot;Chat (type 'exit' to quit):&quot;)
+    while True:
+        user_input = input(&quot;\nYou: &quot;).strip()
+        if user_input.lower() in ['exit', 'quit', 'bye'] or not user_input:
+            break
+        response = client.chat.completions.create(
+            model=model_name,
+            messages=[{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: user_input}],
+            max_tokens=900, temperature=1.0, extra_body={'top_k': 50}
+        )
+        print(&quot;AI:&quot;, response.choices[0].message.content)
+
+if __name__ == &quot;__main__&quot;:
+    main()
+</code></pre>
+<pre><code class="language-bash">pip install openai
+python3 test-vllm-pod.py
+</code></pre>
+<h2 id="lab3">Lab3 — NGINX Ingress</h2>
+<p><strong>목표</strong>: NGINX Ingress Controller<sup class="cite"><a id="cite10" href="#ref10">[10]</a></sup>로 vLLM API를 표준 HTTP(80번 포트)로 외부에 노출합니다.</p>
+<pre><code class="language-bash">helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+
+helm upgrade --install ingress-nginx ingress-nginx \
+--repo https://kubernetes.github.io/ingress-nginx \
+--namespace ingress-nginx \
+--create-namespace
+
+kubectl wait --namespace ingress-nginx \
+  --for=condition=ready pod \
+  --selector=app.kubernetes.io/component=controller \
+  --timeout=90s
+
+kubectl get pod -n ingress-nginx
+kubectl get svc,ep -n ingress-nginx ingress-nginx-controller
+</code></pre>
+<pre><code class="language-bash">cat &gt; vllm-ingress-simple.yaml &lt;&lt;EOF
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: vllm-ingress-simple
+  namespace: default
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  ingressClassName: nginx
+  rules:
+  - http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: vllm-service
+            port:
+              number: 8080
+EOF
+kubectl apply -f vllm-ingress-simple.yaml
+kubectl get ingress
+kubectl describe ingress vllm-ingress-simple
+</code></pre>
+<blockquote class="fix">⚠ <b>본인 환경에 맞게 교체 필요</b>: LoadBalancer hostname은 비동기로 배정됩니다. 아래처럼 <code>jsonpath</code> 값이 비어있는 상태로 호출하지 말고, <code>kubectl get ingress -w</code>로 hostname이 실제 나타난 뒤에 진행하세요.</blockquote>
+
+<pre><code class="language-bash">export VLLM_ENDPOINT=&quot;http://$(kubectl get ingress vllm-ingress-simple -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')&quot;
+echo $VLLM_ENDPOINT
+
+curl -s -X POST &quot;$VLLM_ENDPOINT/v1/chat/completions&quot; \
+  -H &quot;Content-Type: application/json&quot; \
+  -d '{
+    &quot;model&quot;: &quot;tinyLlama/TinyLlama-1.1B-Chat-v1.0&quot;,
+    &quot;messages&quot;: [{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;Hello, how are you?&quot;}],
+    &quot;max_tokens&quot;: 100,
+    &quot;temperature&quot;: 0.7
+  }' | jq -r '.choices[0].message.content'
+</code></pre>
+<div class="gallery">
+<figure class="figure-box"><img src="assets/images/18de6fc9_image.png" alt="NGINX Ingress용 AWS CLB"><figcaption>NGINX Ingress용 AWS CLB 리스너(TCP 80/443) 확인.</figcaption></figure>
+<figure class="figure-box"><img src="assets/images/a8f9e71e_image.png" alt="Ingress 경유 models 응답"><figcaption>Ingress 엔드포인트를 통한 /v1/models 응답 확인.</figcaption></figure>
+</div>
+
+<p>문제 해결:</p>
+<pre><code class="language-bash">kubectl get pods -n ingress-nginx
+kubectl logs -n ingress-nginx deployment/ingress-nginx-controller
+kubectl get events --sort-by=.metadata.creationTimestamp | grep -i ingress
+kubectl get endpoints vllm-service
+kubectl run test-pod --image=curlimages/curl:latest -it --rm --restart=Never -- /bin/sh
+# 파드 안에서: curl http://vllm-service:8080/health
+kubectl get svc -n ingress-nginx
+kubectl get ingress vllm-ingress-simple -o yaml
+</code></pre>
+<h2 id="lab4">Lab4 — Observability: Prometheus + Grafana</h2>
+<p><strong>목표</strong>: Prometheus + Grafana로 vLLM 전용 메트릭 대시보드를 구축합니다.</p>
+<p><strong>Prometheus 설치</strong><sup class="cite"><a id="cite11" href="#ref11">[11]</a></sup></p>
+<pre><code class="language-bash">helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo update
+
+cat &gt; prometheus-values.yaml &lt;&lt;EOF
+server:
+  persistentVolume:
+    enabled: false
+  retention: &quot;15d&quot;
+  resources:
+    requests: {cpu: 500m, memory: 1Gi}
+    limits: {cpu: 1000m, memory: 2Gi}
+  global:
+    scrape_interval: 15s
+    evaluation_interval: 15s
+alertmanager:
+  enabled: false
+  persistentVolume:
+    enabled: false
+nodeExporter:
+  enabled: true
+kubeStateMetrics:
+  enabled: true
+serverFiles:
+  prometheus.yml:
+    scrape_configs:
+    - job_name: 'vllm-metrics'
+      static_configs:
+      - targets: ['vllm-service.default.svc.cluster.local:8080']
+      metrics_path: '/metrics'
+      scrape_interval: 10s
+EOF
+
+helm upgrade -i prometheus prometheus-community/prometheus \
+  --namespace monitoring --create-namespace \
+  --values prometheus-values.yaml
+</code></pre>
+<blockquote class="fix">⚠ <b>중요 — 원문 명령을 그대로 실행하면 실패합니다</b>: 원문은 Prometheus를 <code>/p8s</code> 서브패스로 노출하기 위해 아래처럼 씁니다.
+<pre><code>helm upgrade prometheus prometheus-community/prometheus -n monitoring --reuse-values \
+  --set --web.route-prefix=/p8s \
+  --set --web.external-url=http://&lt;YOUR_INGRESS_ELB_DNS&gt;/p8s/</code></pre>
+이건 <b>Helm 문법이 아닙니다</b> — <code>--set</code> 뒤에는 <code>key=value</code>가 와야 합니다. 대신 아래처럼 <code>server.prefixURL</code>/<code>server.baseURL</code>을 values 파일에 선언해서 적용하세요 (차트 버전에 따라 실제 values 키가 다를 수 있으니 <code>helm show values prometheus-community/prometheus</code>로 먼저 확인하는 것이 안전합니다):
+<pre><code>cat >> prometheus-values.yaml <<'EOF'
+server:
+  prefixURL: /p8s
+  baseURL: http://&lt;YOUR_INGRESS_ELB_DNS&gt;/p8s/
+EOF
+helm upgrade prometheus prometheus-community/prometheus -n monitoring --reuse-values --values prometheus-values.yaml</code></pre>
+</blockquote>
+<blockquote class="fix">⚠ <b>주의 — <code>extraArgs</code>에도 같은 플래그를 같이 넣지 마세요 ("flag 'web.route-prefix' cannot be repeated" 에러 재현 확인)</b>: deploy.yaml<sup class="cite"><a id="cite12" href="#ref12">[12]</a></sup>을 보면 차트는 <code>server.extraArgs</code>를 먼저 전부 <code>--key=value</code> 형태로 펼친 뒤, <b>그것과 별개로</b> <code>server.prefixURL</code>이 있으면 <code>--web.route-prefix={{ .Values.server.prefixURL }}</code>를, <code>server.baseURL</code>이 있으면 <code>--web.external-url={{ .Values.server.baseURL }}</code>를 컨테이너 args 맨 뒤에 <b>추가로</b> 붙입니다. 즉 <code>extraArgs.web.route-prefix</code>와 <code>server.prefixURL</code>을 동시에 설정하면 <code>--web.route-prefix</code>가 args에 두 번 들어가고, Prometheus 바이너리의 플래그 파서가 중복을 허용하지 않아 <code>flag 'web.route-prefix' cannot be repeated</code> 에러로 컨테이너가 뜨지 못합니다. <b>해결책</b>: 이 두 플래그는 반드시 <code>extraArgs</code>가 아니라 위 예시처럼 <code>prefixURL</code>/<code>baseURL</code> 전용 키로만 설정하세요(이미 <code>extraArgs.web.route-prefix</code>/<code>web.external-url</code>을 넣었다면 <code>helm upgrade</code> 전에 values 파일에서 삭제해야 합니다). <code>extraArgs</code>는 이 두 플래그처럼 전용 키가 없는 다른 옵션에만 사용하세요.
+<p>이렇게 <code>server.prefixURL</code> 하나로만 설정하면 좋은 점이 하나 더 있습니다 — 이 차트의 liveness/readiness probe 경로(<code>path: {{ .Values.server.prefixURL }}/-/healthy</code>, <code>.../-/ready</code>)도 <b>같은 값</b>을 그대로 읽어서 만들어지므로, probe 경로를 따로 맞춰줄 필요 없이 자동으로 일치합니다. 적용 후에는 아래처럼 실제로 Pod가 Ready인지 확인하세요.</p>
+<pre><code class="language-bash">kubectl get pod -n monitoring -l app=prometheus,component=server
+# READY 1/1 이어야 정상. 0/1이면 events를 확인하세요.
+
+kubectl describe pod -n monitoring -l app=prometheus,component=server | grep -A3 "Liveness\|Readiness"
+
+# 컨테이너 args에 --web.route-prefix가 몇 번 들어갔는지 직접 확인 (2번이면 위 에러가 재현됨)
+kubectl get deploy prometheus-server -n monitoring -o jsonpath='{.spec.template.spec.containers[?(@.name=="prometheus-server")].args}' | tr ',' '\n' | grep -c route-prefix
+
+# Pod 내부에서 prefix가 실제로 적용됐는지 직접 확인
+kubectl exec -n monitoring deploy/prometheus-server -c prometheus-server -- \
+  wget -qO- http://localhost:9090/p8s/-/healthy</code></pre>
+</blockquote>
+
+<pre><code class="language-bash">cat &lt;&lt;EOF | kubectl apply -f -
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: prometheus-ingress
+  namespace: monitoring
+spec:
+  ingressClassName: nginx
+  rules:
+  - http:
+      paths:
+      - path: /p8s
+        pathType: Prefix
+        backend:
+          service:
+            name: prometheus-server
+            port:
+              number: 80
+EOF
+
+kubectl get ingress -n monitoring prometheus-ingress
+kubectl describe ingress -n monitoring prometheus-ingress
+</code></pre>
+<div class="gallery">
+<figure class="figure-box"><img src="assets/images/9bee6c28_image.png" alt="Prometheus Targets 페이지"><figcaption>Prometheus 웹 UI — Targets 페이지에서 vllm-metrics job 상태 확인.</figcaption></figure>
+<figure class="figure-box"><img src="assets/images/ab166dc4_image.png" alt="Prometheus 쿼리 인터페이스"><figcaption>Prometheus Expression Browser로 쿼리 실행.</figcaption></figure>
+<figure class="figure-box"><img src="assets/images/ee26689f_image.png" alt="Prometheus PromQL 그래프"><figcaption><code>vllm:prompt_tokens_total</code>, TTFT 누적 시간 PromQL 그래프.</figcaption></figure>
+</div>
+
+<p><strong>Grafana 설치</strong><sup class="cite"><a id="cite13" href="#ref13">[13]</a></sup></p>
+<blockquote class="fix">⚠ <b>본인 환경에 맞게 교체 필요</b>: 원문은 <code>adminPassword: "vllm-admin-2026"</code>처럼 고정된 비밀번호를 코드에 그대로 넣습니다. 실습에서는 반드시 본인만 아는 강력한 비밀번호로 바꾸거나 <code>admin.existingSecret</code>을 사용하세요.</blockquote>
+
+<pre><code class="language-bash">helm repo add grafana https://grafana.github.io/helm-charts
+helm repo update
+
+cat &gt; grafana-values.yaml &lt;&lt;EOF
+persistence:
+  enabled: false
+adminPassword: &quot;&lt;YOUR_GRAFANA_ADMIN_PASSWORD&gt;&quot;
+service:
+  type: ClusterIP
+datasources:
+  datasources.yaml:
+    apiVersion: 1
+    datasources:
+    - name: Prometheus
+      type: prometheus
+      url: http://prometheus-server.monitoring.svc.cluster.local
+      access: proxy
+      isDefault: true
+dashboardProviders:
+  dashboardproviders.yaml:
+    apiVersion: 1
+    providers:
+    - name: 'default'
+      orgId: 1
+      folder: ''
+      type: file
+      disableDeletion: false
+      editable: true
+      options:
+        path: /var/lib/grafana/dashboards/default
+dashboards:
+  default:
+    kubernetes-cluster: {gnetId: 7249, revision: 1, datasource: Prometheus}
+    kubernetes-pods: {gnetId: 6336, revision: 1, datasource: Prometheus}
+resources:
+  requests: {cpu: 250m, memory: 512Mi}
+  limits: {cpu: 500m, memory: 1Gi}
+EOF
+
+helm install grafana grafana/grafana \
+  --namespace monitoring \
+  --values grafana-values.yaml
+</code></pre>
+<p>Prometheus를 <code>/p8s</code> 서브패스로 옮겼다면 Grafana의 데이터소스 URL도 맞춰줍니다.</p>
+<pre><code class="language-bash"># datasources.yaml의 url을 http://prometheus-server.monitoring.svc.cluster.local/p8s 로 수정 후
+helm upgrade -i grafana grafana/grafana --namespace monitoring --values grafana-values.yaml
+</code></pre>
+<p><strong>Grafana Ingress + vLLM 대시보드</strong></p>
+<pre><code class="language-bash">cat &lt;&lt;EOF | kubectl apply -f -
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: grafana-ingress
+  namespace: monitoring
+spec:
+  ingressClassName: nginx
+  rules:
+  - http:
+      paths:
+      - path: /grafana
+        pathType: Prefix
+        backend:
+          service:
+            name: grafana
+            port:
+              number: 80
+EOF
+</code></pre>
+<pre><code class="language-yaml"># grafana-subpath-values.yaml
+grafana.ini:
+  server:
+    root_url: &quot;http://&lt;YOUR_INGRESS_ELB_DNS&gt;/grafana&quot;
+    serve_from_sub_path: true
+readinessProbe:
+  httpGet: {path: /grafana/api/health, port: grafana}
+livenessProbe:
+  httpGet: {path: /grafana/api/health, port: grafana}
+  initialDelaySeconds: 60
+  timeoutSeconds: 30
+  failureThreshold: 10
+</code></pre>
+<pre><code class="language-bash">helm upgrade grafana grafana/grafana -n monitoring --reuse-values -f grafana-subpath-values.yaml
+</code></pre>
+<div class="gallery">
+<figure class="figure-box"><img src="assets/images/b631983c_image.png" alt="Grafana 웹 UI"><figcaption>Grafana 웹 UI 접속 확인 (admin / 본인이 설정한 비밀번호).</figcaption></figure>
+</div>
+
+<p>vLLM 전용 대시보드 JSON을 만들어 Grafana에 마운트합니다.</p>
+<pre><code class="language-bash">cat &gt; vllm-dashboard.json &lt;&lt;'EOF'
+{
+  &quot;id&quot;: null,
+  &quot;title&quot;: &quot;vLLM Inference Metrics&quot;,
+  &quot;tags&quot;: [&quot;vllm&quot;, &quot;inference&quot;, &quot;llm&quot;],
+  &quot;timezone&quot;: &quot;browser&quot;,
+  &quot;panels&quot;: [
+    {&quot;id&quot;: 1, &quot;title&quot;: &quot;Total Successful Requests&quot;, &quot;type&quot;: &quot;stat&quot;,
+     &quot;targets&quot;: [{&quot;expr&quot;: &quot;vllm:request_success_total&quot;}]},
+    {&quot;id&quot;: 2, &quot;title&quot;: &quot;Running Requests&quot;, &quot;type&quot;: &quot;stat&quot;,
+     &quot;targets&quot;: [{&quot;expr&quot;: &quot;vllm:num_requests_running&quot;}]},
+    {&quot;id&quot;: 3, &quot;title&quot;: &quot;Waiting Requests&quot;, &quot;type&quot;: &quot;stat&quot;,
+     &quot;targets&quot;: [{&quot;expr&quot;: &quot;vllm:num_requests_waiting&quot;}]},
+    {&quot;id&quot;: 4, &quot;title&quot;: &quot;KV Cache Usage&quot;, &quot;type&quot;: &quot;gauge&quot;,
+     &quot;targets&quot;: [{&quot;expr&quot;: &quot;vllm:gpu_cache_usage_perc * 100&quot;}]},
+    {&quot;id&quot;: 5, &quot;title&quot;: &quot;Total Prompt Tokens&quot;, &quot;type&quot;: &quot;stat&quot;,
+     &quot;targets&quot;: [{&quot;expr&quot;: &quot;vllm:prompt_tokens_total&quot;}]},
+    {&quot;id&quot;: 6, &quot;title&quot;: &quot;Total Generated Tokens&quot;, &quot;type&quot;: &quot;stat&quot;,
+     &quot;targets&quot;: [{&quot;expr&quot;: &quot;vllm:generation_tokens_total&quot;}]},
+    {&quot;id&quot;: 7, &quot;title&quot;: &quot;Request Success Over Time&quot;, &quot;type&quot;: &quot;timeseries&quot;,
+     &quot;targets&quot;: [{&quot;expr&quot;: &quot;vllm:request_success_total&quot;}]},
+    {&quot;id&quot;: 8, &quot;title&quot;: &quot;Token Generation Over Time&quot;, &quot;type&quot;: &quot;timeseries&quot;,
+     &quot;targets&quot;: [{&quot;expr&quot;: &quot;vllm:prompt_tokens_total&quot;}, {&quot;expr&quot;: &quot;vllm:generation_tokens_total&quot;}]}
+  ],
+  &quot;time&quot;: {&quot;from&quot;: &quot;now-15m&quot;, &quot;to&quot;: &quot;now&quot;},
+  &quot;refresh&quot;: &quot;10s&quot;
+}
+EOF
+
+kubectl create configmap vllm-dashboard \
+  --from-file=vllm-dashboard.json \
+  -n monitoring
+
+kubectl patch deployment grafana -n monitoring --type='json' -p='[
+  {&quot;op&quot;: &quot;add&quot;, &quot;path&quot;: &quot;/spec/template/spec/volumes/-&quot;,
+   &quot;value&quot;: {&quot;name&quot;: &quot;vllm-dashboard&quot;, &quot;configMap&quot;: {&quot;name&quot;: &quot;vllm-dashboard&quot;}}},
+  {&quot;op&quot;: &quot;add&quot;, &quot;path&quot;: &quot;/spec/template/spec/containers/0/volumeMounts/-&quot;,
+   &quot;value&quot;: {&quot;name&quot;: &quot;vllm-dashboard&quot;, &quot;mountPath&quot;: &quot;/var/lib/grafana/dashboards/default/vllm-dashboard.json&quot;, &quot;subPath&quot;: &quot;vllm-dashboard.json&quot;}}
+]'
+</code></pre>
+<div class="gallery">
+<figure class="figure-box"><img src="assets/images/e5e25575_image.png" alt="Grafana vLLM 대시보드"><figcaption>Grafana에 구축된 vLLM 실시간 추론 메트릭 대시보드.</figcaption></figure>
+</div>
+
+<table>
+<thead>
+<tr>
+<th>패널</th>
+<th>쿼리</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Total Successful Requests</td>
+<td><code>vllm:request_success_total</code></td>
+</tr>
+<tr>
+<td>Running Requests</td>
+<td><code>vllm:num_requests_running</code></td>
+</tr>
+<tr>
+<td>Waiting Requests</td>
+<td><code>vllm:num_requests_waiting</code></td>
+</tr>
+<tr>
+<td>KV Cache Usage</td>
+<td><code>vllm:gpu_cache_usage_perc</code></td>
+</tr>
+<tr>
+<td>Total Prompt Tokens</td>
+<td><code>vllm:prompt_tokens_total</code></td>
+</tr>
+<tr>
+<td>Total Generated Tokens</td>
+<td><code>vllm:generation_tokens_total</code></td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-bash">kubectl annotate deployment vllm-deployment -n default \
+  prometheus.io/scrape=true \
+  prometheus.io/port=8080 \
+  prometheus.io/path=/metrics
+</code></pre>
+<h2 id="lab5">Lab5 — Performance Testing</h2>
+<p><strong>목표</strong>: 자체 부하테스트 스크립트와 업계 표준 도구(llmperf<sup class="cite"><a id="cite14" href="#ref14">[14]</a></sup>)로 실제 워크로드를 시뮬레이션합니다.</p>
+<div class="gallery">
+<figure class="figure-box"><img src="assets/images/cad23182_image.png" alt="성능 테스트 개념"><figcaption>LLM 서빙 성능 테스트 개념 및 지표 구성.</figcaption></figure>
+</div>
+
+<p>핵심 지표: <strong>TTFT</strong>(첫 토큰까지 지연, prefill 성능 반영), <strong>ITL</strong>(연속 출력 토큰 간 간격, decode 성능 반영), <strong>처리량</strong>(RPS·TPS), <strong>오류율</strong>.</p>
+<pre><code class="language-bash">export AWS_REGION=us-west-2
+export CLUSTER_NAME=ai-infra-summit-test-cluster   # 이 값을 사용 — 원문에 오타(vllm-trn1-eks-cluster)가 있으니 주의
+export MONITORING_NAMESPACE=monitoring
+
+export VLLM_ENDPOINT=$(kubectl get service vllm-service -n default -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+export VLLM_URL=&quot;http://$VLLM_ENDPOINT:8080/v1&quot;
+</code></pre>
+<pre><code class="language-bash">kubectl create namespace performance-testing
+
+cat &gt; performance-test-pod.yaml &lt;&lt;EOF
+apiVersion: v1
+kind: Pod
+metadata:
+  name: performance-test-runner
+  namespace: performance-testing
+spec:
+  containers:
+  - name: performance-tester
+    image: python:3.10-slim
+    command: [&quot;sleep&quot;, &quot;infinity&quot;]
+    resources:
+      requests: {cpu: 500m, memory: 1Gi}
+      limits: {cpu: 2000m, memory: 4Gi}
+    volumeMounts:
+    - name: test-scripts
+      mountPath: /scripts
+  volumes:
+  - name: test-scripts
+    emptyDir: {}
+  restartPolicy: Never
+EOF
+kubectl apply -f performance-test-pod.yaml
+kubectl wait --for=condition=ready pod/performance-test-runner -n performance-testing --timeout=120s
+
+kubectl exec -it performance-test-runner -n performance-testing -- bash -c &quot;
+pip install requests asyncio aiohttp numpy matplotlib pandas locust
+&quot;
+</code></pre>
+<p><strong>자체 부하테스트 스크립트</strong></p>
+<pre><code class="language-python">#!/usr/bin/env python3
+import requests, time, concurrent.futures, statistics
+from datetime import datetime
+
+class VLLMLoadTester:
+    def __init__(self, base_url, max_workers=10):
+        self.base_url = base_url.rstrip('/')
+        self.max_workers = max_workers
+        self.results = []
+
+    def single_request(self, request_id):
+        start_time = time.time()
+        try:
+            response = requests.post(
+                f&quot;{self.base_url}/completions&quot;,
+                headers={&quot;Content-Type&quot;: &quot;application/json&quot;},
+                json={
+                    &quot;model&quot;: &quot;tinyLlama/TinyLlama-1.1B-Chat-v1.0&quot;,
+                    &quot;prompt&quot;: f&quot;Request {request_id}: Tell me about artificial intelligence&quot;,
+                    &quot;max_tokens&quot;: 100, &quot;temperature&quot;: 0.7
+                }, timeout=60)
+            end_time = time.time()
+            if response.status_code == 200:
+                return {&quot;request_id&quot;: request_id, &quot;status&quot;: &quot;success&quot;,
+                        &quot;latency&quot;: end_time - start_time,
+                        &quot;tokens&quot;: len(response.json().get(&quot;choices&quot;, [{}])[0].get(&quot;text&quot;, &quot;&quot;).split())}
+            return {&quot;request_id&quot;: request_id, &quot;status&quot;: &quot;error&quot;, &quot;latency&quot;: end_time - start_time,
+                    &quot;error_code&quot;: response.status_code}
+        except Exception as e:
+            return {&quot;request_id&quot;: request_id, &quot;status&quot;: &quot;exception&quot;, &quot;latency&quot;: time.time() - start_time, &quot;error&quot;: str(e)}
+
+    def run_load_test(self, total_requests=50):
+        with concurrent.futures.ThreadPoolExecutor(max_workers=self.max_workers) as executor:
+            futures = [executor.submit(self.single_request, i) for i in range(total_requests)]
+            for future in concurrent.futures.as_completed(futures):
+                self.results.append(future.result())
+        self.analyze_results()
+
+    def analyze_results(self):
+        successful = [r for r in self.results if r[&quot;status&quot;] == &quot;success&quot;]
+        latencies = [r[&quot;latency&quot;] for r in successful]
+        tokens = [r.get(&quot;tokens&quot;, 0) for r in successful]
+        print(f&quot;Total: {len(self.results)} Success: {len(successful)}&quot;)
+        print(f&quot;Average Latency: {statistics.mean(latencies):.2f}s&quot;)
+        print(f&quot;95th Percentile: {sorted(latencies)[int(len(latencies)*0.95)]:.2f}s&quot;)
+        print(f&quot;Tokens per Second: {sum(tokens)/sum(latencies):.1f}&quot;)
+
+if __name__ == &quot;__main__&quot;:
+    import sys
+    tester = VLLMLoadTester(sys.argv[1], int(sys.argv[3]) if len(sys.argv) &gt; 3 else 5)
+    tester.run_load_test(int(sys.argv[2]) if len(sys.argv) &gt; 2 else 30)
+</code></pre>
+<pre><code class="language-bash">kubectl cp basic_load_test.py performance-testing/performance-test-runner:/scripts/
+kubectl exec -it performance-test-runner -n performance-testing -- python /scripts/basic_load_test.py $VLLM_URL 30 5
+</code></pre>
+<p>원문 실측 결과 예시 (본인 환경에서는 다르게 나올 수 있습니다):</p>
+<pre><code class="language-text">=== LOAD TEST RESULTS ===
+Total Requests: 30 | Successful: 30 (100.0%) | Failed: 0
+Average Latency: 0.89s | Median: 1.06s | 95th Percentile: 1.60s
+Tokens per Second: 53.4
+</code></pre>
+<div class="gallery">
+<figure class="figure-box"><img src="assets/images/327f0a08_load_test_result.png" alt="기본 부하테스트 결과"><figcaption>기본 부하 테스트 실행 로그 및 통계 결과.</figcaption></figure>
+</div>
+
+<p><strong>llmperf 설치 및 벤치마크</strong></p>
+<blockquote>📌 <b>각주</b>: <code>ray-project/llmperf</code> 저장소는 2025-12-17부로 archived(read-only) 상태로 확인됐습니다. 아래 명령은 학습용으로 보존하되, 실제 재현 시에는 fork나 대체 벤치마크 도구, 현재 Python/Ray 호환성을 함께 확인하세요.</blockquote>
+
+<pre><code class="language-bash">kubectl exec -it performance-test-runner -n performance-testing -- bash -c &quot;
+pip install --upgrade pip &amp;&amp; \
+apt-get update &amp;&amp; apt-get install -y git &amp;&amp; \
+cd /tmp &amp;&amp; git clone https://github.com/ray-project/llmperf.git &amp;&amp; \
+cd llmperf &amp;&amp; pip install ray &amp;&amp; pip install -e .
+&quot;
+
+kubectl exec -it performance-test-runner -n performance-testing -- bash -c &quot;
+cd /tmp/llmperf &amp;&amp; \
+export OPENAI_API_KEY=EMPTY &amp;&amp; \
+export OPENAI_API_BASE=$VLLM_URL &amp;&amp; \
+python token_benchmark_ray.py \
+    --model 'tinyLlama/TinyLlama-1.1B-Chat-v1.0' \
+    --mean-input-tokens 256 --stddev-input-tokens 50 \
+    --mean-output-tokens 100 --stddev-output-tokens 20 \
+    --max-num-completed-requests 50 --timeout 600 \
+    --num-concurrent-requests 5 \
+    --results-dir 'result_outputs' \
+    --llm-api openai \
+    --additional-sampling-params '{\&quot;temperature\&quot;: 0.7}'
+&quot;
+</code></pre>
+<p><strong>옵션 해설</strong>: <code>--mean-input-tokens</code>/<code>--stddev-input-tokens</code>로 프롬프트 길이를 정규분포 랜덤화(고정 길이 대신 실제 트래픽처럼), <code>--num-concurrent-requests 5</code>는 동시 in-flight 요청 5개를 유지하는 워커 풀, <code>--llm-api openai</code>는 vLLM의 OpenAI 호환 API를 대상으로 지정합니다.</p>
+<p>원문 실측 결과:</p>
+<pre><code class="language-text">inter_token_latency_s   mean=0.01197s  p50=0.01167s  p99=0.01691s
+ttft_s                  mean=0.25586s  p50=0.21856s  p99=0.68426s
+end_to_end_latency_s    mean=1.19315s  p50=1.17898s  p99=1.75675s
+request_output_throughput_token_per_s  mean=84.95    p99=99.70
+Number Of Errored Requests: 0
+Overall Output Throughput: 340.6702900640951
+Completed Requests Per Minute: 204.97610713844472
+</code></pre>
+<blockquote>📖 <b>지표 해석</b>: <code>request output throughput</code>(요청 1개의 초당 출력 토큰)과 <code>overall output throughput</code>(동시 요청 전체 합산)은 서로 다른 지표이므로 직접 비교하면 안 됩니다. 위 수치는 동시성 5·완료 요청 50건이라는 특정 조건에서만 유효한 관측값이며 절대 성능 보장이 아닙니다.</blockquote>
+
+<div class="gallery">
+<figure class="figure-box"><img src="assets/images/91803539_grafana_success.png" alt="Grafana 성공 요청 급증"><figcaption>부하 테스트 중 Grafana에서 성공 요청 수(vllm:request_success_total)가 급증하는 모습.</figcaption></figure>
+<figure class="figure-box"><img src="assets/images/543e71d5_grafana_tokens.png" alt="Grafana 토큰 생성 그래프"><figcaption>부하 테스트 동안의 프롬프트/생성 토큰 시계열 그래프.</figcaption></figure>
+</div>
+
+<pre><code class="language-bash">kubectl exec -it performance-test-runner -n performance-testing -- find /tmp/llmperf/result_outputs -name &quot;*.json&quot; -exec cat {} \;
+kubectl delete namespace performance-testing
+</code></pre>
+<h2 id="lab6">Lab6 — HPA와 KEDA</h2>
+<p><strong>목표</strong>: CPU 사용률 기반 HPA를 구성하려 했으나, 원문에서는 실습 계정의 vCPU 쿼터 제한(8 vCPU)으로 2번째 노드를 추가하지 못해 실제 오토스케일 동작 실습은 생략되고 개념 설명으로 대체되었습니다.</p>
+<div class="gallery">
+<figure class="figure-box"><img src="assets/images/536dbb36_quota_error.png" alt="노드그룹 확장 실패"><figcaption>EKS 노드그룹 2로 확장 시도 시 Quota 제약으로 실패하는 화면 — GPU/Neuron 노드는 1대만 사용 가능한 워크샵 환경.</figcaption></figure>
+</div>
+
+<blockquote class="fix">⚠ <b>버전 확인 필요</b>: HAMi(GPU 가상화/공유 스케줄러)가 AWS Neuron을 정식 지원한다는 특정 버전(v2.7.0) 명시는 HAMi 공식 문서<sup class="cite"><a id="cite15" href="#ref15">[15]</a></sup>에서 세대별/칩별 지원 목록으로 확인되지 않았습니다. 실습 전 최신 문서에서 지원 여부를 직접 확인하세요. 어차피 이 실습은 이미 <code>tensor-parallel-size=2</code>로 노드의 NeuronCore 2개를 모두 쓰고 있어 HAMi를 붙일 여지가 없어 스킵되었습니다.</blockquote>
+<pre><code class="language-bash">kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+kubectl wait --for=condition=available --timeout=300s deployment/metrics-server -n kube-system
+kubectl top nodes
+kubectl top pods -n default
+</code></pre>
+<blockquote class="fix">⚠ <b>KEDA GPU Scaler는 이 워크샵에 적용할 수 없습니다</b>: keda-gpu-scaler<sup class="cite"><a id="cite16" href="#ref16">[16]</a></sup>는 NVML C 바인딩으로 <b>NVIDIA GPU</b> 메트릭을 직접 읽는 KEDA External Scaler<sup class="cite"><a id="cite17" href="#ref17">[17]</a></sup> 구현체입니다. AWS Neuron/Trainium은 NVML을 지원하지 않으므로 이 스케일러를 그대로 쓸 수 없습니다. 아래 내용은 "왜 CPU/메모리 기반 HPA가 AI 추론에 잘 안 맞는지"와 "GPU 환경의 대안"을 보여주는 참고 자료로만 다룹니다.</blockquote>
+
+<pre><code class="language-text">BEFORE: GPU Pod → dcgm-exporter → Prometheus → PromQL → KEDA → HPA  (5개 컴포넌트, 15~30초 지연)
+AFTER:  GPU Pod → keda-gpu-scaler (NVML) → KEDA → HPA               (2개 컴포넌트, 서브초 단위)
+</code></pre>
+<div class="gallery">
+<figure class="figure-box"><img src="assets/images/89cf553b_kega-gpu-scaler.jpeg" alt="KEDA GPU Scaler 아키텍처"><figcaption>(NVIDIA 전용, 참고) KEDA GPU Scaler 아키텍처 — DaemonSet이 NVML로 GPU 상태를 읽어 gRPC로 KEDA에 전달.</figcaption></figure>
+</div>
+
+<p><strong>Quick Start (NVIDIA GPU 환경 참고용, Neuron에는 적용 불가)</strong></p>
+<pre><code class="language-bash"># 1) 스케일러 배포
+kubectl apply -f deploy/manifests.yaml
+# 또는 Helm
+helm install keda-gpu-scaler deploy/helm/keda-gpu-scaler \
+  --namespace keda \
+  --set nodeSelector.&quot;nvidia\.com/gpu\.present&quot;=true
+</code></pre>
+<pre><code class="language-yaml"># 2) ScaledObject로 워크로드에 연결
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: vllm-inference-scaler
+  namespace: ai-workloads
+spec:
+  scaleTargetRef:
+    name: vllm-deployment
+  minReplicaCount: 1
+  maxReplicaCount: 50
+  triggers:
+    - type: external
+      metadata:
+        scalerAddress: &quot;keda-gpu-scaler.keda.svc.cluster.local:6000&quot;
+        profile: &quot;vllm-inference&quot;   # VRAM 사용률 80% 기준 사전 정의 프로필
+</code></pre>
+<pre><code class="language-yaml"># 3) 커스텀 설정 — profile 대신 raw metric 직접 지정
+triggers:
+  - type: external
+    metadata:
+      scalerAddress: &quot;keda-gpu-scaler.keda.svc.cluster.local:6000&quot;
+      metricType: &quot;gpu_utilization&quot;
+      targetValue: &quot;85&quot;
+      activationThreshold: &quot;10&quot;
+      gpuIndex: &quot;0&quot;
+      aggregation: &quot;max&quot;
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Profile</th>
+<th>Primary Metric</th>
+<th>Target</th>
+<th>Use Case</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>vllm-inference</code></td>
+<td>Memory %</td>
+<td>80</td>
+<td>vLLM/LLM 서빙, scale-to-zero</td>
+</tr>
+<tr>
+<td><code>triton-inference</code></td>
+<td>GPU Util</td>
+<td>75</td>
+<td>NVIDIA Triton</td>
+</tr>
+<tr>
+<td><code>training</code></td>
+<td>GPU Util</td>
+<td>90</td>
+<td>학습 작업(scale-to-zero 없음)</td>
+</tr>
+<tr>
+<td><code>batch</code></td>
+<td>Memory %</td>
+<td>70</td>
+<td>배치 추론</td>
+</tr>
+</tbody>
+</table>
+<p><code>도전 과제</code>(원문 그대로): 기존 vLLM을 지우고 <code>tensor-parallel-size</code>를 없앤 뒤 GPU/Neuron 코어 1개만 쓰는 배포로 바꿔 HPA 또는 KEDA GPU Scaler 동작을 직접 확인해보는 것을 원문은 독자 과제로 남겨두었습니다.</p>
+<h2 id="cleanup">실습 환경 제거 (Cleanup)</h2>
+<blockquote class="fix">⚠ <b>삭제 전 확인</b>: 아래는 비용을 멈추는 되돌릴 수 없는 작업입니다. 정말 실습을 끝낼 때만 실행하고, 필요한 S3 모델 아티팩트나 로그는 먼저 백업하세요.</blockquote>
+
+<pre><code class="language-bash">kubectl delete ingress -n monitoring --all
+kubectl delete ingress vllm-ingress-simple
+
+kubectl delete service vllm-service --ignore-not-found=true
+kubectl delete deployment vllm-deployment --ignore-not-found=true
+kubectl delete configmap vllm-shared-config --ignore-not-found=true
+kubectl delete pvc s3-model-cache-pvc --ignore-not-found=true
+kubectl delete pv s3-model-cache-pv --ignore-not-found=true
+
+helm uninstall grafana -n $MONITORING_NAMESPACE --ignore-not-found=true
+helm uninstall prometheus -n $MONITORING_NAMESPACE --ignore-not-found=true
+kubectl delete namespace $MONITORING_NAMESPACE --ignore-not-found=true
+
+BUCKET_NAME=&quot;ai-infra-summit-vllm-models-cache-$(aws sts get-caller-identity --query Account --output text)&quot;
+aws s3 rm s3://$BUCKET_NAME --recursive --region $AWS_REGION 2&gt;/dev/null || echo &quot;Bucket not found or already empty&quot;
+aws s3api delete-bucket --bucket $BUCKET_NAME --region $AWS_REGION 2&gt;/dev/null || echo &quot;Bucket not found or already deleted&quot;
+
+kubectl delete ns ingress-nginx
+kubectl delete -n kube-system ds/s3-csi-node
+kubectl delete -n kube-system ds/neuron-device-plugin
+kubectl delete -n kube-system deploy/k8s-neuron-scheduler
+kubectl delete -n kube-system deploy/my-scheduler
+kubectl delete -n kube-system deploy/s3-csi-controller
+kubectl delete -n kube-system deploy/metrics-server
+
+eksctl delete --cluster ai-infra-summit-test-cluster nodegroup neuron-trn1-2x
+</code></pre>
+<div class="gallery">
+<figure class="figure-box"><img src="assets/images/bffd10ca_image.png" alt="CloudFormation 스택 삭제"><figcaption>CloudFormation에서 노드그룹 스택의 종료 방지 기능을 끄고 스택을 삭제하는 과정.</figcaption></figure>
+</div>
+
+<h2 id="vars">사용자 환경별로 반드시 바꿔야 하는 값</h2>
+<table>
+<thead>
+<tr>
+<th>자리표시자</th>
+<th>의미</th>
+<th>원문 예시 값</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>&lt;YOUR_EC2_PUBLIC_IP&gt;</code></td>
+<td>워크샵 EC2 퍼블릭 IP</td>
+<td><code>54.201.111.237</code></td>
+</tr>
+<tr>
+<td><code>&lt;YOUR_HF_TOKEN&gt;</code></td>
+<td>Hugging Face 개인 액세스 토큰</td>
+<td><code>hf_...</code> (비밀값)</td>
+</tr>
+<tr>
+<td><code>AWS_ACCOUNT_ID</code> (자동 계산)</td>
+<td>본인 AWS 계정 ID</td>
+<td>12자리 숫자</td>
+</tr>
+<tr>
+<td><code>&lt;YOUR_EKS_ENDPOINT&gt;</code></td>
+<td>EKS 컨트롤 플레인 엔드포인트</td>
+<td><code>....yl4.us-west-2.eks.amazonaws.com</code></td>
+</tr>
+<tr>
+<td><code>&lt;YOUR_INGRESS_ELB_DNS&gt;</code></td>
+<td>NGINX Ingress가 만든 AWS ELB DNS</td>
+<td><code>a775fdd8....elb.amazonaws.com</code></td>
+</tr>
+<tr>
+<td><code>&lt;YOUR_GRAFANA_ADMIN_PASSWORD&gt;</code></td>
+<td>Grafana admin 비밀번호(직접 지정)</td>
+<td>강력한 비밀번호로 직접 설정</td>
+</tr>
+</tbody>
+</table>
+<h2 id="refs">참고 자료</h2>
+<ol class="ref-list">
+<li id="ref1"><a href="https://catalog.us-east-1.prod.workshops.aws/workshops/177cf2c8-d451-405b-a463-eb77d38b8617/en-US" target="_blank" rel="noopener">AWS Workshop 카탈로그 — Scaling LLM Inference with vLLM and AWS Trainium</a> <a href="#cite1" class="backref">↩</a></li>
+<li id="ref2"><a href="https://awsdocs-neuron.readthedocs-hosted.com/en/latest/index.html" target="_blank" rel="noopener">AWS Neuron 공식 문서</a> <a href="#cite2" class="backref">↩</a></li>
+<li id="ref3"><a href="https://docs.aws.amazon.com/eks/latest/userguide/what-is-eks.html" target="_blank" rel="noopener">Amazon EKS 공식 문서</a> <a href="#cite3" class="backref">↩</a></li>
+<li id="ref4"><a href="https://k9scli.io/" target="_blank" rel="noopener">k9s 공식 사이트</a> <a href="#cite4" class="backref">↩</a></li>
+<li id="ref5"><a href="https://eksctl.io/" target="_blank" rel="noopener">eksctl 공식 문서</a> <a href="#cite5" class="backref">↩</a></li>
+<li id="ref6"><a href="https://github.com/aws-neuron/neuron-helm-charts" target="_blank" rel="noopener">aws-neuron/neuron-helm-charts GitHub</a> <a href="#cite6" class="backref">↩</a></li>
+<li id="ref7"><a href="https://github.com/awslabs/mountpoint-s3-csi-driver" target="_blank" rel="noopener">AWS Mountpoint for Amazon S3 CSI Driver GitHub</a> <a href="#cite7" class="backref">↩</a></li>
+<li id="ref8"><a href="https://docs.vllm.ai/" target="_blank" rel="noopener">vLLM 공식 문서</a> <a href="#cite8" class="backref">↩</a></li>
+<li id="ref9"><a href="https://github.com/vllm-project/vllm-neuron" target="_blank" rel="noopener">vLLM-Neuron GitHub</a> — 릴리스별 compatibility matrix를 실습 직전에 확인하세요. <a href="#cite9" class="backref">↩</a></li>
+<li id="ref10"><a href="https://kubernetes.github.io/ingress-nginx/" target="_blank" rel="noopener">NGINX Ingress Controller 공식 문서</a> <a href="#cite10" class="backref">↩</a></li>
+<li id="ref11"><a href="https://github.com/prometheus-community/helm-charts/tree/main/charts/prometheus" target="_blank" rel="noopener">prometheus-community/helm-charts — prometheus</a> <a href="#cite11" class="backref">↩</a></li>
+<li id="ref12"><a href="https://github.com/prometheus-community/helm-charts/blob/main/charts/prometheus/templates/deploy.yaml" target="_blank" rel="noopener">prometheus-community/helm-charts — deploy.yaml</a> <a href="#cite12" class="backref">↩</a></li>
+<li id="ref13"><a href="https://github.com/grafana/helm-charts" target="_blank" rel="noopener">Grafana Helm Charts GitHub</a> <a href="#cite13" class="backref">↩</a></li>
+<li id="ref14"><a href="https://github.com/ray-project/llmperf" target="_blank" rel="noopener">llmperf GitHub</a> — 2025-12-17부로 archived 상태 <a href="#cite14" class="backref">↩</a></li>
+<li id="ref15"><a href="https://project-hami.io/docs/" target="_blank" rel="noopener">HAMi 공식 문서</a> <a href="#cite15" class="backref">↩</a></li>
+<li id="ref16"><a href="https://github.com/pmady/keda-gpu-scaler" target="_blank" rel="noopener">keda-gpu-scaler GitHub</a> (NVIDIA 전용) <a href="#cite16" class="backref">↩</a></li>
+<li id="ref17"><a href="https://keda.sh/docs/latest/concepts/external-scalers/" target="_blank" rel="noopener">KEDA External Scalers 문서</a> <a href="#cite17" class="backref">↩</a></li>
+</ol>
+    </div>
+  </main>
+</div>
+<script>
+  mermaid.initialize({ startOnLoad: true, theme: window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'default', securityLevel: 'loose' });
+</script>
+<script>
+(function () {
+  document.querySelectorAll('pre').forEach(function (pre) {
+    if (pre.classList.contains('mermaid')) return;
+    if (pre.parentElement.classList.contains('code-block-wrap')) return;
+    var wrap = document.createElement('div');
+    wrap.className = 'code-block-wrap';
+    pre.parentNode.insertBefore(wrap, pre);
+    wrap.appendChild(pre);
+    var btn = document.createElement('button');
+    btn.className = 'copy-btn';
+    btn.type = 'button';
+    btn.textContent = '복사';
+    btn.addEventListener('click', function () {
+      var codeEl = pre.querySelector('code') || pre;
+      navigator.clipboard.writeText(codeEl.innerText).then(function () {
+        btn.textContent = '복사됨 ✓';
+        setTimeout(function () { btn.textContent = '복사'; }, 1500);
+      }, function () {
+        btn.textContent = '복사 실패';
+        setTimeout(function () { btn.textContent = '복사'; }, 1500);
+      });
+    });
+    wrap.appendChild(btn);
+  });
+})();
+</script>
+</body>
+</html>
