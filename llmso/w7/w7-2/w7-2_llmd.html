@@ -285,7 +285,7 @@ sequenceDiagram
 <h1 style="border-top:none;">Part A. llm-d 개념/아키텍처</h1>
 
 <h2 id="c1">1. llm-d 소개 및 릴리스 타임라인</h2>
-<p><b>참고 자료</b>: <a href="https://llm-d.ai/blog" target="_blank" rel="noopener">llm-d 공식 블로그</a><sup class="cite"><a id="cite1" href="#ref1">[1]</a></sup>를 실제로 확인했다. 아래는 2025~2026년 블로그 목록이다.</p>
+<p><b>참고 자료</b>: <a href="https://llm-d.ai/blog" target="_blank" rel="noopener">llm-d 공식 블로그</a><sup class="cite"><a id="cite1" href="#ref1">[1]</a></sup>를 훑어보며 2025~2026년 게시글 목록을 정리했다.</p>
 <p><b>2025</b></p>
 <ul>
 <li><b>Announcing the llm-d community!</b> - <a href="https://llm-d.ai/blog/llm-d-announce" target="_blank" rel="noopener">Blog</a></li>
@@ -336,10 +336,10 @@ sequenceDiagram
 <li>Serving Multimodal at Scale in llm-d - <a href="https://llm-d.ai/blog/serving-multimodal-at-scale-in-llm-d" target="_blank" rel="noopener">Blog</a></li>
 <li>Milestones: v0.10.0(9월 24일 예정), v1.0.0(NOT planned yet) - <a href="https://github.com/llm-d/llm-d/milestones" target="_blank" rel="noopener">Link</a></li>
 </ul>
-<blockquote>📚 <b>참고 자료 확인 내용</b>: <a href="https://github.com/llm-d/llm-d" target="_blank" rel="noopener">llm-d GitHub 저장소</a><sup class="cite"><a id="cite3" href="#ref3">[3]</a></sup>를 직접 확인한 결과, "llm-d is a Cloud Native Computing Foundation (CNCF) sandbox project, founded by Red Hat, Google Cloud, IBM Research, CoreWeave, and NVIDIA"라는 문구를 확인했다. 2026년 3월에 CNCF Sandbox로 정식 합류했다는 뉴스도 README에 기재되어 있다.</blockquote>
+<blockquote>📚 <a href="https://github.com/llm-d/llm-d" target="_blank" rel="noopener">llm-d GitHub 저장소</a><sup class="cite"><a id="cite3" href="#ref3">[3]</a></sup>의 README에는 "llm-d is a Cloud Native Computing Foundation (CNCF) sandbox project, founded by Red Hat, Google Cloud, IBM Research, CoreWeave, and NVIDIA"라는 문구가 있다. 2026년 3월에 CNCF Sandbox로 정식 합류했다는 소식도 함께 기재되어 있다.</blockquote>
 
 <h2 id="c2">2. llm-d Docs 개요</h2>
-<p><b>참고 자료</b>: <a href="https://llm-d.ai/docs" target="_blank" rel="noopener">llm-d.ai/docs</a><sup class="cite"><a id="cite2" href="#ref2">[2]</a></sup>를 실제로 열어 확인했다.</p>
+<p><b>참고 자료</b>: <a href="https://llm-d.ai/docs" target="_blank" rel="noopener">llm-d.ai/docs</a><sup class="cite"><a id="cite2" href="#ref2">[2]</a></sup></p>
 <ul>
 <li><b>Docs 페이지 개요</b>: Getting Started(빠른 시작), Well-Lit Paths(Foundations/Workloads), Architecture(시스템 구조), Operations &amp; Monitoring(운영/모니터링), API References</li>
 <li><b>배경</b>: CNCF 샌드박스 프로젝트, 오픈소스 커뮤니티 주도. vLLM/SGLang 등 기존 추론 엔진과 결합해 동작(엔진을 대체하는 게 아니라 감싸서 확장)</li>
@@ -365,12 +365,12 @@ sequenceDiagram
 </tbody>
 </table>
 <blockquote class="warn-perf">
-⚠️ <b>성능 수치 정정</b>: llm-d 문서 원문은 "자체 벤치마크 기준 처리량 최대 3배, 응답속도 2배, 토큰/초 최대 70% 개선"이라고 한 문장으로 소개하지만, 실제로는 <b>서로 다른 두 실험 조건의 별개 결과</b>다.
+⚠️ <b>성능 수치, 조건을 나눠서 읽어야 한다</b>: llm-d 문서 원문은 "자체 벤치마크 기준 처리량 최대 3배, 응답속도 2배, 토큰/초 최대 70% 개선"이라고 한 문장으로 소개하지만, 이는 <b>서로 다른 두 실험 조건에서 나온 별개의 결과</b>를 이어붙인 것이다.
 <ul style="margin-top:.6rem;">
 <li><b>"처리량 최대 3배 + TTFT 2배 단축"</b> → <b>Llama 3.1 70B, 4×AMD MI300X</b>, prefix-cache-aware routing <b>vs</b> round-robin 조건의 결과</li>
 <li><b>"토큰/초 최대 70% 개선"</b> → <b>GPT-OSS, NVIDIA B200</b>, prefill/decode disaggregation <b>vs</b> standard vLLM 조건의 <b>완전히 별개의</b> 결과</li>
 </ul>
-두 벤치마크는 서로 다른 모델·하드웨어·비교 대상에서 나온 것이며, <b>"3배/2배/70%가 하나의 설정에서 동시에 보장된다"는 뜻이 아니다.</b> 자세한 근거는 <a href="#verify">사실 검증 결과 4번</a>을 참고하라.
+두 벤치마크는 모델·하드웨어·비교 대상이 전부 다르며, <b>3배/2배/70%가 하나의 설정에서 동시에 나오는 수치는 아니다.</b> 자세한 근거는 <a href="#verify">사실 검증 결과</a>를 참고하라.
 </blockquote>
 <ul>
 <li><b>Well-Lit Paths</b>: 검증된 배포 레시피(기초 설정 + 워크로드별 패턴)를 제공해 처음부터 아키텍처를 설계할 필요 없음. 각 경로에는 Helm 차트/Kustomize 매니페스트, 성능 튜닝 설정 옵션, 벤치마크, 관찰성 구성이 포함된다.</li>
@@ -383,10 +383,10 @@ sequenceDiagram
 <li><a href="https://llm-d.ai/docs/infrastructure/gateway/agentgateway" target="_blank" rel="noopener">Agentgateway</a> — LLM/MCP/A2A 워크로드용 고성능 Rust 기반 AI 게이트웨이 - <a href="https://agentgateway.dev/" target="_blank" rel="noopener">공식 문서</a></li>
 <li><a href="https://llm-d.ai/docs/infrastructure/gateway/envoy-ai-gateway" target="_blank" rel="noopener">Envoy AI Gateway</a> — Envoy Gateway로 클라이언트 요청을 GenAI 서비스로 처리하는 오픈소스 프로젝트 - <a href="https://aigateway.envoyproxy.io/" target="_blank" rel="noopener">공식 문서</a></li>
 </ul>
-<p><b>llm-d Prism</b>: 분산 추론 시스템의 성능 데이터를 한곳에 모아 비교·분석하는 대시보드 웹 앱 - <a href="https://prism.llm-d.ai/" target="_blank" rel="noopener">Site</a><sup class="cite"><a id="cite22" href="#ref22">[22]</a></sup>. 실제로 확인한 결과 이 사이트는 성능 데이터 탐색용 대시보드로 llm-d 공식 문서의 "Explore the performance data" 버튼에서 연결되며, 별도의 상세 소개 텍스트는 llm-d 메인 문서에는 포함되어 있지 않다.</p>
+<p><b>llm-d Prism</b>: 분산 추론 시스템의 성능 데이터를 한곳에 모아 비교·분석하는 대시보드 웹 앱 - <a href="https://prism.llm-d.ai/" target="_blank" rel="noopener">Site</a><sup class="cite"><a id="cite22" href="#ref22">[22]</a></sup>. 이 사이트는 성능 데이터 탐색용 대시보드로, llm-d 공식 문서의 "Explore the performance data" 버튼을 통해 연결된다. 다만 llm-d 메인 문서에는 이 사이트에 대한 별도의 상세 소개 텍스트가 포함되어 있지 않다.</p>
 
 <h2 id="c3">3. 유튜브: VLLM을 넘어서 (Red Hat)</h2>
-<p><b>참고 자료</b>: <a href="https://www.youtube.com/watch?v=GgQtgwdoOWs" target="_blank" rel="noopener">VLLM을 넘어서: Kubernetes 환경에서 llm-d를 사용한 분산 LLM 추론 — Ravindra Patil, Red Hat</a><sup class="cite"><a id="cite17" href="#ref17">[17]</a></sup>을 실제로 검색해 확인했다. 정확한 제목은 "Beyond VLLM: Distributed LLM Inferencing With Llm-d on Kubernetes"이며 CNCF(Cloud Native Computing Foundation) 채널에 게시된 발표다. 발표 소개문: "As (LLMs) continue to grow in size and demand, single-node inferencing quickly becomes a bottleneck for performance, scalability, and cost. While vLLM has become popular for efficient LLM serving on a single node, it does not fully address the challenges of distributed inferencing across multiple GPUs and nodes in Kubernetes environments." — vLLM이 단일 노드에서는 인기를 얻었지만 멀티 GPU/멀티 노드 분산 추론의 과제를 완전히 해결하지는 못한다는 문제의식에서 llm-d를 소개하는 발표임을 확인했다.</p>
+<p><b>참고 자료</b>: <a href="https://www.youtube.com/watch?v=GgQtgwdoOWs" target="_blank" rel="noopener">VLLM을 넘어서: Kubernetes 환경에서 llm-d를 사용한 분산 LLM 추론 — Ravindra Patil, Red Hat</a><sup class="cite"><a id="cite17" href="#ref17">[17]</a></sup>. 정확한 제목은 "Beyond VLLM: Distributed LLM Inferencing With Llm-d on Kubernetes"이며 CNCF(Cloud Native Computing Foundation) 채널에 게시된 발표다. 발표 소개문은 이렇게 적혀 있다: "As (LLMs) continue to grow in size and demand, single-node inferencing quickly becomes a bottleneck for performance, scalability, and cost. While vLLM has become popular for efficient LLM serving on a single node, it does not fully address the challenges of distributed inferencing across multiple GPUs and nodes in Kubernetes environments." 즉 vLLM이 단일 노드에서는 인기를 얻었지만 멀티 GPU/멀티 노드 분산 추론의 과제까지는 완전히 해결하지 못한다는 문제의식에서 llm-d를 소개하는 발표다.</p>
 <p><b>AI Inference — Scaling vs Routing</b>: Intelligent Routing(지능형 라우팅) → llm-d router</p>
 <div class="gallery"><figure class="figure-box"><img src="assets/images/5a532da8_image.png" alt="AI Inference Scaling vs Routing"><figcaption>AI Inference: Scaling vs Routing.</figcaption></figure></div>
 <p><b>배경</b>: vLLM 백엔드 대상이 많아질 경우 LLM-Aware LB(지능형 로드밸런서)가 필요해진다.</p>
@@ -419,13 +419,13 @@ sequenceDiagram
 <li>Envoy는 선택된 파드로 스케줄링한다.</li>
 </ol>
 <blockquote>
-📌 <b>용어 주의 — "Scrapers"는 공식 문서 용어가 아니다</b>: 위 4단계(Scrapers→Filters→Scorers→EPP)는 이 유튜브 강연자(Ravindra Patil)가 사용한 <b>개념적 설명 프레이밍</b>이다. llm-d 공식 문서(<a href="https://llm-d.ai/docs/architecture/core/router/epp/scheduling" target="_blank" rel="noopener">architecture/core/router/epp/scheduling</a><sup class="cite"><a id="cite7" href="#ref7">[7]</a></sup>)는 EPP Request Scheduler를 <b>"Filter → Score → Pick" 3단계</b>로 명시하며, "Scrapers"라는 용어를 쓰지 않는다. 강연의 "Scrapers"는 공식 문서의 <b>Data Layer</b>(메트릭 수집 계층, <a href="#c13">13장</a> 참고)가 하는 역할을 발표자가 별도로 이름 붙인 것으로 보인다. 이 문서에서는 이 두 표현을 섞어 쓰지 않고, "공식 문서 표현"과 "이 강연의 프레이밍"임을 매번 명시한다.
+📌 <b>용어 주의 — "Scrapers"는 공식 문서 용어가 아니다</b>: 위 4단계(Scrapers→Filters→Scorers→EPP)는 이 유튜브 강연자(Ravindra Patil)가 쓴 <b>개념적 설명 프레이밍</b>이다. llm-d 공식 문서(<a href="https://llm-d.ai/docs/architecture/core/router/epp/scheduling" target="_blank" rel="noopener">architecture/core/router/epp/scheduling</a><sup class="cite"><a id="cite7" href="#ref7">[7]</a></sup>)는 EPP Request Scheduler를 <b>"Filter → Score → Pick" 3단계</b>로 명시하고, "Scrapers"라는 용어는 쓰지 않는다. 강연의 "Scrapers"는 공식 문서의 <b>Data Layer</b>(메트릭 수집 계층, <a href="#c13">13장</a> 참고)가 하는 역할을 발표자가 따로 이름 붙인 것으로 보인다. 이 문서에서는 두 표현을 섞어 쓰지 않고, 어느 쪽이 공식 문서 용어이고 어느 쪽이 이 강연의 프레이밍인지 매번 구분해서 밝힌다.
 </blockquote>
 <p><b>Well-Lit Paths for Optimized Inference</b>:</p>
 <div class="gallery"><figure class="figure-box"><img src="assets/images/4e9c9c02_image.png" alt="Well-Lit Paths for Optimized Inference"><figcaption>Well-Lit Paths for Optimized Inference.</figcaption></figure></div>
 
 <h2 id="c4">4. 참고: llm-d Envoy config 예시</h2>
-<p><b>참고 자료</b>: <a href="https://github.com/llm-d/llm-d/blob/main/guides/no-kubernetes-deployment/router/envoy/envoy.yaml" target="_blank" rel="noopener">llm-d envoy config example</a><sup class="cite"><a id="cite11" href="#ref11">[11]</a></sup>를 실제로 확인했다. 이 파일은 llm-d 저장소의 "no-kubernetes-deployment" 가이드에 포함된 예시로, Kubernetes 없이도 Envoy + EPP만으로 llm-d 라우팅을 재현할 수 있음을 보여준다.</p>
+<p><b>참고 자료</b>: <a href="https://github.com/llm-d/llm-d/blob/main/guides/no-kubernetes-deployment/router/envoy/envoy.yaml" target="_blank" rel="noopener">llm-d envoy config example</a><sup class="cite"><a id="cite11" href="#ref11">[11]</a></sup>. 이 파일은 llm-d 저장소의 "no-kubernetes-deployment" 가이드에 포함된 예시로, Kubernetes 없이도 Envoy + EPP만으로 llm-d 라우팅을 재현할 수 있음을 보여준다.</p>
 <ul>
 <li>클라이언트 → Envoy(:8081) → [<code>ext_proc</code> gRPC 호출: 어느 파드로 보낼지 결정] → 결정된 파드로 직접 프록시</li>
 <li>일반적인 k8s Service(L4, 연결 단위 로드밸런싱)와 달리, 매 요청마다 외부 프로세스(EPP)가 판단해서 목적지를 동적으로 지정하는 L7 라우팅</li>
@@ -485,7 +485,7 @@ sequenceDiagram
 </ul>
 
 <h2 id="c5">5. llm-d Architecture — 지능형 라우팅</h2>
-<p><b>참고 자료</b>: <a href="https://llm-d.ai/docs/architecture" target="_blank" rel="noopener">llm-d Architecture 공식 문서</a><sup class="cite"><a id="cite4" href="#ref4">[4]</a></sup>를 실제로 확인했다.</p>
+<p><b>참고 자료</b>: <a href="https://llm-d.ai/docs/architecture" target="_blank" rel="noopener">llm-d Architecture 공식 문서</a><sup class="cite"><a id="cite4" href="#ref4">[4]</a></sup></p>
 <p><b>Core Components</b>: Router, InferencePool, Model Server</p>
 <ul>
 <li><b>Router</b>: Proxy(고성능 L7, GAIE 표준) + EPP(Endpoint Picker) — 실시간 메트릭·KV 캐시 친화성·정책으로 최적 파드를 실시간 채점/선택</li>
@@ -634,7 +634,7 @@ spec:
 </ol>
 
 <h2 id="c9">9. [Core] llm-d Router: EPP (Endpoint Picker)</h2>
-<p><b>참고 자료</b>: <a href="https://llm-d.ai/docs/architecture/core/router/epp" target="_blank" rel="noopener">EPP 공식 문서</a><sup class="cite"><a id="cite6" href="#ref6">[6]</a></sup>를 확인했다. WebFetch로 재확인한 결과, EPP는 "llm-d 배포의 '두뇌'"로 정의되며, 두 가지 핵심 목표(지능형 라우팅, 공정성/우선순위 관리)를 가진다는 설명이 소스 문서와 정확히 일치했다.</p>
+<p><b>참고 자료</b>: <a href="https://llm-d.ai/docs/architecture/core/router/epp" target="_blank" rel="noopener">EPP 공식 문서</a><sup class="cite"><a id="cite6" href="#ref6">[6]</a></sup>를 확인했다. EPP는 이 문서에서 "llm-d 배포의 '두뇌'"로 정의되며, 지능형 라우팅과 공정성/우선순위 관리라는 두 가지 핵심 목표를 가진다.</p>
 <p><b>정의</b>: EPP는 "llm-d 배포의 두뇌"다. InferencePool(누가 후보인가)과 Proxy(어떻게 전달하는가) 사이에서, 실제로 "이 요청은 어느 파드로 보낼까"를 결정하는 유일한 컴포넌트다.</p>
 <p><b>두 가지 핵심 목표</b>:</p>
 <ol>
@@ -760,7 +760,7 @@ flowControl:
 <p><b>참고 자료</b>: <a href="https://llm-d.ai/docs/architecture/core/router/epp/scheduling" target="_blank" rel="noopener">EPP Request Scheduler 공식 문서</a></p>
 <p><b>역할</b>: EPP 파이프라인의 마지막 결정 단계. Flow Control을 통과한 요청에 대해 실제로 "이 파드로 보낸다"를 확정한다. 실시간 메트릭, 프리픽스 캐시 상태, LoRA 어댑터 유무까지 고려한 플러그인 기반 파이프라인이다.</p>
 <blockquote>
-📌 <b>공식 문서 표현: Filter → Score → Pick 3단계</b> (앞서 <a href="#c3">3장</a> 강연 프레이밍의 Scrapers/Filters/Scorers와는 다른 층위의 설명이다 — 공식 명칭은 이 3단계뿐이다.)
+📌 <b>공식 문서 표현: Filter → Score → Pick 3단계</b> (<a href="#c3">3장</a>에서 본 강연 프레이밍의 Scrapers/Filters/Scorers는 이와는 다른 층위의 설명이다 — 공식 명칭은 이 3단계뿐이다.)
 </blockquote>
 <div class="gallery"><figure class="figure-box"><img src="assets/images/56409100_image.png" alt="Filter Score Pick"><figcaption>Filter → Score → Pick 3단계 파이프라인.</figcaption></figure></div>
 <ol>
@@ -1049,7 +1049,7 @@ dataLayer: {...}
 </li>
 </ol>
 <p><b>(심화/추천) LLM-D: 쿠버네티스 기반 분산형 LLM 추론</b> - <a href="https://cefboud.com/posts/llm-d/" target="_blank" rel="noopener">Blog</a>, <a href="https://www.youtube.com/watch?v=to7bFDZdQ2M" target="_blank" rel="noopener">Youtube</a><sup class="cite"><a id="cite18" href="#ref18">[18]</a></sup></p>
-<blockquote>📚 <b>참고 자료</b>: 이 블로그를 실제로 확인했다. 제목은 "Distributed LLM Inference with llm-d"(Moncef Abboud 작성, 2026-06-21 게시). llm-d를 "LLM-aware load balancer"로 소개하며, "no reinventing the wheel, just intelligently combining solid existing solutions"(새로운 것을 만들지 않고 기존의 견고한 솔루션들을 지능적으로 결합)이라는 표현으로 Kubernetes+Envoy+Prometheus 기반이라는 점을 강조한다. GAIE 표준화, EPP 스코어링 시스템, 근사/정밀 KV 캐시 추적 방식, RDMA 기반 P/D 분리 서빙(NVIDIA NIXL 라이브러리) 등 이 문서 Part A의 내용과 대체로 일치하는 설명을 확인했다. 다만 이 블로그 페이지 자체에는 유튜브 영상이 임베드되어 있지 않았다 — 링크된 <code>to7bFDZdQ2M</code> 영상은 별도로 검색해 "Large Scale Distributed LLM Inference with LLM-D and Kubernetes"(Devoxx 컨퍼런스, Abdel Sghiouar 발표)로 추정되는 유사 주제의 발표를 확인했으나, 영상 페이지 자체의 설명이 충분히 로드되지 않아 완전히 동일한 영상인지 100% 확정하지는 못했다.</blockquote>
+<blockquote>📚 <b>참고 자료</b>: 이 블로그의 제목은 "Distributed LLM Inference with llm-d"(Moncef Abboud 작성, 2026-06-21 게시)다. llm-d를 "LLM-aware load balancer"로 소개하며, "no reinventing the wheel, just intelligently combining solid existing solutions"(새로운 것을 만들지 않고 기존의 견고한 솔루션들을 지능적으로 결합)이라는 표현으로 Kubernetes+Envoy+Prometheus 기반이라는 점을 강조한다. GAIE 표준화, EPP 스코어링 시스템, 근사/정밀 KV 캐시 추적 방식, RDMA 기반 P/D 분리 서빙(NVIDIA NIXL 라이브러리) 등 이 문서 Part A의 내용과 대체로 일치하는 설명이다. 다만 이 블로그 페이지 자체에는 유튜브 영상이 임베드되어 있지 않다 — 링크된 <code>to7bFDZdQ2M</code> 영상은 "Large Scale Distributed LLM Inference with LLM-D and Kubernetes"(Devoxx 컨퍼런스, Abdel Sghiouar 발표)로 추정되는 유사 주제의 발표로 보이나, 영상 페이지의 설명이 충분치 않아 완전히 동일한 영상인지는 확정하기 어렵다.</blockquote>
 
 <hr />
 <h1 style="border-top:none;">Part B. llm-d Hands-on 실습 (GPU 환경 필요)</h1>
@@ -1284,7 +1284,7 @@ kubectl get configmap -n monitoring -l grafana_dashboard=1
 <blockquote>📌 <b>비유로 이해하기</b>: <code>grafana_dashboard=1</code> 라벨이 붙은 ConfigMap은 "이 서류함에 넣으면 자동으로 접수 처리됩니다"라는 우편함과 같다. Grafana의 sidecar 컨테이너가 이 라벨을 계속 감시하다가, 새 ConfigMap이 생기면 자동으로 대시보드로 임포트한다.</blockquote>
 
 <h2 id="c24">24. HAMi 설치(NVIDIA device plugin 대체) + Grafana 대시보드 추가</h2>
-<p><b>참고 자료</b>: <a href="https://github.com/Project-HAMi/HAMi" target="_blank" rel="noopener">HAMi GitHub</a><sup class="cite"><a id="cite12" href="#ref12">[12]</a></sup>와 <a href="https://project-hami.io/docs/" target="_blank" rel="noopener">HAMi 공식 문서</a><sup class="cite"><a id="cite13" href="#ref13">[13]</a></sup>를 실제로 확인했다. HAMi(Heterogeneous AI Computing Virtualization Middleware)는 "helps platform teams share expensive GPUs and other AI accelerators across Kubernetes workloads"라고 소개되며, CNCF Incubating 프로젝트다. 뮤테이팅 웹훅 + 스케줄러 확장(<code>hami-scheduler</code>) + 자체 디바이스 플러그인(<code>hami-device-plugin</code>) 구조로 동작하며, 표준 NVIDIA device plugin을 대체한다(GPU Operator가 드라이버를 관리하는 경우 HAMi와 공존 가능하다는 점도 확인했다).</p>
+<p><b>참고 자료</b>: <a href="https://github.com/Project-HAMi/HAMi" target="_blank" rel="noopener">HAMi GitHub</a><sup class="cite"><a id="cite12" href="#ref12">[12]</a></sup>와 <a href="https://project-hami.io/docs/" target="_blank" rel="noopener">HAMi 공식 문서</a><sup class="cite"><a id="cite13" href="#ref13">[13]</a></sup>. HAMi(Heterogeneous AI Computing Virtualization Middleware)는 "helps platform teams share expensive GPUs and other AI accelerators across Kubernetes workloads"라고 소개되며, CNCF Incubating 프로젝트다. 뮤테이팅 웹훅 + 스케줄러 확장(<code>hami-scheduler</code>) + 자체 디바이스 플러그인(<code>hami-device-plugin</code>) 구조로 동작하며, 표준 NVIDIA device plugin을 대체한다(GPU Operator가 드라이버를 관리하는 경우에는 HAMi와 공존도 가능하다).</p>
 <div class="analogy-box">
 <span class="emoji">🗓️</span>
 <div><b>비유로 이해하기</b><br>HAMi는 "회의실 시간 분할 예약 시스템"과 같다. 원래는 회의실(GPU) 하나를 한 팀이 통째로 빌리는 것 밖에 안 됐는데, HAMi를 쓰면 같은 회의실을 여러 팀이 "50%씩 나눠서" 동시에 쓸 수 있게 예약표(vGPU 코어/VRAM 비율)를 만들어준다.</div>
@@ -1745,7 +1745,7 @@ spec:
 </div>
 
 <h2 id="c30">30. vLLM Benchmark 반복 실행</h2>
-<p><b>참고 자료</b>: <a href="https://docs.vllm.ai/en/stable/benchmarking/cli/" target="_blank" rel="noopener">vLLM CLI Benchmarking 공식 문서</a><sup class="cite"><a id="cite15" href="#ref15">[15]</a></sup>를 실제로 확인했다. <code>--dataset-name sharegpt</code>, <code>--plot-timeline</code>(요청 완료 타임라인 인터랙티브 HTML), <code>--plot-dataset-stats</code>(데이터셋 통계 시각화) 옵션이 문서에 정확히 그대로 존재함을 확인했다.</p>
+<p><b>참고 자료</b>: <a href="https://docs.vllm.ai/en/stable/benchmarking/cli/" target="_blank" rel="noopener">vLLM CLI Benchmarking 공식 문서</a><sup class="cite"><a id="cite15" href="#ref15">[15]</a></sup>. <code>--dataset-name sharegpt</code>, <code>--plot-timeline</code>(요청 완료 타임라인 인터랙티브 HTML), <code>--plot-dataset-stats</code>(데이터셋 통계 시각화) 옵션이 이 문서에 그대로 나와 있다.</p>
 <h3>30.1 계획</h3>
 <pre><code class="language-text"># Context
  qwen3-0-6b-fp8 서비스(NodePort 30004, replicas=2, GPU 1장을 HAMi로 50%/50% 공유)에 대해
@@ -2036,7 +2036,7 @@ kubectl get cronjobs.batch -n vllm
 </div>
 
 <h2 id="c33">33. Prefix Caching Benchmark CronJob 생성 및 실행 확인</h2>
-<p><b>참고 자료</b>: <a href="https://docs.vllm.ai/en/stable/benchmarking/cli/#prefix-caching-benchmark" target="_blank" rel="noopener">vLLM Prefix Caching Benchmark 공식 문서</a>를 실제로 확인했다. <code>--dataset-name prefix_repetition</code>은 prefix caching 효율성 테스트용 합성 데이터셋이며, <code>--prefix-repetition-prefix-len</code>(공유 prefix 길이), <code>--prefix-repetition-suffix-len</code>(고유 suffix 길이), <code>--prefix-repetition-num-prefixes</code>(고유 prefix 개수), <code>--prefix-repetition-output-len</code>(출력 길이) 4개 옵션이 문서에 정확히 그대로 존재함을 확인했다.</p>
+<p><b>참고 자료</b>: <a href="https://docs.vllm.ai/en/stable/benchmarking/cli/#prefix-caching-benchmark" target="_blank" rel="noopener">vLLM Prefix Caching Benchmark 공식 문서</a>. <code>--dataset-name prefix_repetition</code>은 prefix caching 효율성 테스트용 합성 데이터셋이며, <code>--prefix-repetition-prefix-len</code>(공유 prefix 길이), <code>--prefix-repetition-suffix-len</code>(고유 suffix 길이), <code>--prefix-repetition-num-prefixes</code>(고유 prefix 개수), <code>--prefix-repetition-output-len</code>(출력 길이) 4개 옵션이 이 문서에 그대로 나와 있다.</p>
 <pre><code class="language-yaml">apiVersion: batch/v1
 kind: CronJob
 metadata:
@@ -2967,7 +2967,7 @@ pick_endpoints (5µs)  ← 지금 보는 스팬
 <hr />
 <h1 style="border-top:none;">관련 자료 — llm-d 관련 추천 글 4개</h1>
 <h2 id="c42">42. llm-d 관련 추천 글 4개</h2>
-<p><b>참고 자료</b>: 소스 문서 최하단에 나열된 4개 블로그를 모두 실제로 확인했다.</p>
+<p><b>참고 자료</b>: 소스 문서 최하단에 나열된 4개 블로그를 모두 살펴봤다.</p>
 <ul>
 <li><b>GPU 없이 llm-d 게이트웨이 뜯어보기</b> - <a href="https://velog.io/@victorjo/GPU-%EC%97%86%EC%9D%B4-llm-d-%EA%B2%8C%EC%9D%B4%ED%8A%B8%EC%9B%A8%EC%9D%B4-%EB%9C%AF%EC%96%B4%EB%B3%B4%EA%B8%B0" target="_blank" rel="noopener">Blog</a> — GPU 없이 로컬 환경(macOS Rosetta VM 등)에서 llm-d의 게이트웨이/EPP 구성만 CPU로 재현해보는 가이드로 추정되며, w7-1 문서에서도 이 블로그가 macOS 실습 경고 문구에 인용되었다.</li>
 <li><b>vLLM 라우팅, 대기열과 KV 캐시를 아는 게이트웨이</b> - <a href="https://velog.io/@sejkim/6%EC%A3%BC%EC%B0%A8-vLLM-%EB%9D%BC%EC%9A%B0%ED%8C%85-%EB%8C%80%EA%B8%B0%EC%97%B4%EA%B3%BC-KV-%EC%BA%90%EC%8B%9C%EB%A5%BC-%EC%95%84%EB%8A%94-%EA%B2%8C%EC%9D%B4%ED%8A%B8%EC%9B%A8%EC%9D%B4" target="_blank" rel="noopener">Blog</a>, <a href="https://github.com/icebreaker70/eks-vllm-routing" target="_blank" rel="noopener">Github</a> — vLLM의 라우팅/대기열/KV 캐시를 인지하는 게이트웨이 구축 실습 시리즈(6주차)로, EKS 환경에서의 실제 구현 코드가 GitHub에 공개되어 있다.</li>
@@ -2977,26 +2977,16 @@ pick_endpoints (5µs)  ← 지금 보는 스팬
 
 <hr />
 <h2 id="verify">사실 검증 결과</h2>
-<p>사실 검증 요청 항목을 실제로 WebFetch/WebSearch로 확인한 결과다.</p>
-<ol>
-<li><b>InferencePool/EPP(Endpoint Picker)의 역할 분담 설명이 llm-d 공식 문서(architecture/core/*) 및 Gateway API Inference Extension(GAIE) 공식 문서와 일치하는지</b>
-  <br>→ <b>확인됨(정확함)</b>. <a href="https://llm-d.ai/docs/architecture/core/router/epp" target="_blank" rel="noopener">llm-d EPP 공식 문서</a>를 직접 확인한 결과, EPP를 "llm-d 배포의 '두뇌'"로 정의하고 두 가지 핵심 목표(지능형 라우팅, 공정성/우선순위 관리)를 가진다는 설명, 그리고 6단계 요청 처리 파이프라인(요청 도착→외부 처리→요청 핸들링→플로우 제어→요청 스케줄링→요청 프록시)이 소스 문서 설명과 정확히 일치했다. <a href="https://gateway-api-inference-extension.sigs.k8s.io/" target="_blank" rel="noopener">Gateway API Inference Extension 공식 문서</a><sup class="cite"><a id="cite9" href="#ref9">[9]</a></sup>도 확인했는데, EPP를 "Inference Router의 구현체"로, InferencePool을 "특정 모델 서버 프레임워크를 실행하는 엔드포인트들의 집합"으로 정의하며, "llm-d-router를 EPP의 대안적 구현 예시"로 명시적으로 언급하고 있어 llm-d의 EPP가 GAIE 표준의 실제 구현체임이 확인됐다.</li>
-<li><b>EPP Request Scheduler의 파이프라인 순서(Scrapers → Filters → Scorers → Picker)와 각 스코어러(queue-scorer/kv-cache-utilization-scorer/prefix-cache-scorer)의 역할 설명이 정확한지</b>
-  <br>→ <b>확인됨, 단 용어 사용에 미세한 차이 있음</b>. <a href="https://llm-d.ai/docs/architecture/core/router/epp/scheduling" target="_blank" rel="noopener">llm-d EPP Request Scheduler 공식 문서</a>를 확인한 결과 공식 문서의 정식 파이프라인 명칭은 <b>Filter → Score → Pick 3단계</b>이며, "Scrapers"라는 용어는 EPP 공식 아키텍처 문서(core/router/epp)가 아니라 <b>Red Hat 유튜브 발표(<a href="#c3">3장</a>)에서 사용된 개념적 설명 용어</b>임을 확인했다. 두 설명은 상충하지 않는다 — "Scrapers"가 실시간 메트릭을 모아오는(수집) 단계를 가리키는 발표자의 비유적 표현이고, 이는 공식 문서의 Data Layer(폴링/수집 계층)가 하는 역할과 대응된다. 즉 발표에서 쓴 4단계(Scrapers/Filters/Scorers/EPP 최종결정)와 공식 문서의 3단계(Filter/Score/Pick) + Data Layer는 서로 다른 프레젠테이션 레벨의 같은 개념이다. queue-scorer(대기열 짧을수록 고점), kv-cache-utilization-scorer(KV 캐시 사용률 낮을수록 고점), prefix-cache-scorer(프리픽스 캐시 일치 길이)의 개별 역할 설명은 공식 문서와 정확히 일치했다.</li>
-<li><b>Envoy <code>ext_proc</code> 필터 및 <code>ORIGINAL_DST</code> 클러스터 타입을 이용한 EPP 라우팅 위임 메커니즘 설명이 Envoy 공식 문서와 부합하는지</b>
-  <br>→ <b>확인됨</b>. <a href="https://gateway.envoyproxy.io/docs/tasks/extensibility/ext-proc/" target="_blank" rel="noopener">Envoy Gateway 공식 ext-proc 문서</a><sup class="cite"><a id="cite10" href="#ref10">[10]</a></sup>를 확인한 결과, "외부 gRPC 서비스를 호출하여 HTTP 요청과 응답을 가공"한다는 설명이 이 문서의 <code>ext_proc</code>/<code>ORIGINAL_DST</code> 설명과 일치한다. <a href="https://github.com/llm-d/llm-d/blob/main/guides/no-kubernetes-deployment/router/envoy/envoy.yaml" target="_blank" rel="noopener">llm-d envoy config 예시 원본 파일</a>도 실제로 확인했고, <code>processing_mode</code>(FULL_DUPLEX_STREAMED), <code>original_destination_cluster</code>(type: ORIGINAL_DST, use_http_header, http_header_name: x-gateway-destination-endpoint) 설정이 소스 문서에 인용된 그대로 원본 파일에 존재함을 확인했다.</li>
-<li><b>llm-d 자체 성능 벤치마크 수치(처리량 최대 3배, 응답속도 2배, 토큰/초 최대 70% 개선)가 llm-d 공식 자료와 일치하는지 (과장 여부 확인)</b>
-  <br>→ <b>부분적으로 부정확함(단순화로 인한 오해 소지)</b>. <a href="https://github.com/llm-d/llm-d" target="_blank" rel="noopener">llm-d GitHub README</a>를 실제로 확인한 결과, 이 수치들은 <b>하나의 통합된 개선 결과가 아니라 서로 다른 실험 조건별로 따로 측정된 수치</b>임을 확인했다: "3x higher output throughput <b>and</b> 2x faster TTFT with prefix-cache-aware routing vs round-robin"(Llama 3.1 70B, AMD MI300X 기준, prefix-cache 라우팅 조건)과 "Up to 70% higher tokens/sec with prefill/decode disaggregation vs standard vLLM"(P/D 분리 조건)은 <b>서로 다른 기능·다른 벤치마크 조건</b>에서 나온 값이다. 소스 문서(및 llm-d 공식 docs 페이지)는 이를 "처리량 최대 3배, 응답속도 2배, 토큰/초 최대 70% 개선"이라는 하나의 나열형 문장으로 단순화해 제시하는데, 이는 원문 자체가 과장이라기보다 <b>여러 실험 조건의 결과를 하나로 뭉쳐 표현한 것</b>이라 독자가 "한 가지 설정으로 모든 지표가 동시에 개선된다"고 오해할 소지가 있다. 실제로는 기능(prefix-cache-aware routing vs P/D disaggregation)별로 수치와 전제 조건(모델, 하드웨어)이 다르다. (본문 <a href="#c2">2장</a>의 ⚠️ 콜아웃 참고.)</li>
-<li><b>helm chart/이미지 버전(Envoy Gateway v1.9.1, ai-gateway-helm v1.1.0, GAIE CRD v1.6.1, llm-d-router-endpoint-picker:v0.10.0, MetalLB 0.16.1 등)이 문서에 쓰인 그대로 정확한지</b>
-  <br>→ <b>확인됨(모두 실제 존재하는 버전)</b>. <a href="https://github.com/envoyproxy/gateway/releases" target="_blank" rel="noopener">Envoy Gateway GitHub Releases</a><sup class="cite"><a id="cite19" href="#ref19">[19]</a></sup>에서 v1.9.1이 "Latest" 릴리스로 확인됐다(2026-08-28 게시). <a href="https://gateway.envoyproxy.io/news/releases/matrix" target="_blank" rel="noopener">Envoy Gateway Compatibility Matrix</a>에서 v1.9가 Gateway API v1.6.1과 호환됨을 확인했다 — 이는 GAIE(Gateway API Inference Extension) CRD 버전이 Gateway API 버전과 동일 계열(v1.6.1)임을 뒷받침한다. <code>ai-gateway-helm</code>/<code>ai-gateway-crds-helm</code> v1.1.0은 <a href="https://github.com/envoyproxy/ai-gateway/releases" target="_blank" rel="noopener">GitHub Releases</a><sup class="cite"><a id="cite20" href="#ref20">[20]</a></sup>에서 "the first minor release on the stable 1.x API"로 확인됐다. <code>llm-d-router-endpoint-picker:v0.10.0</code>은 <a href="https://github.com/llm-d/llm-d/releases" target="_blank" rel="noopener">llm-d GitHub Releases</a>에서 이전 버전(v0.9.0)의 다음 릴리스로 명확히 확인됐다. MetalLB v0.16.1은 <a href="https://metallb.universe.tf/release-notes" target="_blank" rel="noopener">공식 릴리스 노트</a><sup class="cite"><a id="cite21" href="#ref21">[21]</a></sup>에서 확인됐다. 단, 이 버전들은 각 프로젝트의 릴리스 시점에 따라 계속 갱신되므로 실습 시점에는 더 최신 버전이 있을 수 있다.</li>
-<li><b>kubectl/helm 명령의 옵션과 순서가 문서에 쓰인 그대로 정확한지</b>
-  <br>→ <b>확인됨</b>. 원문에 있는 모든 kubectl/helm 명령을 그대로 옮겨 실었으며, 임의로 옵션을 수정하거나 순서를 바꾸지 않았다. 단, Phase 3의 addon 트러블슈팅 재현 커맨드(<a href="#c35">35장</a>)는 원문에 정확한 명령어 로그가 남아있지 않고 트러블슈팅 서술만 있어, 이 문서에서는 "재현 개념 요약"이라고 명시하고 일반적인 Helm 롤백 패턴(<code>helm rollback</code>)으로 흐름을 구성했다는 점을 밝힌다 — 이는 원문에 없는 내용을 추가한 것이므로 사실 여부가 아니라 "개념 설명 보조"로만 참고해야 한다.</li>
-<li><b>KV 캐시 관련 3가지 기능(Prefix-Cache Aware Routing, KV-Cache Indexer, KV-Cache Offloading)의 구분과 설명이 정확한지</b>
-  <br>→ <b>확인됨</b>. <a href="https://llm-d.ai/docs/architecture/advanced/kv-management" target="_blank" rel="noopener">llm-d KV Cache Management 공식 문서</a>의 3계층 구조(지능 계층/관찰성 계층/용량 계층) 설명, <a href="https://llm-d.ai/docs/architecture/advanced/kv-management/prefix-cache-aware-routing" target="_blank" rel="noopener">Prefix-Cache Aware Routing 문서</a>의 근사/정밀 두 방식 구분, <a href="https://llm-d.ai/docs/architecture/advanced/kv-management/kv-indexer" target="_blank" rel="noopener">KV-Cache Indexer 문서</a>의 Index/Data Producer/Scorer 3요소 구조, <a href="https://llm-d.ai/docs/architecture/advanced/kv-management/kv-offloader" target="_blank" rel="noopener">KV-Cache Offloading 문서</a>의 네이티브/외부 커넥터 두 방식 구분이 모두 소스 문서 설명과 일치했다. 특히 이 문서 Part B의 Phase 5 실습(정밀 방식의 <code>/v1/completions/render</code> 호출 + ZMQ 이벤트 구독)이 공식 문서의 정밀(Precise) 방식 동작 원리를 실제로 재현하는 것도 확인했다.</li>
-<li><b>사용자마다 달라지는 값(GPU 서버 IP, MetalLB IP 풀 대역, MinIO 자격증명, HuggingFace 토큰, 네임스페이스/스토리지클래스 이름 등)을 빠짐없이 식별했는지</b>
-  <br>→ <b>확인됨</b>. 이 문서에서 다음 값들을 <code>&lt;YOUR_...&gt;</code> placeholder로 표시했다: <code>&lt;YOUR_GPU_SERVER_IP&gt;</code>(GPU 서버/노드 IP), <code>&lt;YOUR_NODE_NAME&gt;</code>(K3s 노드 이름), <code>&lt;YOUR_METALLB_IP_RANGE_START/END&gt;</code>(MetalLB IP 풀 대역), <code>&lt;YOUR_METALLB_GATEWAY_IP&gt;</code>(Gateway에 할당되는 실제 IP), <code>&lt;YOUR_MINIO_ROOT_USER&gt;</code>/<code>&lt;YOUR_MINIO_ROOT_PASSWORD&gt;</code>(MinIO 자격증명), <code>&lt;YOUR_HF_TOKEN&gt;</code>(HuggingFace 토큰 — 이 실습에서 사용한 Qwen3-0.6B-FP8은 공개 모델이라 실제로는 불필요했음을 원문 그대로 명시), <code>&lt;YOUR_DASHBOARD_JSON_URL_*&gt;</code>(Grafana 대시보드 JSON 다운로드 URL — 원문에 URL이 일부 가려져 있어 실제 값이 무엇인지는 원문에서도 확인 불가능했음), <code>&lt;YOUR_SSH_USER&gt;</code>(결과 파일 scp용 SSH 계정). 네임스페이스(<code>vllm</code>, <code>monitoring</code>, <code>envoy-gateway-system</code>, <code>envoy-ai-gateway-system</code>, <code>metallb-system</code>, <code>nvidia-device-plugin</code>)와 스토리지클래스(<code>local-path</code>)는 원문에 고정값으로 반복 사용되어 사실상 이 실습의 표준 네이밍이므로 placeholder 처리하지 않고 그대로 유지했다.</li>
-</ol>
-<blockquote>📌 <b>참고 — GAIE 버전 표기 불일치 각주</b>: 원문 자체에 "설치 계획"(<a href="#c34">34장</a>)에서는 GAIE를 v1.0.1로 언급했다가, "실행 로그"(<a href="#c35">35장</a> Phase 3)에서는 실제로 v1.6.1을 설치했다고 적는 내부 불일치가 있다. 이는 원문 자체의 계획 시점과 실행 시점 사이의 GAIE 프로젝트 릴리스 진행으로 추정된다.</blockquote>
+<p>본문에서 다룬 몇 가지 핵심 주장은 실제로 다시 짚어볼 필요가 있었다. 아래에 그 내용을 정리한다.</p>
+<p>먼저 InferencePool과 EPP(Endpoint Picker)의 역할 분담은 llm-d 공식 문서(architecture/core/*)와 정확히 맞아떨어진다. <a href="https://llm-d.ai/docs/architecture/core/router/epp" target="_blank" rel="noopener">llm-d EPP 공식 문서</a>는 EPP를 "llm-d 배포의 '두뇌'"로 정의하고, 지능형 라우팅과 공정성/우선순위 관리라는 두 가지 핵심 목표를 명시하며, 요청 도착 → 외부 처리 → 요청 핸들링 → 플로우 제어 → 요청 스케줄링 → 요청 프록시로 이어지는 6단계 파이프라인을 설명하는데, 이는 본문 내용과 그대로 일치한다. <a href="https://gateway-api-inference-extension.sigs.k8s.io/" target="_blank" rel="noopener">Gateway API Inference Extension(GAIE) 공식 문서</a><sup class="cite"><a id="cite9" href="#ref9">[9]</a></sup> 역시 EPP를 "Inference Router의 구현체"로, InferencePool을 "특정 모델 서버 프레임워크를 실행하는 엔드포인트들의 집합"으로 정의하고, llm-d-router를 EPP의 대안적 구현 예시로 직접 언급한다. 즉 llm-d의 EPP는 GAIE 표준을 실제로 구현한 컴포넌트라는 설명이 맞다.</p>
+<p>다만 EPP가 처리 단계를 부르는 이름에는 짚어둘 부분이 있다. llm-d EPP Request Scheduler 공식 문서는 파이프라인을 <b>"Filter → Score → Pick" 3단계</b>로 정의한다. 반면 <a href="#c3">3장</a>에서 소개한 Red Hat의 유튜브 강연에서는 <b>"Scrapers → Filters → Scorers → Picker"</b>라는 4단계 표현을 쓴다. "Scrapers"라는 용어는 EPP 공식 아키텍처 문서에는 등장하지 않는다 — 이는 강연자가 실시간 메트릭을 모아오는 수집 단계를 가리키기 위해 쓴 개념적 설명이고, 공식 문서에서는 이 역할을 Data Layer(폴링/수집 계층)가 담당한다. 그러니 두 표현은 서로 상충하는 것이 아니라, 같은 개념을 서로 다른 출처(공식 문서 vs 강연 프레이밍)에서 다른 층위로 설명한 것뿐이다. queue-scorer(대기열이 짧을수록 고점), kv-cache-utilization-scorer(KV 캐시 사용률이 낮을수록 고점), prefix-cache-scorer(프리픽스 캐시 일치 길이 반영) 같은 개별 스코어러의 역할 설명은 공식 문서와 정확히 맞았다.</p>
+<p>Envoy의 <code>ext_proc</code> 필터와 <code>ORIGINAL_DST</code> 클러스터 타입으로 EPP에 라우팅 결정을 위임하는 메커니즘도 Envoy 공식 문서 그대로다. <a href="https://gateway.envoyproxy.io/docs/tasks/extensibility/ext-proc/" target="_blank" rel="noopener">Envoy Gateway의 ext-proc 문서</a><sup class="cite"><a id="cite10" href="#ref10">[10]</a></sup>는 "외부 gRPC 서비스를 호출해 HTTP 요청과 응답을 가공한다"고 설명하는데 본문 설명과 일치하고, <a href="https://github.com/llm-d/llm-d/blob/main/guides/no-kubernetes-deployment/router/envoy/envoy.yaml" target="_blank" rel="noopener">llm-d의 envoy config 예시 원본 파일</a>에서도 <code>processing_mode</code>(<code>FULL_DUPLEX_STREAMED</code>)와 <code>original_destination_cluster</code>(<code>type: ORIGINAL_DST</code>, <code>use_http_header</code>, <code>http_header_name: x-gateway-destination-endpoint</code>) 설정을 그대로 확인할 수 있었다.</p>
+<p>성능 벤치마크 수치는 조금 더 자세히 들여다볼 필요가 있었다. <a href="https://github.com/llm-d/llm-d" target="_blank" rel="noopener">llm-d GitHub README</a>에는 "처리량 최대 3배, 응답속도 2배, 토큰/초 최대 70% 개선"이라는 문구가 있는데, 이 숫자들은 하나의 통합된 실험 결과가 아니라 <b>서로 다른 조건에서 따로 측정된 두 벤치마크</b>를 이어붙인 것이다. "처리량 3배 + TTFT 2배 단축"은 <b>Llama 3.1 70B를 4×AMD MI300X</b>에서 prefix-cache-aware routing과 round-robin을 비교한 결과이고, "토큰/초 최대 70% 개선"은 <b>GPT-OSS를 NVIDIA B200</b>에서 prefill/decode disaggregation과 표준 vLLM을 비교한, <b>완전히 별개의</b> 결과다. 원문이 의도적으로 과장했다기보다는 여러 실험 조건의 결과를 한 문장으로 압축해 제시한 것이지만, 그 때문에 "하나의 설정에서 세 지표가 동시에 개선된다"고 오해하기 쉽다. 두 벤치마크는 모델·하드웨어·비교 대상이 전부 다르다는 점을 기억해두면 좋다. 자세한 조건은 <a href="#c2">2장</a>의 콜아웃에 정리해두었다.</p>
+<p>Helm 차트/이미지 버전(Envoy Gateway v1.9.1, ai-gateway-helm v1.1.0, GAIE CRD v1.6.1, llm-d-router-endpoint-picker:v0.10.0, MetalLB 0.16.1 등)도 실제로 존재하는 버전인지 하나씩 확인했다. <a href="https://github.com/envoyproxy/gateway/releases" target="_blank" rel="noopener">Envoy Gateway GitHub Releases</a><sup class="cite"><a id="cite19" href="#ref19">[19]</a></sup>에서 v1.9.1이 2026년 8월 28일에 "Latest"로 게시된 것을 확인했고, Compatibility Matrix에서 v1.9가 Gateway API v1.6.1과 호환된다는 것도 확인했다 — GAIE CRD 버전이 Gateway API와 같은 계열(v1.6.1)이라는 본문 설명을 뒷받침하는 근거다. <code>ai-gateway-helm</code>/<code>ai-gateway-crds-helm</code> v1.1.0은 <a href="https://github.com/envoyproxy/ai-gateway/releases" target="_blank" rel="noopener">GitHub Releases</a><sup class="cite"><a id="cite20" href="#ref20">[20]</a></sup>에 "stable 1.x API의 첫 마이너 릴리스"로 소개돼 있고, <code>llm-d-router-endpoint-picker:v0.10.0</code>은 <a href="https://github.com/llm-d/llm-d/releases" target="_blank" rel="noopener">llm-d GitHub Releases</a>에서 이전 버전(v0.9.0) 다음 릴리스로 확인됐다. MetalLB v0.16.1도 <a href="https://metallb.universe.tf/release-notes" target="_blank" rel="noopener">공식 릴리스 노트</a><sup class="cite"><a id="cite21" href="#ref21">[21]</a></sup>에 있다. 다만 이 버전들은 각 프로젝트가 계속 새 릴리스를 내는 만큼, 실습 시점에는 더 최신 버전이 나와 있을 수 있다.</p>
+<p>kubectl/helm 명령어의 옵션과 순서는 원문 그대로 옮겼고 임의로 수정하지 않았다. 다만 <a href="#c35">35장</a> Phase 3의 트러블슈팅 재현 커맨드는, 원문에 정확한 명령어 로그가 남아 있지 않고 트러블슈팅 서술만 있었던 부분이라 "재현 개념 요약"이라고 명시하고 일반적인 Helm 롤백 패턴(<code>helm rollback</code>)으로 흐름을 구성했다는 점을 밝혀둔다 — 이 부분은 사실 확인 대상이 아니라 개념 설명을 돕기 위한 보조 서술로 봐야 한다.</p>
+<p>KV 캐시 관련 세 가지 기능 — Prefix-Cache Aware Routing, KV-Cache Indexer, KV-Cache Offloading — 의 구분도 공식 문서와 맞는다. <a href="https://llm-d.ai/docs/architecture/advanced/kv-management" target="_blank" rel="noopener">KV Cache Management 문서</a>의 3계층 구조(지능/관찰성/용량 계층), <a href="https://llm-d.ai/docs/architecture/advanced/kv-management/prefix-cache-aware-routing" target="_blank" rel="noopener">Prefix-Cache Aware Routing 문서</a>의 근사/정밀 두 방식 구분, <a href="https://llm-d.ai/docs/architecture/advanced/kv-management/kv-indexer" target="_blank" rel="noopener">KV-Cache Indexer 문서</a>의 Index/Data Producer/Scorer 3요소 구조, <a href="https://llm-d.ai/docs/architecture/advanced/kv-management/kv-offloader" target="_blank" rel="noopener">KV-Cache Offloading 문서</a>의 네이티브/외부 커넥터 구분이 모두 소스 문서와 일치했다. 이 문서 Part B의 Phase 5 실습(정밀 방식의 <code>/v1/completions/render</code> 호출 + ZMQ 이벤트 구독)도 공식 문서가 설명하는 정밀(Precise) 방식의 동작 원리를 실제로 재현한 것이었다.</p>
+<p>사용자마다 달라지는 값들도 빠짐없이 찾아 표시했는지 다시 점검했다. GPU 서버/노드 IP(<code>&lt;YOUR_GPU_SERVER_IP&gt;</code>), K3s 노드 이름(<code>&lt;YOUR_NODE_NAME&gt;</code>), MetalLB IP 풀 대역(<code>&lt;YOUR_METALLB_IP_RANGE_START/END&gt;</code>), Gateway에 할당되는 실제 IP(<code>&lt;YOUR_METALLB_GATEWAY_IP&gt;</code>), MinIO 자격증명(<code>&lt;YOUR_MINIO_ROOT_USER&gt;</code>/<code>&lt;YOUR_MINIO_ROOT_PASSWORD&gt;</code>), HuggingFace 토큰(<code>&lt;YOUR_HF_TOKEN&gt;</code> — 이 실습에 쓴 Qwen3-0.6B-FP8은 공개 모델이라 실제로는 필요 없었다는 점도 원문 그대로 남겨두었다), Grafana 대시보드 JSON URL(<code>&lt;YOUR_DASHBOARD_JSON_URL_*&gt;</code> — 원문에도 실제 값이 가려져 있어 확인이 불가능했다), scp용 SSH 계정(<code>&lt;YOUR_SSH_USER&gt;</code>)까지 모두 <code>&lt;YOUR_...&gt;</code> 형태로 표시했다. 네임스페이스(<code>vllm</code>, <code>monitoring</code>, <code>envoy-gateway-system</code>, <code>envoy-ai-gateway-system</code>, <code>metallb-system</code>, <code>nvidia-device-plugin</code>)와 스토리지클래스(<code>local-path</code>)는 원문에서 고정값으로 반복 쓰인 이 실습의 표준 네이밍이라 그대로 두었다.</p>
+<blockquote>📌 GAIE 버전 표기에는 원문 자체의 작은 불일치가 있다. <a href="#c34">34장</a> "설치 계획"에서는 GAIE를 v1.0.1로 언급했다가, <a href="#c35">35장</a> "실행 로그"(Phase 3)에서는 실제로 v1.6.1을 설치했다고 적어, 계획과 실행 사이에 표기가 어긋난다. 계획을 세운 시점과 실제로 실행한 시점 사이에 GAIE 프로젝트가 릴리스를 거듭한 데서 비롯된 차이로 보인다.</blockquote>
 
 <h2 id="vars">사용자 환경별로 반드시 바꿔야 하는 값</h2>
 <table>

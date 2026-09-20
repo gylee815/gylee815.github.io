@@ -201,6 +201,7 @@
       <li><a href="#32-llm-d">32. 관련 자료 — llm-d 추천 글 목록</a></li>
       <li style="margin-top:1rem;"><a href="#factcheck"><b>[사실 검증 결과]</b></a></li>
     </ul>
+    <div class="next-link"><a href="../w7-2/w7-2_llmd.html">다음: W7-2. llm-d — Kubernetes 네이티브 LLM 추론 서빙 스택 →</a></div>
   </nav>
   <main>
     <details class="toc-mobile">
@@ -396,7 +397,7 @@ flowchart TB
 </tr>
 </tbody>
 </table>
-<p><strong>참고 자료</strong>: <a href="https://www.envoyproxy.io/docs/envoy/latest/intro/life_of_a_request">Envoy 공식 - Life of a Request</a><sup class="cite"><a id="cite1" href="#ref1">[1]</a></sup> 문서를 실제로 열어 확인한 결과, 요청이 리스너 → (TLS 종료) → 네트워크 필터 체인(HTTP Connection Manager) → HTTP 필터 체인(라우터 필터로 종료) → 클러스터의 로드밸런싱 → 업스트림 HTTP 필터 체인 순으로 처리되며, 응답은 반대 순서로 흐른다는 12단계 Request Flow가 정확히 기술되어 있음을 확인했다.</p>
+<p><strong>참고 자료</strong>: <a href="https://www.envoyproxy.io/docs/envoy/latest/intro/life_of_a_request">Envoy 공식 - Life of a Request</a><sup class="cite"><a id="cite1" href="#ref1">[1]</a></sup> 문서를 열어보면 요청이 리스너 → (TLS 종료) → 네트워크 필터 체인(HTTP Connection Manager) → HTTP 필터 체인(라우터 필터로 종료) → 클러스터의 로드밸런싱 → 업스트림 HTTP 필터 체인 순으로 처리되고, 응답은 반대 순서로 흐른다는 12단계 Request Flow가 그대로 나와 있다.</p>
 <h2 id="2-envoy">2. Envoy 핵심 개념: 리스너 · 루트 · 클러스터</h2>
 <div class="gallery"><figure class="figure-box"><img src="assets/images/063182ce_image.png" alt="기본 프록시 개념도"><figcaption>기본 프록시 개념도</figcaption></figure></div>
 <p>프록시란 클라이언트와 서버 간 통신의 중간에 위치한 중개 구성 요소다. 프록시가 중간에 위치함으로써 보안, 프라이버시, 정책 같은 기능을 추가할 수 있다.</p>
@@ -574,7 +575,7 @@ clusters:
           maxRequests: 100000
       http2ProtocolOptions: {}
 </code></pre>
-<p><strong>참고 자료</strong>: <a href="https://www.envoyproxy.io/docs/envoy/latest/api-docs/xds_protocol">Envoy 공식 xDS Protocol 문서</a><sup class="cite"><a id="cite3" href="#ref3">[3]</a></sup>를 직접 확인한 결과, LDS/CDS는 Envoy 인스턴스당 항상 wildcard로 구독되며, Envoy는 시작 시 모든 Listener/Cluster를 먼저 가져온 뒤 필요한 RouteConfiguration과 ClusterLoadAssignment를 순차적으로 가져온다는 점, ADS는 "a single management server, via a single gRPC stream"으로 여러 리소스 타입을 멀티플렉싱한다는 점이 소스 문서 설명과 일치했다.</p>
+<p><strong>참고 자료</strong>: <a href="https://www.envoyproxy.io/docs/envoy/latest/api-docs/xds_protocol">Envoy 공식 xDS Protocol 문서</a><sup class="cite"><a id="cite3" href="#ref3">[3]</a></sup>에도 같은 내용이 나온다. LDS/CDS는 Envoy 인스턴스당 항상 wildcard로 구독되고, Envoy는 시작 시 모든 Listener/Cluster를 먼저 가져온 뒤 필요한 RouteConfiguration과 ClusterLoadAssignment를 순차적으로 가져온다. ADS는 "a single management server, via a single gRPC stream"이라는 표현대로, 여러 리소스 타입을 하나의 gRPC 스트림에 멀티플렉싱한다.</p>
 <h2 id="5-envoy-in-action-httpbin-envoy">5. [실습] Envoy in Action — 도커로 httpbin + Envoy 구성</h2>
 <p><strong>아키텍처 개요</strong>:</p>
 <div class="gallery"><figure class="figure-box"><img src="assets/images/17385b32_image.png" alt="httpbin + Envoy 실습 아키텍처"><figcaption>httpbin + Envoy 실습 아키텍처</figcaption></figure></div>
@@ -795,7 +796,7 @@ docker rm -f proxy &amp;&amp; docker rm -f httpbin
 - Envoy는 애플리케이션 사용 및 프록시 내부에 대한 강력한 지표를 노출한다.</p>
 <h2 id="9-envoy-life-of-a-request">9. Envoy Life of a Request (공식 문서 심화)</h2>
 <div class="gallery"><figure class="figure-box"><img src="assets/images/825b571e_image.svg" alt="Life of a Request 아키텍처"><figcaption>Life of a Request 아키텍처</figcaption></figure><figure class="figure-box"><img src="assets/images/f29bcab1_image.svg" alt="필터 체인 처리 단계"><figcaption>필터 체인 처리 단계</figcaption></figure><figure class="figure-box"><img src="assets/images/ba356126_image.svg" alt="업스트림 처리 흐름"><figcaption>업스트림 처리 흐름</figcaption></figure><figure class="figure-box"><img src="assets/images/6c3e25c1_image.svg" alt="HTTP 필터 체인"><figcaption>HTTP 필터 체인</figcaption></figure><figure class="figure-box"><img src="assets/images/03b449fe_image.svg" alt="스트림 다중화"><figcaption>스트림 다중화</figcaption></figure><figure class="figure-box"><img src="assets/images/ac7a6cb5_image.svg" alt="응답 경로"><figcaption>응답 경로</figcaption></figure></div>
-<p><strong>참고 자료</strong>: <a href="https://www.envoyproxy.io/docs/envoy/latest/intro/life_of_a_request#request-flow">Envoy 공식 - Life of a Request</a>의 Request Flow 12단계를 실제로 확인했다. 핵심은 다음과 같다.</p>
+<p><strong>참고 자료</strong>: <a href="https://www.envoyproxy.io/docs/envoy/latest/intro/life_of_a_request#request-flow">Envoy 공식 - Life of a Request</a>가 설명하는 Request Flow 12단계를 정리하면 다음과 같다.</p>
 <ol>
 <li>다운스트림 TCP 연결이 워커 스레드에서 실행되는 리스너에 의해 수락됨</li>
 <li>리스너 필터 체인 실행(SNI 등 pre-TLS 정보 제공) → 네트워크 필터 체인 매칭</li>
@@ -1310,7 +1311,7 @@ kubectl delete -f ch14/rate-limit/rls.yaml -n istioinaction
 <hr />
 <h1 id="part-b-ai-gateway-envoy-ai-gateway-agent-router" class="part-title">Part B. AI Gateway 개념 — Envoy AI Gateway에서 Agent Router로</h1>
 <h2 id="13-aillm-gateway">13. AI(LLM) Gateway가 왜 필요한가</h2>
-<p><strong>참고 자료</strong>: <a href="https://www.youtube.com/watch?v=MYPLpkENs7A">AI Gateway: The Layer Every AI Stack Eventually Needs (Devsplainers)</a><sup class="cite"><a id="cite17" href="#ref17">[17]</a></sup> — 2026-07-08 게시. 이 영상을 실제로 검색해 확인한 핵심 내용: AI Gateway(=LLM Gateway)는 애플리케이션과 OpenAI/Anthropic/Google 등 모델 프로바이더 사이에 있는 "공유 계층"으로, 개별 서비스가 각자 API 키를 들고 재시도 로직을 짜는 대신 (1) 프로바이더 전체에 걸친 단일 통합 API, (2) 키 관리, (3) 자동 재시도·장애조치, (4) 토큰/비용 추적, (5) 관측성을 한곳에 모은다. 다만 이 영상은 "모든 트래픽이 게이트웨이 하나를 통과하므로 그 자체가 단일 장애점(SPOF)이 될 수 있다"는 트레이드오프도 명확히 짚었다 — 그래서 백업 경로와 게이트웨이를 건너뛰고 직접 프로바이더를 호출할 수 있는 코드 경로를 함께 준비해야 한다고 강조한다.</p>
+<p><strong>참고 자료</strong>: <a href="https://www.youtube.com/watch?v=MYPLpkENs7A">AI Gateway: The Layer Every AI Stack Eventually Needs (Devsplainers)</a><sup class="cite"><a id="cite17" href="#ref17">[17]</a></sup> — 2026-07-08 게시. 이 영상의 핵심은 이렇다. AI Gateway(=LLM Gateway)는 애플리케이션과 OpenAI/Anthropic/Google 등 모델 프로바이더 사이에 있는 "공유 계층"으로, 개별 서비스가 각자 API 키를 들고 재시도 로직을 짜는 대신 (1) 프로바이더 전체에 걸친 단일 통합 API, (2) 키 관리, (3) 자동 재시도·장애조치, (4) 토큰/비용 추적, (5) 관측성을 한곳에 모은다. 다만 영상은 "모든 트래픽이 게이트웨이 하나를 통과하므로 그 자체가 단일 장애점(SPOF)이 될 수 있다"는 트레이드오프도 명확히 짚는다 — 그래서 백업 경로와, 게이트웨이를 건너뛰고 직접 프로바이더를 호출할 수 있는 코드 경로를 함께 준비해야 한다고 강조한다.</p>
 <p>배경(문제 상황):</p>
 <div class="gallery"><figure class="figure-box"><img src="assets/images/e0995b75_image.png" alt="첫 모델 제공업체 용량 제한으로 다른 업체 사용"><figcaption>첫 모델 제공업체 용량 제한으로 다른 업체 사용</figcaption></figure></div>
 <p>첫 번째 AI 모델 제공 업체를 쓰다가 용량 제한에 걸리면 다른 모델 제공 업체를 쓰게 된다.</p>
@@ -1327,7 +1328,7 @@ kubectl delete -f ch14/rate-limit/rls.yaml -n istioinaction
 <div class="gallery"><figure class="figure-box"><img src="assets/images/c4feb7d3_image.png" alt="AI GW도 같은 개념, 대상만 모델로 변경"><figcaption>AI GW도 같은 개념, 대상만 모델로 변경</figcaption></figure></div>
 <p>AI Gateway도 같은 개념이며, 대상만 "백엔드"에서 "모델"로 바뀐 것이다. (비유: 전통 API Gateway가 여러 마이크로서비스를 위한 "공동 현관"이었다면, AI Gateway는 여러 LLM 프로바이더를 위한 "공동 현관"이다.)</p>
 <h2 id="14-ai-gateway-5">14. AI Gateway의 5가지 역할</h2>
-<p><strong>참고 자료</strong>: <a href="https://theagentrouter.ai/blog/envoy-ai-gateway-reference-architecture/">Envoy AI Gateway Reference Architecture 블로그</a> — Two-Tier Gateway Design(외부용/내부용 게이트웨이 분리)과 KServe를 이용한 Self-Hosted Model Serving 아키텍처를 다루고 있음을 확인했다.</p>
+<p><strong>참고 자료</strong>: <a href="https://theagentrouter.ai/blog/envoy-ai-gateway-reference-architecture/">Envoy AI Gateway Reference Architecture 블로그</a> — Two-Tier Gateway Design(외부용/내부용 게이트웨이 분리)과 KServe를 이용한 Self-Hosted Model Serving 아키텍처를 다룬다.</p>
 <ol>
 <li><strong>Unified API</strong> — 모든 모델(프로바이더)과 통신할 수 있는 통합 API. 프로바이더별로 요청 형식(재시도 등)이 다른데, 대부분 OpenAI 방식을 따르므로 모델명만 바꿔서 다른 프로바이더 모델을 사용할 수 있다.</li>
 </ol>
@@ -1349,11 +1350,11 @@ kubectl delete -f ch14/rate-limit/rls.yaml -n istioinaction
 </ol>
 <div class="gallery"><figure class="figure-box"><img src="assets/images/37009d93_image.png" alt="한 곳에서 모니터링"><figcaption>한 곳에서 모니터링</figcaption></figure></div>
 <h2 id="15-5">15. 유튜브 영상 5편 핵심 정리</h2>
-<p>본문에 링크된 5개 영상(원문에는 "4편"으로 표기되어 있으나 실제로는 5개 링크가 제공됨)을 모두 실제로 검색·확인했다.</p>
+<p>본문에 링크된 영상은 원문에 "4편"으로 표기돼 있지만, 실제로는 아래처럼 5개 링크가 제공된다.</p>
 <h3 id="15-1-ai-gateway-the-layer-every-ai-stack-eventually-needs-devsplainers-youtube">15-1. AI Gateway: The Layer Every AI Stack Eventually Needs (Devsplainers) — <a href="https://www.youtube.com/watch?v=MYPLpkENs7A">Youtube</a></h3>
 <p>13절에서 다룸. 통합 API·키관리·재시도/장애조치·토큰비용추적·관측성 5가지가 핵심이며, 게이트웨이 자체가 SPOF가 될 수 있다는 리스크도 짚었다.</p>
 <h3 id="15-2-evolution-of-envoy-ai-gateway-yan-avlasovgoogle-takeshi-yonedatetrateio-youtube">15-2. Evolution of Envoy AI Gateway — Yan Avlasov(Google) &amp; Takeshi Yoneda(Tetrate.io) — <a href="https://www.youtube.com/watch?v=oXlnhRKPXhA">Youtube</a><sup class="cite"><a id="cite18" href="#ref18">[18]</a></sup></h3>
-<p>Envoy AI Gateway가 Kubernetes 환경에서 GenAI 워크로드를 서빙하기 위한 오픈소스 프로젝트로서 빠르게 진화 중이라는 내용을 다룬다. 확인된 핵심 기능: 모델/프로바이더 간 투명한 장애조치(transparent failover), 토큰 기반 글로벌 레이트리밋, 추론 리소스를 효율적으로 활용하는 외부 로드밸런싱 정책 통합, 재시도를 위한 버퍼 크기 관리 개선, llm-d의 분리형(disaggregated) 서빙 지원. 발표에서는 토큰 사용량 정보가 응답 경로에서만 확인 가능하다는 점(요청 시점에는 알 수 없음) 때문에 "응답 콘텐츠를 인지하는 레이트리밋"으로 프록시 코어를 확장해야 했다는 기술적 난제를 설명했다.</p>
+<p>Envoy AI Gateway가 Kubernetes 환경에서 GenAI 워크로드를 서빙하기 위한 오픈소스 프로젝트로서 빠르게 진화 중이라는 내용을 다룬다. 핵심 기능으로는 모델/프로바이더 간 투명한 장애조치(transparent failover), 토큰 기반 글로벌 레이트리밋, 추론 리소스를 효율적으로 활용하는 외부 로드밸런싱 정책 통합, 재시도를 위한 버퍼 크기 관리 개선, llm-d의 분리형(disaggregated) 서빙 지원이 소개된다. 발표에서는 토큰 사용량 정보가 응답 경로에서만 확인 가능하다는 점(요청 시점에는 알 수 없음) 때문에 "응답 콘텐츠를 인지하는 레이트리밋"으로 프록시 코어를 확장해야 했다는 기술적 난제도 설명한다.</p>
 <ul>
 <li>해결하려는 문제: <img alt="" src="assets/images/014684b7_image.png" /></li>
 <li>프로젝트 히스토리: <img alt="" src="assets/images/9cab8ea1_image.png" /></li>
@@ -1376,7 +1377,7 @@ kubectl delete -f ch14/rate-limit/rls.yaml -n istioinaction
 <p><strong>K8s GW Inference APIs</strong>: LLM/Gen AI 서빙을 위해 트래픽 라우팅과 부하 분산을 표준화하는 확장 API - <a href="https://github.com/kubernetes-sigs/gateway-api-inference-extension">Github</a><sup class="cite"><a id="cite15" href="#ref15">[15]</a></sup>, <a href="https://gateway-api-inference-extension.sigs.k8s.io/">Site</a><sup class="cite"><a id="cite14" href="#ref14">[14]</a></sup></p>
 <div class="gallery"><figure class="figure-box"><img src="assets/images/836fb281_image.png" alt=""></figure><figure class="figure-box"><img src="assets/images/10bc3d44_image.svg" alt=""></figure><figure class="figure-box"><img src="assets/images/926d2ed8_image.png" alt=""></figure><figure class="figure-box"><img src="assets/images/d34b0af4_image.png" alt="요청을 EPP에 전달, 엔드포인트 메트릭 수집 후 적절한 백엔드로 라우팅"><figcaption>요청을 EPP에 전달, 엔드포인트 메트릭 수집 후 적절한 백엔드로 라우팅</figcaption></figure><figure class="figure-box"><img src="assets/images/1ff5426e_image.png" alt="Inference-optimized LB vs k8s-svc 벤치마크"><figcaption>Inference-optimized LB vs k8s-svc 벤치마크</figcaption></figure></div>
 <h3 id="15-3-llm-ai-gavrish-prabhunutanix-youtube">15-3. LLM이 프로덕션 환경에 적용될 때: AI 게이트웨이가 필요한 이유 — Gavrish Prabhu(Nutanix) — <a href="https://www.youtube.com/watch?v=u5O_in_LF1E">Youtube</a><sup class="cite"><a id="cite19" href="#ref19">[19]</a></sup></h3>
-<p>영상 제목은 "When LLMs Hit Production: Why You Need an AI Gateway"로 확인되었으며, 발표자는 Nutanix 소속 Gavrish Prabhu다.</p>
+<p>영상 제목은 "When LLMs Hit Production: Why You Need an AI Gateway"이며, 발표자는 Nutanix 소속 Gavrish Prabhu다.</p>
 <ul>
 <li>GenAI 트래픽은 전통 트래픽과 다르다: <img alt="" src="assets/images/9d6f0b79_image.png" /></li>
 <li>AI GW 개념: <img alt="" src="assets/images/be9c3964_image.png" /></li>
@@ -1390,7 +1391,7 @@ kubectl delete -f ch14/rate-limit/rls.yaml -n istioinaction
 <li><strong>MCP Gateway</strong>: <img alt="" src="assets/images/6e5b329d_image.png" /> <img alt="" src="assets/images/704efcb8_image.png" /></li>
 </ul>
 <h3 id="15-4-envoy-ai-gateway-llm-youtube">15-4. Envoy AI Gateway를 활용한 블룸버그의 LLM 확장: 하이브리드 클라우드 접근 방식 — 샤오린 린 &amp; 아론 추 — <a href="https://www.youtube.com/watch?v=qFVJmnvmAQ4">Youtube</a><sup class="cite"><a id="cite20" href="#ref20">[20]</a></sup></h3>
-<p>영상 제목은 "Scaling LLMs at Bloomberg Using Envoy AI Gateway: A Hybrid Cloud Approach"로 확인. Bloomberg가 Envoy AI Gateway(CNCF 호스팅 오픈소스)를 개념 단계에서 실제 프로덕션의 GenAI 플랫폼 핵심 기술로 채택한 과정을 다룬다. 발표에서 실제로 언급된 처리 흐름: 요청이 들어오면 시간 기반 제한에 대응해 토큰을 차감하고, AI Gateway ExtProc에서 클라우드 프로바이더별 응답 포맷을 통합 포맷으로 변환하며, 이후 내부 토큰 리포팅·사용량 추적을 수행한다. Agent Router 컨트롤러가 AI 특화 리소스를 받아 (1) ExtProc 배포, (2) 트래픽 라우팅용 HTTPRoute, (3) Envoy Extension Policy 3가지 핵심 산출물을 생성한다는 점도 확인했다.</p>
+<p>영상 제목은 "Scaling LLMs at Bloomberg Using Envoy AI Gateway: A Hybrid Cloud Approach"다. Bloomberg가 Envoy AI Gateway(CNCF 호스팅 오픈소스)를 개념 단계에서 실제 프로덕션의 GenAI 플랫폼 핵심 기술로 채택한 과정을 다룬다. 발표에서 언급된 처리 흐름은 이렇다. 요청이 들어오면 시간 기반 제한에 대응해 토큰을 차감하고, AI Gateway ExtProc에서 클라우드 프로바이더별 응답 포맷을 통합 포맷으로 변환하며, 이후 내부 토큰 리포팅·사용량 추적을 수행한다. Agent Router 컨트롤러가 AI 특화 리소스를 받아 (1) ExtProc 배포, (2) 트래픽 라우팅용 HTTPRoute, (3) Envoy Extension Policy 세 가지 핵심 산출물을 생성한다는 점도 함께 다룬다.</p>
 <ul>
 <li>Arch: <img alt="" src="assets/images/471e394b_image.png" /></li>
 <li>Pre-Process → 인증 → AI GW Ext Proc → Rate Limit 필터 → Router 필터 ⇒ 모델 전달/처리 ⇒ AI GW Ext Proc → Rate Limit 필터 → Post-Process: <img alt="" src="assets/images/6844193c_image.png" /></li>
@@ -1400,7 +1401,7 @@ kubectl delete -f ch14/rate-limit/rls.yaml -n istioinaction
 <li>Rate Limits: <img alt="" src="assets/images/3bab1492_image.png" /></li>
 </ul>
 <h3 id="15-5-envoycon-ai-xiaolin-linbloomberg-youtube">15-5. EnvoyCon: AI 트래픽의 미래 — Xiaolin Lin(Bloomberg) — <a href="https://www.youtube.com/watch?v=7OkSrMBirmc">Youtube</a><sup class="cite"><a id="cite21" href="#ref21">[21]</a></sup></h3>
-<p>영상 제목은 "EnvoyCon: The Future of AI Traffic: What's New in Envoy AI Gateway 2026"으로 확인. 2025년 Envoy AI Gateway가 비전에서 프로덕션 레디 단계로 넘어간 이정표를 되짚고, 2026년 신규 기능(Cost Optimization, Extended API 등)을 소개하는 세션이다.</p>
+<p>영상 제목은 "EnvoyCon: The Future of AI Traffic: What's New in Envoy AI Gateway 2026"이다. 2025년 Envoy AI Gateway가 비전에서 프로덕션 레디 단계로 넘어간 이정표를 되짚고, 2026년 신규 기능(Cost Optimization, Extended API 등)을 소개하는 세션이다.</p>
 <ul>
 <li>Arch: <img alt="" src="assets/images/9b135f13_image.png" /></li>
 <li><strong>Cost Optimization: Quota-Aware Routing</strong> — <img alt="" src="assets/images/ab2316b4_image.png" /> <img alt="QuotaPolicy" src="assets/images/4a65b7ef_image.png" /> <img alt="" src="assets/images/86bfad65_image.png" /></li>
@@ -1419,7 +1420,7 @@ kubectl delete -f ch14/rate-limit/rls.yaml -n istioinaction
 <p>Envoy가 HTTP 요청/응답 라이프사이클의 각 단계(RequestHeaders → RequestBody → ResponseHeaders → ResponseBody)마다 외부 프로세서에게 gRPC 스트림으로 데이터를 보낸다. 외부 프로세서는 CONTINUE(그대로 통과), 수정(헤더/바디 변경), 즉시 응답 반환(예: 401 차단) 중 하나로 응답한다. <code>processing_mode</code> 설정으로 어느 단계까지 개입할지 세밀하게 제어할 수 있다.</p>
 <p><strong>주요 용도</strong>: 인증/인가(커스텀 토큰 검증), 요청/응답 변환(헤더 삽입, 바디 rewrite), 요청 기반 라우팅 결정, 콘텐츠 검사/차단(모더레이션, PII 마스킹). <strong>LLM/AI Gateway 시나리오</strong>에서는 Envoy AI Gateway, kgateway 같은 프로젝트가 ext_proc를 이용해 OpenAI 호환 요청 본문을 파싱 → 모델명 기반 라우팅, 토큰 카운트 기반 rate limiting, 프롬프트 가드레일, 사용량 계측(usage metering) 등을 구현한다.</p>
 <p><strong>참고</strong>: gRPC이므로 매 요청마다 네트워크 왕복(hop)이 추가되어 레이턴시 오버헤드가 있다. 실무에선 sidecar가 아니라 Envoy Gateway/Istio 등이 관리하는 gateway 레벨에 붙이는 경우가 많다.</p>
-<p><strong>참고 자료</strong>: <a href="https://gateway.envoyproxy.io/docs/tasks/extensibility/ext-proc/">Envoy Gateway 공식 ext-proc 문서</a><sup class="cite"><a id="cite5" href="#ref5">[5]</a></sup>를 실제로 확인했다. <code>EnvoyExtensionPolicy</code> CRD로 특정 Gateway/HTTPRoute에 연결하며, <code>processingMode</code> 필드로 헤더/바디 중 무엇을 외부 프로세서로 보낼지 선택적으로 지정한다(기본값은 아무것도 보내지 않음)는 점이 소스 문서의 설명과 일치했다.</p>
+<p><strong>참고 자료</strong>: <a href="https://gateway.envoyproxy.io/docs/tasks/extensibility/ext-proc/">Envoy Gateway 공식 ext-proc 문서</a><sup class="cite"><a id="cite5" href="#ref5">[5]</a></sup>에도 같은 방식이 나온다. <code>EnvoyExtensionPolicy</code> CRD로 특정 Gateway/HTTPRoute에 연결하며, <code>processingMode</code> 필드로 헤더/바디 중 무엇을 외부 프로세서로 보낼지 선택적으로 지정한다(기본값은 아무것도 보내지 않음).</p>
 <h3 id="161-llm-d-envoy-config-github">16.1 (참고) llm-d envoy config 예시 — <a href="https://github.com/llm-d/llm-d/blob/main/guides/no-kubernetes-deployment/router/envoy/envoy.yaml">Github</a><sup class="cite"><a id="cite16" href="#ref16">[16]</a></sup></h3>
 <p>클라이언트 → Envoy(:8081) → [ext_proc gRPC 호출: 어느 파드로 보낼지 결정] → 결정된 파드로 직접 프록시. 일반적인 K8s Service(L4, 연결 단위 로드밸런싱)와 달리, 매 요청마다 외부 프로세스(EPP)가 판단해서 목적지를 동적으로 지정하는 L7 라우팅이다.</p>
 <p><code>http_filters</code> 핵심: <strong>ext_proc</strong></p>
@@ -1472,7 +1473,7 @@ kubectl delete -f ch14/rate-limit/rls.yaml -n istioinaction
 </code></pre>
 <p>EPP가 Envoy와 같은 호스트에 사이드카처럼 동거(127.0.0.1:9002)한다. 원본 파일 상단 주석에도 "Envoy and the EPP are colocated on the same host"라고 명시되어 있으며, 이 no-k8s 버전에선 TLS도 생략(같은 머신 내부 통신)한다. 표준 gRPC 헬스체크로 EPP 생존 여부를 지속 확인한다.</p>
 <h2 id="17-envoy-agent-router-envoy-ai-gateway">17. Envoy Agent Router 소개 (구 Envoy AI Gateway)</h2>
-<p><strong>참고 자료</strong>: <a href="https://theagentrouter.ai/blog">theagentrouter.ai/blog</a> — 실제로 확인한 결과 4개의 관련 블로그 포스트가 존재한다.</p>
+<p><strong>참고 자료</strong>: <a href="https://theagentrouter.ai/blog">theagentrouter.ai/blog</a> — 관련 블로그 포스트가 4개 올라와 있다.</p>
 <ul>
 <li><strong>A Reference Architecture for Adopters of Envoy AI Gateway</strong> - <a href="https://theagentrouter.ai/blog/envoy-ai-gateway-reference-architecture">Blog</a> — Two-Tier Gateway Design과 KServe 기반 Self-Hosted Model Serving을 다룸.</li>
 </ul>
@@ -1542,7 +1543,7 @@ kubectl delete -f ch14/rate-limit/rls.yaml -n istioinaction
 <div class="gallery"><figure class="figure-box"><img src="assets/images/5b48ab7e_image.jpeg" alt=""></figure></div>
 <p>Envoy AI Gateway였던 Agent Router가 Agentic AI Foundation에 공식적으로 합류했다. Envoy AI Gateway는 CNCF 내의 Envoy 하위 프로젝트로 시작했고, 이 블로그(2026-09-09 게시)에 따르면 9월 10일부로 독립 프로젝트로 전환되어 Agentic AI Foundation으로 이전했다. 이름·저장소·웹사이트·커뮤니티 채팅은 바뀌지만, CRD/API 그룹(<code>aigateway.envoyproxy.io</code>)·CLI(<code>aigw</code>)·네임스페이스(<code>envoy-ai-gateway-system</code>)·유지관리자·릴리스 주기·Apache 2.0 라이선스는 그대로 유지된다.</p>
 <h2 id="18-agentic-ai-foundation-aaif">18. Agentic AI Foundation (AAIF)</h2>
-<p><strong>참고 자료</strong>: <a href="https://aaif.io/">aaif.io</a><sup class="cite"><a id="cite12" href="#ref12">[12]</a></sup> 사이트를 실제로 열어 확인. 미션: "Operationalizing agentic AI for enterprise scale." (엔터프라이즈 규모에서 에이전틱 AI를 운영화하는 것)</p>
+<p><strong>참고 자료</strong>: <a href="https://aaif.io/">aaif.io</a><sup class="cite"><a id="cite12" href="#ref12">[12]</a></sup> 사이트에 나온 미션은 "Operationalizing agentic AI for enterprise scale."(엔터프라이즈 규모에서 에이전틱 AI를 운영화하는 것)이다.</p>
 <div class="gallery"><figure class="figure-box"><img src="assets/images/31d5d77f_image.png" alt="Agentic AI Foundation(AAIF) 사이트 소개 1"><figcaption>Agentic AI Foundation(AAIF) 사이트 소개 1</figcaption></figure><figure class="figure-box"><img src="assets/images/b5a0e787_image.png" alt="Agentic AI Foundation(AAIF) 사이트 소개 2"><figcaption>Agentic AI Foundation(AAIF) 사이트 소개 2</figcaption></figure></div>
 <p><strong>8개 워킹그룹</strong>(실제 사이트에서 확인):
 1. Accuracy &amp; Reliability
@@ -1557,8 +1558,8 @@ kubectl delete -f ch14/rate-limit/rls.yaml -n istioinaction
 - <strong>보안</strong>: OAuth, CEL 기반 인가, JWT
 - <strong>관측성</strong>: OpenTelemetry GenAI 메트릭, 분산 트레이싱
 - <strong>정책 집행</strong>: 레이트리밋, 콘텐츠 라우팅</p>
-<p><strong>요약</strong>: AAIF는 CNCF와 유사한 성격의 Linux Foundation 산하 재단으로, 에이전틱 AI 인프라(게이트웨이, 거버넌스, 보안, 관측성 등)의 벤더 중립적 표준화를 목표로 하며, Agent Router(구 Envoy AI Gateway)가 그 대표 프로젝트 중 하나다. (사실 검증 결과는 문서 최하단 참조 — Linux Foundation 기증 날짜에 대해 소스 문서와 다른 사실이 확인되었다.)</p>
-<blockquote class="fix">⚠ <b>원문 정정 (사실 검증 결과)</b>: 원문(Notion 소스)은 "Envoy AI Gateway 프로젝트가 2025-08-25에 Linux Foundation에 벤더 중립 거버넌스로 기증됨"이라고 서술하지만, 이는 <b>사실이 아니다</b>. 2025년 8월 25일에 Linux Foundation에 기증된 프로젝트는 Envoy AI Gateway가 아니라 <b>Solo.io의 별개 프로젝트인 "agentgateway"</b>다(<a href="https://www.linuxfoundation.org/press/linux-foundation-welcomes-agentgateway-project-to-accelerate-ai-agent-adoption-while-maintaining-security-observability-and-governance" target="_blank" rel="noopener">Linux Foundation 공식 보도자료</a><sup class="cite"><a id="cite13" href="#ref13">[13]</a></sup> 확인). 확실하게 확인되는 사실은 <b>"2026년 9월 10일, Envoy AI Gateway가 Agent Router로 리브랜딩되어 AAIF(Agentic AI Foundation)에 합류했다"</b>는 것뿐이다("agentgateway"와 "Agent Router"는 이름이 유사해 혼동하기 쉬우나 서로 다른 프로젝트다). 상세 근거는 이 문서 하단 "사실 검증 결과" 섹션 6번을 참고하라.</blockquote>
+<p><strong>요약</strong>: AAIF는 CNCF와 유사한 성격의 Linux Foundation 산하 재단으로, 에이전틱 AI 인프라(게이트웨이, 거버넌스, 보안, 관측성 등)의 벤더 중립적 표준화를 목표로 하며, Agent Router(구 Envoy AI Gateway)가 그 대표 프로젝트 중 하나다. (다만 원문에 나온 Linux Foundation 기증 날짜에는 정정이 필요한 부분이 있다 — 아래 블록과 문서 최하단의 "사실 검증 결과" 섹션 참조.)</p>
+<blockquote class="fix">⚠ <b>원문 정정</b>: 원문(Notion 소스)은 "Envoy AI Gateway 프로젝트가 2025-08-25에 Linux Foundation에 벤더 중립 거버넌스로 기증됨"이라고 적어놓았지만, 이는 <b>사실이 아니다</b>. 2025년 8월 25일에 Linux Foundation에 기증된 프로젝트는 Envoy AI Gateway가 아니라 <b>Solo.io의 별개 프로젝트인 "agentgateway"</b>다(<a href="https://www.linuxfoundation.org/press/linux-foundation-welcomes-agentgateway-project-to-accelerate-ai-agent-adoption-while-maintaining-security-observability-and-governance" target="_blank" rel="noopener">Linux Foundation 공식 보도자료</a><sup class="cite"><a id="cite13" href="#ref13">[13]</a></sup>). 확실하게 확인되는 사실은 <b>"2026년 9월 10일, Envoy AI Gateway가 Agent Router로 리브랜딩되어 AAIF(Agentic AI Foundation)에 합류했다"</b>는 것뿐이다("agentgateway"와 "Agent Router"는 이름이 유사해 혼동하기 쉬우나 서로 다른 프로젝트다). 상세 근거는 이 문서 하단 "사실 검증 결과" 섹션을 참고하라.</blockquote>
 
 <h2 id="19-envoy-agent-router-architecture">19. Envoy Agent Router Architecture</h2>
 <p><strong>참고 자료</strong>: <a href="https://theagentrouter.ai/docs/concepts/architecture/">theagentrouter.ai/docs/concepts/architecture</a><sup class="cite"><a id="cite7" href="#ref7">[7]</a></sup></p>
@@ -1674,7 +1675,7 @@ curl http://localhost:1975/v1/chat/completions \
 <pre><code class="language-bash"># 실습 후 삭제
 docker rm -f agentrouter
 </code></pre>
-<p><strong>GitHub 저장소</strong>: <a href="https://github.com/theagentrouter/agent-router">theagentrouter/agent-router</a><sup class="cite"><a id="cite11" href="#ref11">[11]</a></sup>를 실제로 확인했다. 프로젝트 슬로건은 "Agent Router controls. Envoy carries."이며, OpenAI/Azure OpenAI/Google Gemini/Vertex AI/AWS Bedrock/Anthropic/Mistral/Cohere/Groq 등 다수 프로바이더를 하나의 OpenAI 호환 API로 통합한다. 라이선스는 Apache-2.0이다.</p>
+<p><strong>GitHub 저장소</strong>: <a href="https://github.com/theagentrouter/agent-router">theagentrouter/agent-router</a><sup class="cite"><a id="cite11" href="#ref11">[11]</a></sup>. 프로젝트 슬로건은 "Agent Router controls. Envoy carries."이며, OpenAI/Azure OpenAI/Google Gemini/Vertex AI/AWS Bedrock/Anthropic/Mistral/Cohere/Groq 등 다수 프로바이더를 하나의 OpenAI 호환 API로 통합한다. 라이선스는 Apache-2.0이다.</p>
 <p><strong>관련 참고</strong>: K8s Gateway API 관련 별도 Notion 페이지가 원문에 언급되어 있으나, 접근 권한이 없어 확인하지 못했다.</p>
 <p><strong>추천 블로그</strong>: 인프런 - "사내 LLM 요청을 한곳으로 모은 AI Gateway 구축기: Envoy AI GW vs LiteLLM Proxy, Portkey AI GW 비교" - <a href="https://tech.inflab.com/20260825-ai-gateway/">Blog</a><sup class="cite"><a id="cite22" href="#ref22">[22]</a></sup> (소스 문서에 언급된 링크로, 원문 저자가 추천한 실전 비교 글이다.)</p>
 <hr />
@@ -1711,7 +1712,7 @@ kubectl get pod -A
 # kube-system 네임스페이스에 coredns, etcd, kube-apiserver 등 정상 기동 확인
 </code></pre>
 <blockquote>
-<p><strong>[사실 검증]</strong> kind 버전(v0.33.0)이나 노드 이미지의 Kubernetes 버전(1.37.0)은 kind 릴리스 시점에 따라 계속 바뀌는 값이다. 실습 시점에 따라 실제 버전이 다를 수 있으므로, 요구사항(Kubernetes 1.32+)만 충족하면 특정 버전을 강제할 필요는 없다.</p>
+<p><strong>참고</strong>: kind 버전(v0.33.0)이나 노드 이미지의 Kubernetes 버전(1.37.0)은 kind 릴리스 시점에 따라 계속 바뀌는 값이다. 실습 시점에 따라 실제 버전이 다를 수 있으므로, 요구사항(Kubernetes 1.32+)만 충족하면 특정 버전을 강제할 필요는 없다.</p>
 </blockquote>
 <h3 id="213-envoy-gateway-helm-v181">21.3 Envoy Gateway 설치 (Helm, v1.8.1)</h3>
 <blockquote>
@@ -2172,7 +2173,7 @@ kubectl get deploy,pod,svc
 # service/envoy-ai-gateway-basic-testupstream   ClusterIP   10.96.130.49   80/TCP
 </code></pre>
 <blockquote>
-<p><strong>[사실 검증]</strong> <code>x-ai-eg-model</code> 헤더 기반 라우팅은 <code>AIGatewayRoute.spec.rules[].matches[].headers[]</code>에 <code>type: Exact</code>로 정의되며, 이는 실제로 배포 후 <code>kubectl get AIGatewayRoute -o yaml</code>로 확인 가능하다 — 원문 설명과 일치한다.</p>
+<p><strong>참고</strong>: <code>x-ai-eg-model</code> 헤더 기반 라우팅은 <code>AIGatewayRoute.spec.rules[].matches[].headers[]</code>에 <code>type: Exact</code>로 정의되며, 배포 후 <code>kubectl get AIGatewayRoute -o yaml</code>로 직접 확인할 수 있다.</p>
 </blockquote>
 <h2 id="25-agent-router">25. Agent Router 데이터플레인 파드 구조</h2>
 <h3 id="251-3">25.1 파드 내 컨테이너 3개 구성</h3>
@@ -2747,7 +2748,7 @@ curl -sS -o /dev/null -w &quot;mock route HTTP:%{http_code}\n&quot; \
   $GATEWAY_URL/v1/chat/completions
 # mock route HTTP:200
 </code></pre>
-<p><code>x-ai-eg-model</code> 헤더(또는 body의 <code>model</code> 필드) 값에 따라 같은 Gateway가 mock 라우트와 실제 OpenAI 라우트 양쪽으로 트래픽을 정확히 분기한다는 것을 확인했다.</p>
+<p><code>x-ai-eg-model</code> 헤더(또는 body의 <code>model</code> 필드) 값에 따라 같은 Gateway가 mock 라우트와 실제 OpenAI 라우트 양쪽으로 트래픽을 정확히 분기한다.</p>
 <ul>
 <li>(참고, 소스 문서에 언급만 되고 실습되지 않음) Connect AWS Bedrock - <a href="https://theagentrouter.ai/docs/getting-started/connect-providers/aws-bedrock">Docs</a></li>
 <li>(참고, 소스 문서에 언급만 되고 실습되지 않음) Connect Anthropic - <a href="https://theagentrouter.ai/docs/getting-started/connect-providers/anthropic">Docs</a></li>
@@ -2762,7 +2763,7 @@ curl -sS -o /dev/null -w &quot;mock route HTTP:%{http_code}\n&quot; \
 <li><strong>Endpoint Picker(EPP)</strong> — "Inference Router"의 구현체로서, 요청을 어느 엔드포인트로 보낼지 결정하는 핵심 컴포넌트다. Gateway가 요청을 특정 InferencePool로 보내야 한다고 판단하면 요청 정보를 EPP로 전달하고, EPP는 InferencePool 엔드포인트들로부터 메트릭(Prefix Cache 상태, LoRA Adapter 가용성 등)을 수집해 최적의(비용 대비 성능이 좋은) 엔드포인트를 선택한다. 이 저장소가 제공하는 EPP는 컨포먼스 테스트용 경량 참조 구현(lwepp)이며, 실제로는 llm-d-router 같은 별도 구현체를 쓰는 것이 권장된다.</li>
 <li><strong>Body Based Router(BBR)</strong> — OpenAI 스타일 API 요청의 본문(body)에서 모델명을 추출해 <code>X-Gateway-Model-Name</code>(또는 유사한) 헤더로 주입하는 외부 gRPC 서비스다. Envoy는 헤더만 보고 라우팅할 수 있기 때문에, body 안에 있는 모델명을 헤더로 끌어올려주는 역할을 한다. <code>ext_proc</code>의 확장 형태로 동작한다.</li>
 </ul>
-<p><strong>참고 자료</strong>: <a href="https://github.com/kubernetes-sigs/gateway-api-inference-extension">Gateway API Inference Extension GitHub</a>를 실제로 확인한 결과, "EPP와 관련 API, BBR 패키지는 <code>llm-d/llm-d-router</code>, <code>llm-d/llm-d-inference-payload-processor</code> 저장소로 이전되었으며, 이 저장소에는 더 이상 새 코드를 받지 않고 곧 archive될 예정"이라는 중요한 공지를 확인했다. 즉, 이 실습 시점 이후 EPP/BBR 구현체의 공식 위치가 바뀔 수 있다.</p>
+<p><strong>참고 자료</strong>: <a href="https://github.com/kubernetes-sigs/gateway-api-inference-extension">Gateway API Inference Extension GitHub</a>에는 "EPP와 관련 API, BBR 패키지는 <code>llm-d/llm-d-router</code>, <code>llm-d/llm-d-inference-payload-processor</code> 저장소로 이전되었으며, 이 저장소에는 더 이상 새 코드를 받지 않고 곧 archive될 예정"이라는 중요한 공지가 올라와 있다. 즉, 이 실습 시점 이후 EPP/BBR 구현체의 공식 위치가 바뀔 수 있다.</p>
 <h2 id="29-httproute-inferencepool-gpu-cpu">29. HTTPRoute + InferencePool 실습 (GPU 없이 CPU만으로 가능!)</h2>
 <p><strong>참고 자료</strong>: <a href="https://theagentrouter.ai/docs/capabilities/inference/httproute-inferencepool">HTTPRoute + InferencePool 공식 문서</a></p>
 <p>표준 Gateway API <code>HTTPRoute</code>와 직접 통합하는 단순 추론 라우팅 시나리오다.</p>
@@ -3247,7 +3248,7 @@ subjects: [{ kind: ServiceAccount, name: default, namespace: default }]
 roleRef: { kind: Role, name: qwen25-05b-epp-reader, apiGroup: rbac.authorization.k8s.io }
 </code></pre>
 <blockquote>
-<p><strong>[사실 검증]</strong> 소스 문서의 원본 YAML에는 일부 줄(<code>livenessProbe</code>, <code>readinessProbe</code>, <code>volumes</code> 등)이 편집 과정에서 잘려 있었다(<code>grpc: { port: 9003, service: infeDelaySeconds: 5</code> 같은 형태). 위 YAML은 llama32-1b용 정상 YAML(29.1절)과 구조가 동일하다는 점에 근거해 누락된 부분을 정상적인 형태로 복원했다. <strong>실습 시에는 llama32-1b-epp의 정상 YAML을 참고해 <code>qwen25-05b</code>로 이름만 바꿔 작성하는 것을 권장한다.</strong></p>
+<p><strong>참고</strong>: 원문의 원본 YAML에는 일부 줄(<code>livenessProbe</code>, <code>readinessProbe</code>, <code>volumes</code> 등)이 편집 과정에서 잘려 있었다(<code>grpc: { port: 9003, service: infeDelaySeconds: 5</code> 같은 형태). 위 YAML은 llama32-1b용 정상 YAML(29.1절)과 구조가 동일하다는 점에 근거해 누락된 부분을 정상적인 형태로 복원한 것이다. <strong>실습 시에는 llama32-1b-epp의 정상 YAML을 참고해 <code>qwen25-05b</code>로 이름만 바꿔 작성하는 것을 권장한다.</strong></p>
 </blockquote>
 <h3 id="302">30.2 배포 및 멀티모델 라우팅 확인</h3>
 <pre><code class="language-bash"># 사전 준비 : llama32-1b InferencePool, 기존 Gateway들 확인
@@ -3366,37 +3367,13 @@ curl -H &quot;Content-Type: application/json&quot; -H &quot;x-ai-eg-model: qwen2
 <p>또한 K8s GW API 참고용 별도 Notion 페이지가 원문에 언급되어 있으나, 접근 권한 문제로 내용을 확인하지 못했다.</p>
 <hr />
 <h1 id="factcheck" class="part-title">[사실 검증 결과]</h1>
-<p>본문에서 다룬 핵심 주장·수치·버전 정보를 실제로 WebFetch/WebSearch로 재확인한 결과다.</p>
-<ol>
-<li>
-<p><strong>Envoy 정적/동적 설정(xDS: LDS/RDS/CDS/EDS/SDS/ADS) 각 API의 역할 설명이 Envoy 공식 문서와 일치하는지</strong>
-   → <strong>확인됨(정확함)</strong>. <a href="https://www.envoyproxy.io/docs/envoy/latest/api-docs/xds_protocol">Envoy 공식 xDS Protocol 문서</a>를 직접 확인한 결과, LDS(Listener Discovery Service)·RDS(Route Discovery Service)·CDS(Cluster Discovery Service)·EDS(Endpoint Discovery Service)·SDS(Secret Discovery Service)·ADS(Aggregated Discovery Service)의 역할 설명이 소스 문서와 정확히 일치했다. 다만 소스 문서는 RTDS(Runtime Discovery Service)를 언급하지 않는데, 이는 원문 범위(LDS/RDS/CDS/EDS/SDS/ADS)에 포함되지 않는 별도 API이므로 생략이 문제 되지는 않는다.</p>
-</li>
-<li>
-<p><strong>Envoy Agent Router의 v0.1 → v1.0 capability 비교표(AI providers 2→16, MCP gateway 유무 등) 수치가 정확한지</strong>
-   → <strong>확인됨(정확함)</strong>. <a href="https://theagentrouter.ai/blog/v1.0-release-announcement">Announcing Envoy AI Gateway 1.0 블로그</a>를 직접 확인한 결과, AI providers "2(OpenAI, AWS Bedrock) → 16, cross-provider request/response translation", API surface "Chat completions만 → Chat/completions/embeddings/image generation/audio/Responses API", MCP "— → full MCP gateway", Multimodal "— → Image/audio/video", Observability "Basic metrics → OpenTelemetry tracing 등", Multi-tenancy &amp; routing "Token rate limiting만 → Hostname-based routing/model virtualization/quota-aware rate limiting", Control-plane API "v1alpha1(experimental) → v1beta1(stable)" 모두 원문 표 내용과 정확히 일치했다. 추가로 확인된 것: v1.0 출시일은 2026년 6월 23일(블로그 게시일 기준)이다.</p>
-</li>
-<li>
-<p><strong>helm chart 버전(Envoy Gateway v1.8.1, ai-gateway-crds-helm/ai-gateway-helm v1.1.0, MetalLB v0.16.1)이 문서에 쓰인 그대로 정확한지</strong>
-   → <strong>확인됨(존재하는 실제 버전)</strong>. Envoy Gateway v1.8.1은 <a href="https://github.com/envoyproxy/gateway/releases">GitHub Releases</a>에서 실제 릴리스로 확인됐다(Envoy 1.38.1을 내부적으로 사용). Agent Router <code>ai-gateway-helm</code>/<code>ai-gateway-crds-helm</code> v1.1.0은 <a href="https://github.com/envoyproxy/ai-gateway/releases">GitHub Releases</a>에서 "the first minor release on the stable 1.x API"로 확인됐다. MetalLB v0.16.1은 <a href="https://metallb.universe.tf/release-notes">공식 릴리스 노트</a>에서 확인됐다. 단, 이 버전들은 각 프로젝트의 릴리스 시점에 따라 계속 갱신되는 값이므로, 독자가 실습하는 시점에는 더 최신 버전이 나와 있을 수 있다는 점을 감안해야 한다.</p>
-</li>
-<li>
-<p><strong>kubectl/helm 명령의 옵션과 순서가 문서에 쓰인 그대로 정확한지</strong>
-   → <strong>확인됨</strong>. 원문에 있는 모든 kubectl/helm 명령을 그대로 옮겨 실었으며, 임의로 옵션을 수정하거나 순서를 바꾸지 않았다. 단, 30.1절의 <code>qwen25-05b-inferencepool.yaml</code>은 원문 자체에 일부 줄이 잘려 있어(<code>livenessProbe</code>, <code>readinessProbe</code>, <code>volumes</code> 필드가 불완전한 문자열로 남아 있음) llama32-1b용 정상 YAML 구조를 참고해 복원했다는 점을 명시했다(30.1절 각주 참조). 이는 원문 오타/잘림이며 Agent Router 자체의 스펙 오류가 아니다.</p>
-</li>
-<li>
-<p><strong><code>original_destination_cluster</code>(ORIGINAL_DST 타입), <code>x-ai-eg-model</code> 헤더 기반 라우팅 같은 Envoy 설정 개념 설명이 정확한지</strong>
-   → <strong>확인됨</strong>. <code>ORIGINAL_DST</code> 클러스터 타입과 <code>use_http_header</code>/<code>http_header_name</code> 설정은 소스 문서에 인용된 llm-d envoy.yaml 예시(Envoy 공식 프로젝트 llm-d의 실제 설정)에서 그대로 확인됐다. <code>x-ai-eg-model</code> 헤더 기반 라우팅은 이 문서 24.2절·26절·30.2절에서 실제 <code>AIGatewayRoute</code> YAML의 <code>matches[].headers[]</code> 필드와 실습 curl 호출 결과로 재확인됐다.</p>
-</li>
-<li>
-<p><strong>AAIF(Agentic AI Foundation) 출범 배경 및 Envoy AI Gateway → Agent Router 이름 변경 시점이 정확한지</strong>
-   → <strong>부분적으로 부정확함(중요한 사실 오류 발견)</strong>. 이름 변경 시점(9월 10일, AAIF 합류)은 <a href="https://theagentrouter.ai/blog/envoy-ai-gateway-is-now-agent-router">theagentrouter.ai 블로그</a>에서 "On 10 September, Envoy AI Gateway officially joins the Agentic AI Foundation as Agent Router"로 확인되어 <strong>정확</strong>하다. 하지만 소스 문서(1958줄)의 "Envoy AI Gateway 프로젝트가 2025-08-25에 Linux Foundation에 벤더 중립 거버넌스로 기증됨"이라는 서술은 <strong>부정확</strong>하다. 2025년 8월 25일에 Linux Foundation에 기증된 프로젝트는 <strong>Envoy AI Gateway가 아니라 Solo.io의 별개 프로젝트인 "agentgateway"</strong>다(<a href="https://www.linuxfoundation.org/press/linux-foundation-welcomes-agentgateway-project-to-accelerate-ai-agent-adoption-while-maintaining-security-observability-and-governance">Linux Foundation 공식 보도자료</a>, <a href="https://aaif.io/blog/designing-agentgateway-a-unified-high-performance-gateway-for-ai-and-api-traffic">AAIF 블로그</a>에서 모두 "agentgateway"를 주어로 명시). agentgateway 역시 이후 AAIF에 합류했지만 Envoy AI Gateway/Agent Router와는 다른 프로젝트다("agentgateway"와 "Agent Router"는 이름이 유사해 혼동하기 쉬우나, 전자는 Solo.io가 만든 별도의 AI-native 프록시이고 후자는 이 문서가 다루는 Envoy AI Gateway의 새 이름이다). Envoy AI Gateway/Agent Router 자체가 언제 Linux Foundation에 별도로 기증됐는지에 대한 명시적 날짜는 확인하지 못했다 — 확인 가능했던 것은 "9월 10일 AAIF 합류" 뿐이다.</p>
-</li>
-<li>
-<p><strong>사용자마다 달라지는 값(OpenAI API 키, kind 클러스터 네트워크 대역, MetalLB IP 풀, Gateway External IP, AWS 계정 관련 값 등)을 빠짐없이 식별했는지</strong>
-   → <strong>확인됨</strong>. 이 문서에서 다음 값들을 <code>&lt;YOUR_...&gt;</code> placeholder로 표시했다: <code>&lt;YOUR_OPENAI_API_KEY&gt;</code>(OpenAI API 키, 20·27절), <code>&lt;YOUR_LOCAL_PATH&gt;</code>(kind extraMounts용 로컬 경로, 11.1절), <code>&lt;YOUR_IP_POOL_RANGE&gt;</code>(MetalLB IP 풀 대역, 23.1절), <code>&lt;YOUR_HOST_IP&gt;</code>(Admin API 접속용 호스트 IP, 25.3·27.2절). kind 클러스터의 Docker 네트워크 대역(<code>172.18.0.0/16</code>)과 Gateway External IP(<code>172.18.255.200</code> 등)는 원문에 이미 구체적인 예시값으로 나와 있으나, 이는 kind가 자동 할당하는 값이라 실습 환경마다 달라질 수 있다는 점을 각 절에서 명시했다. AWS 계정 관련 값(AWS Bedrock 연동)은 소스 문서에 실습되지 않고 링크만 언급되어 있어(Part B 20절 말미), 이 문서에서도 동일하게 참고 링크만 남겼다.</p>
-</li>
-</ol>
+<p>본문에서 다룬 핵심 주장·수치·버전 정보는 실제로 하나씩 다시 찾아보며 확인했다. 그 결과를 정리한다.</p>
+<p>가장 기본이 되는 xDS 여섯 개 API — LDS(Listener Discovery Service), RDS(Route Discovery Service), CDS(Cluster Discovery Service), EDS(Endpoint Discovery Service), SDS(Secret Discovery Service), ADS(Aggregated Discovery Service) — 에 대한 설명은 <a href="https://www.envoyproxy.io/docs/envoy/latest/api-docs/xds_protocol">Envoy 공식 xDS Protocol 문서</a>와 대조해보면 정확히 일치한다. 다만 공식 문서에는 RTDS(Runtime Discovery Service)라는 API도 나오는데, 본문은 이를 다루지 않는다. 이는 원문이 처음부터 LDS/RDS/CDS/EDS/SDS/ADS 여섯 개만 범위로 잡았기 때문이라, 문제 될 만한 누락은 아니다.</p>
+<p>Envoy Agent Router의 v0.1 → v1.0 capability 비교표도 <a href="https://theagentrouter.ai/blog/v1.0-release-announcement">Announcing Envoy AI Gateway 1.0 블로그</a>와 나란히 놓고 보면 숫자 하나까지 그대로 맞아떨어진다. AI 프로바이더 수가 2개(OpenAI, AWS Bedrock)에서 16개로 늘며 cross-provider 변환이 추가된 것, API 서페이스가 Chat completions 하나뿐이던 데서 completions·embeddings·image generation·audio·Responses API까지 넓어진 것, 아예 없던 MCP gateway가 서버 멀티플렉싱·툴 라우팅·세밀한 인가를 갖춘 풀스펙으로 자리 잡은 것, Multi-tenancy &amp; routing이 토큰 레이트리밋 하나에서 호스트네임 기반 라우팅·모델 가상화·쿼터 기반 레이트리밋으로 확장된 것, Control-plane API가 실험 단계였던 v1alpha1에서 안정 버전 v1beta1로 올라간 것 — 모두 원문 표와 정확히 일치한다. 참고로 이 v1.0은 블로그 게시일 기준 2026년 6월 23일에 출시됐다.</p>
+<p>버전 번호들 — Envoy Gateway v1.8.1, Agent Router의 <code>ai-gateway-crds-helm</code>/<code>ai-gateway-helm</code> v1.1.0, MetalLB v0.16.1 — 도 각 프로젝트의 GitHub Releases와 공식 릴리스 노트에서 실제로 존재하는 릴리스로 확인된다. Envoy Gateway v1.8.1은 내부적으로 Envoy 1.38.1을 사용하고, ai-gateway v1.1.0은 "안정화된 1.x API 위에서 나온 첫 마이너 릴리스"로 소개돼 있다. 다만 이런 버전 값은 각 프로젝트가 새 릴리스를 낼 때마다 바뀌는 값이라, 독자가 실습하는 시점에는 더 최신 버전이 나와 있을 가능성이 높다.</p>
+<p>kubectl/helm 명령의 옵션과 순서는 원문을 그대로 옮겨 실었고 임의로 손대지 않았다. 예외가 하나 있는데, 30.1절의 <code>qwen25-05b-inferencepool.yaml</code>은 원문 자체에서 일부 줄(<code>livenessProbe</code>, <code>readinessProbe</code>, <code>volumes</code> 필드)이 편집 과정에서 잘려 있었다. 이 문서에서는 구조가 동일한 llama32-1b용 YAML(29.1절)을 참고해 그 부분을 정상적인 형태로 복원했다 — 원문의 오타·잘림이며 Agent Router 자체 스펙의 문제는 아니다. <code>original_destination_cluster</code>(ORIGINAL_DST 타입)나 <code>x-ai-eg-model</code> 헤더 기반 라우팅 같은 Envoy 설정 개념들도, 소스 문서가 인용한 llm-d의 실제 <code>envoy.yaml</code>과 이 문서 24.2절·26절·30.2절의 실습 결과로 다시 한번 확인됐다.</p>
+<p>정정이 필요한 부분은 하나 있다. AAIF(Agentic AI Foundation) 출범 배경과 Envoy AI Gateway → Agent Router 이름 변경 시점에 관한 서술인데, 이름 변경 시점 자체 — 2026년 9월 10일, AAIF에 Agent Router라는 이름으로 합류 — 는 <a href="https://theagentrouter.ai/blog/envoy-ai-gateway-is-now-agent-router">theagentrouter.ai 블로그</a>의 "On 10 September, Envoy AI Gateway officially joins the Agentic AI Foundation as Agent Router"라는 문장으로 정확히 확인된다. 문제는 원문(Notion 소스)에 있던 "Envoy AI Gateway 프로젝트가 2025년 8월 25일에 Linux Foundation에 벤더 중립 거버넌스로 기증됨"이라는 서술이다. 이는 사실이 아니다. 그날 Linux Foundation에 기증된 프로젝트는 Envoy AI Gateway가 아니라 Solo.io가 만든 별개 프로젝트인 "agentgateway"다 — <a href="https://www.linuxfoundation.org/press/linux-foundation-welcomes-agentgateway-project-to-accelerate-ai-agent-adoption-while-maintaining-security-observability-and-governance">Linux Foundation 공식 보도자료</a>와 AAIF 블로그 모두 주어를 "agentgateway"로 명시하고 있다. agentgateway도 이후 AAIF에 합류하긴 했지만 Envoy AI Gateway/Agent Router와는 완전히 다른 프로젝트다. 이름이 서로 비슷해서(agentgateway ↔ Agent Router) 혼동하기 쉬운데, 전자는 Solo.io가 만든 별도의 AI 네이티브 프록시이고 후자는 이 문서가 다루는 바로 그 Envoy AI Gateway의 새 이름이다. Envoy AI Gateway/Agent Router 자체가 정확히 언제 Linux Foundation에 기증됐는지에 대한 명시적 날짜는 이번에도 확인하지 못했다 — 확실하게 확인할 수 있었던 것은 "9월 10일 AAIF 합류" 뿐이다.</p>
+<p>마지막으로, 실습 중 독자마다 값이 달라지는 항목들도 빠짐없이 짚었는지 다시 점검했다. OpenAI API 키(<code>&lt;YOUR_OPENAI_API_KEY&gt;</code>, 20·27절), kind <code>extraMounts</code>용 로컬 경로(<code>&lt;YOUR_LOCAL_PATH&gt;</code>, 11.1절), MetalLB IP 풀 대역(<code>&lt;YOUR_IP_POOL_RANGE&gt;</code>, 23.1절), Admin API 접속용 호스트 IP(<code>&lt;YOUR_HOST_IP&gt;</code>, 25.3·27.2절)는 모두 placeholder로 표시해뒀다. kind 클러스터의 Docker 네트워크 대역(<code>172.18.0.0/16</code>)이나 Gateway External IP(<code>172.18.255.200</code> 등)는 원문에 구체적인 예시값으로 나오지만, kind가 그때그때 자동으로 할당하는 값이라 실습 환경마다 달라질 수 있다는 점을 각 절에서 짚어뒀다. AWS Bedrock 연동에 필요한 AWS 계정 관련 값은 원문에서도 링크만 언급되고 실제로 실습되지는 않았기 때문에(Part B 20절 말미), 이 문서에서도 마찬가지로 참고 링크만 남겨두었다.</p>
 <h2 id="vars">사용자 환경별로 반드시 바꿔야 하는 값</h2>
 <table>
 <thead>
