@@ -35,6 +35,10 @@
   .site-header { padding: 3rem 1.5rem 1.25rem; text-align: center; border-bottom: 1px solid var(--border); background: var(--bg-alt); }
   .site-title { margin: 0 0 .5rem; font-size: 1.9rem; }
   .site-subtitle { margin: 0; color: var(--text-muted); font-size: .95rem; }
+  .chapter-nav { margin: .9rem 0 0; }
+  .chapter-nav a { display: inline-block; padding: .35rem .9rem; border: 1px solid var(--accent); border-radius: 999px; color: var(--accent); text-decoration: none; font-weight: 600; font-size: .9rem; }
+  .chapter-nav a:hover { background: var(--accent); color: var(--bg); }
+  details.toc-mobile p.next-link { margin: 8px 0 4px 8px; } details.toc-mobile p.next-link a { font-weight: 600; }
   .badge-row { margin-top: 1rem; display: flex; gap: .5rem; justify-content: center; flex-wrap: wrap; }
   .badge { font-size: .75rem; padding: .25rem .7rem; border-radius: 999px; background: var(--accent-soft); color: var(--accent); font-weight: 600; text-decoration: none; display: inline-block; }
   a.badge:hover { text-decoration: underline; }
@@ -124,6 +128,7 @@
 <div class="site-header">
   <h1 class="site-title">W1-2. MLOps란 무엇인가 (Chapter 2)</h1>
   <p class="site-subtitle">반복적인 MLOps 수명주기 → 견고한 MLOps가 중요한 이유 → DevOps와의 비교 → 성숙도 수준까지, 초보자를 위한 상세 학습 가이드</p>
+  <p class="chapter-nav"><a href="../ch1/ch1_final.html">← 이전 장: CH1. MLOps와 ML 엔지니어링 시작</a></p>
   <div class="badge-row"><span class="badge">초보자용</span><span class="badge">그림 · 예시 · 실습</span><span class="badge">정정 사항 반영</span></div>
 </div>
 <details class="glossary" open>
@@ -322,7 +327,7 @@
   </dl></div>
 </details>
 <div class="layout">
-  <nav class="sidebar"><h2>목차</h2><ul>
+  <nav class="sidebar"><div class="next-link"><a href="../ch1/ch1_final.html">← 이전 장: CH1. MLOps와 ML 엔지니어링 시작</a></div><h2>목차</h2><ul>
 <li><a href="#ch2-a-01">CH2. MLOps란 무엇인가 — 이 장의 큰 그림</a></li>
 <li><a href="#ch2-a-02">▶ 들어가며</a></li>
 <li><a href="#ch2-a-03">2.1 반복적인 MLOps 수명주기 · 2.1.0 문제 정의 및 설계 — 전체 지도 (그림 2.1)</a></li>
@@ -370,7 +375,7 @@
 <li><a href="#ch2-z-04">사실 검증 결과</a></li>
   </ul></nav>
   <main><div class="markdown-body">
-  <details class="toc-mobile"><summary>목차</summary><ul>
+  <details class="toc-mobile"><summary>목차</summary><p class="next-link"><a href="../ch1/ch1_final.html">← 이전 장: CH1. MLOps와 ML 엔지니어링 시작</a></p><ul>
 <li><a href="#ch2-a-01">CH2. MLOps란 무엇인가 — 이 장의 큰 그림</a></li>
 <li><a href="#ch2-a-02">▶ 들어가며</a></li>
 <li><a href="#ch2-a-03">2.1 반복적인 MLOps 수명주기 · 2.1.0 문제 정의 및 설계 — 전체 지도 (그림 2.1)</a></li>

@@ -35,6 +35,10 @@
   .site-header { padding: 3rem 1.5rem 1.25rem; text-align: center; border-bottom: 1px solid var(--border); background: var(--bg-alt); }
   .site-title { margin: 0 0 .5rem; font-size: 1.9rem; }
   .site-subtitle { margin: 0; color: var(--text-muted); font-size: .95rem; }
+  .chapter-nav { margin: .9rem 0 0; }
+  .chapter-nav a { display: inline-block; padding: .35rem .9rem; border: 1px solid var(--accent); border-radius: 999px; color: var(--accent); text-decoration: none; font-weight: 600; font-size: .9rem; }
+  .chapter-nav a:hover { background: var(--accent); color: var(--bg); }
+  details.toc-mobile p.next-link { margin: 8px 0 4px 8px; } details.toc-mobile p.next-link a { font-weight: 600; }
   .badge-row { margin-top: 1rem; display: flex; gap: .5rem; justify-content: center; flex-wrap: wrap; }
   .badge { font-size: .75rem; padding: .25rem .7rem; border-radius: 999px; background: var(--accent-soft); color: var(--accent); font-weight: 600; text-decoration: none; display: inline-block; }
   a.badge:hover { text-decoration: underline; }
@@ -124,6 +128,7 @@
 <div class="site-header">
   <h1 class="site-title">W1-1. MLOps와 ML 엔지니어링 시작 (Chapter 1)</h1>
   <p class="site-subtitle">필수 사전 지식 → 머신러닝 수명주기 → MLOps 역량 → 플랫폼 구축 → ML 시스템 구축까지, 초보자를 위한 상세 학습 가이드</p>
+  <p class="chapter-nav"><a href="../ch2/ch2_final.html">다음 장: CH2. MLOps란 무엇인가 →</a></p>
   <div class="badge-row"><span class="badge">초보자용</span><span class="badge">그림 · 예시 · 실습</span><span class="badge">정정 사항 반영</span></div>
 </div>
 <details class="glossary" open>
@@ -247,7 +252,7 @@
   </dl></div>
 </details>
 <div class="layout">
-  <nav class="sidebar"><h2>목차</h2><ul>
+  <nav class="sidebar"><div class="next-link"><a href="../ch2/ch2_final.html">다음 장: CH2. MLOps란 무엇인가 →</a></div><h2>목차</h2><ul>
 <li><a href="#ch1-a-01">필수 사전 지식 · 영상 메모 ① 목표·기준·예시</a></li>
 <li><a href="#ch1-a-02">필수 사전 지식 · 영상 메모 ② 가중치 조정으로 오차 줄이기</a></li>
 <li><a href="#ch1-a-03">필수 사전 지식 · 영상 메모 ③ 층 쌓기와 역전파</a></li>
@@ -288,7 +293,7 @@
 <li><a href="#ch1-z-04">사실 검증 결과</a></li>
   </ul></nav>
   <main><div class="markdown-body">
-  <details class="toc-mobile"><summary>목차</summary><ul>
+  <details class="toc-mobile"><summary>목차</summary><p class="next-link"><a href="../ch2/ch2_final.html">다음 장: CH2. MLOps란 무엇인가 →</a></p><ul>
 <li><a href="#ch1-a-01">필수 사전 지식 · 영상 메모 ① 목표·기준·예시</a></li>
 <li><a href="#ch1-a-02">필수 사전 지식 · 영상 메모 ② 가중치 조정으로 오차 줄이기</a></li>
 <li><a href="#ch1-a-03">필수 사전 지식 · 영상 메모 ③ 층 쌓기와 역전파</a></li>
