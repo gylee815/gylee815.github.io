@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Machine Learning Platform Engineering Study</title>
+<meta name="description" content="Machine Learning Platform Engineering Study — 학습자료 모음">
+<style>
+  :root {
+    --bg: #ffffff;
+    --bg-alt: #f6f7f9;
+    --text: #1c1f24;
+    --text-muted: #5b6270;
+    --border: #e2e5ea;
+    --accent: #3457d5;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #14161a;
+      --bg-alt: #1b1e24;
+      --text: #e7e9ec;
+      --text-muted: #9aa2b1;
+      --border: #2c3038;
+      --accent: #7c93ff;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", Helvetica, Arial, sans-serif;
+    line-height: 1.6;
+  }
+  header {
+    padding: 3.5rem 1.5rem 2.5rem;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg-alt);
+  }
+  header h1 {
+    margin: 0 0 0.6rem;
+    font-size: 1.8rem;
+  }
+  header p {
+    margin: 0;
+    color: var(--text-muted);
+  }
+  main {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 2.5rem 1.5rem 4rem;
+  }
+  ul.week-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+  }
+  ul.week-list li a {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    text-decoration: none;
+    color: var(--text);
+    transition: border-color 0.15s ease, background 0.15s ease;
+  }
+  .week-badge {
+    flex: 0 0 auto;
+    font-weight: 700;
+    font-size: 0.85rem;
+    border-radius: 999px;
+    padding: 0.2rem 0.7rem;
+    transition: color 0.15s ease, border-color 0.15s ease;
+  }
+  .week-title {
+    flex: 1 1 auto;
+    font-size: 1rem;
+  }
+  .status-tag {
+    flex: 0 0 auto;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+
+  /* ----------------------------------------------------
+     활성화된 주차 (available): 클릭 가능, 호버 효과 적용
+     ---------------------------------------------------- */
+  ul.week-list li.available a {
+    cursor: pointer;
+    pointer-events: auto;
+  }
+  ul.week-list li.available a:hover {
+    border-color: var(--accent);
+    background: var(--bg-alt);
+  }
+  ul.week-list li.available .week-badge {
+    color: var(--accent);
+    border: 1px solid var(--accent);
+  }
+  ul.week-list li.available .status-tag {
+    display: none;
+  }
+
+  /* ----------------------------------------------------
+     비활성화된 주차 (unavailable): 클릭 차단, 흐리게 표시
+     ---------------------------------------------------- */
+  ul.week-list li.unavailable a,
+  ul.week-list li.upcoming a {
+    cursor: default;
+    opacity: 0.55;
+    pointer-events: none; /* 클릭 비활성화 */
+  }
+  ul.week-list li.unavailable .week-badge,
+  ul.week-list li.upcoming .week-badge {
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>Machine Learning Platform Engineering Study</h1>
+  <p>학습자료 모음</p>
+</header>
+<main>
+  <!--
+    ==========================================================================
+    [주차별 설정 및 업데이트 가이드]
+    1. 공개 전환: <li class="unavailable">을 <li class="available">로 변경
+    2. 링크 연결: href="#"에 실제 HTML 파일 경로 입력 (예: href="w1/intro.html")
+    3. 제목 수정: <span class="week-title"> 안의 텍스트를 원하는 제목으로 변경
+    ※ 필요에 따라 주차 항목(<li>)을 복사하여 추가하거나 삭제할 수 있습니다.
+    ==========================================================================
+  -->
+  <ul class="week-list">
+
+    <!-- [Week 1] -->
+    <!-- 업데이트 시: class="unavailable" -> class="available" / href="#" -> "w1/파일명.html" -->
+    <li class="unavailable">
+      <a href="#">
+        <span class="week-badge">Week 1</span>
+        <!-- 👇 [수정 영역] 주차별 제목을 입력하세요 -->
+        <span class="week-title">Week 1: 제목을 입력하세요</span>
+        <span class="status-tag">준비 중</span>
+      </a>
+    </li>
+
+    <!-- [Week 2] -->
+    <!-- 업데이트 시: class="unavailable" -> class="available" / href="#" -> "w2/파일명.html" -->
+    <li class="unavailable">
+      <a href="#">
+        <span class="week-badge">Week 2</span>
+        <!-- 👇 [수정 영역] 주차별 제목을 입력하세요 -->
+        <span class="week-title">Week 2: 제목을 입력하세요</span>
+        <span class="status-tag">준비 중</span>
+      </a>
+    </li>
+
+    <!-- [Week 3] -->
+    <!-- 업데이트 시: class="unavailable" -> class="available" / href="#" -> "w3/파일명.html" -->
+    <li class="unavailable">
+      <a href="#">
+        <span class="week-badge">Week 3</span>
+        <!-- 👇 [수정 영역] 주차별 제목을 입력하세요 -->
+        <span class="week-title">Week 3: 제목을 입력하세요</span>
+        <span class="status-tag">준비 중</span>
+      </a>
+    </li>
+
+    <!-- [Week 4] -->
+    <!-- 업데이트 시: class="unavailable" -> class="available" / href="#" -> "w4/파일명.html" -->
+    <li class="unavailable">
+      <a href="#">
+        <span class="week-badge">Week 4</span>
+        <!-- 👇 [수정 영역] 주차별 제목을 입력하세요 -->
+        <span class="week-title">Week 4: 제목을 입력하세요</span>
+        <span class="status-tag">준비 중</span>
+      </a>
+    </li>
+
+    <!-- [Week 5] -->
+    <!-- 업데이트 시: class="unavailable" -> class="available" / href="#" -> "w5/파일명.html" -->
+    <li class="unavailable">
+      <a href="#">
+        <span class="week-badge">Week 5</span>
+        <!-- 👇 [수정 영역] 주차별 제목을 입력하세요 -->
+        <span class="week-title">Week 5: 제목을 입력하세요</span>
+        <span class="status-tag">준비 중</span>
+      </a>
+    </li>
+
+    <!-- [Week 6] -->
+    <!-- 업데이트 시: class="unavailable" -> class="available" / href="#" -> "w6/파일명.html" -->
+    <li class="unavailable">
+      <a href="#">
+        <span class="week-badge">Week 6</span>
+        <!-- 👇 [수정 영역] 주차별 제목을 입력하세요 -->
+        <span class="week-title">Week 6: 제목을 입력하세요</span>
+        <span class="status-tag">준비 중</span>
+      </a>
+    </li>
+
+    <!-- [Week 7] -->
+    <!-- 업데이트 시: class="unavailable" -> class="available" / href="#" -> "w7/파일명.html" -->
+    <li class="unavailable">
+      <a href="#">
+        <span class="week-badge">Week 7</span>
+        <!-- 👇 [수정 영역] 주차별 제목을 입력하세요 -->
+        <span class="week-title">Week 7: 제목을 입력하세요</span>
+        <span class="status-tag">준비 중</span>
+      </a>
+    </li>
+
+    <!-- [Week 8] -->
+    <!-- 업데이트 시: class="unavailable" -> class="available" / href="#" -> "w8/파일명.html" -->
+    <li class="unavailable">
+      <a href="#">
+        <span class="week-badge">Week 8</span>
+        <!-- 👇 [수정 영역] 주차별 제목을 입력하세요 -->
+        <span class="week-title">Week 8: 제목을 입력하세요</span>
+        <span class="status-tag">준비 중</span>
+      </a>
+    </li>
+
+  </ul>
+</main>
+</body>
+</html>
