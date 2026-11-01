@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 540" width="100%">
+
+  <style>
+    .bg { fill: #0f172a; }
+    .panel { fill: #1e293b; stroke: #334155; stroke-width: 2; rx: 18; }
+    .card-blue { fill: #172554; stroke: #38bdf8; stroke-width: 2; rx: 16; }
+    .card-purple { fill: #221a36; stroke: #a855f7; stroke-width: 2; rx: 16; }
+    .card-green { fill: #064e3b; stroke: #10b981; stroke-width: 2; rx: 16; }
+    .card-amber { fill: #2b2114; stroke: #f59e0b; stroke-width: 2; rx: 16; }
+    .card-rose { fill: #2a1820; stroke: #f43f5e; stroke-width: 2; rx: 16; }
+    .title { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', sans-serif; font-size: 26px; font-weight: 800; fill: #f8fafc; }
+    .sec { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', sans-serif; font-size: 20px; font-weight: 700; fill: #e2e8f0; }
+    .node-title { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', sans-serif; font-size: 20px; font-weight: 800; fill: #f8fafc; }
+    .node-sub { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', sans-serif; font-size: 15px; font-weight: 500; fill: #cbd5e1; }
+    .tag { font-family: 'JetBrains Mono', 'SFMono-Regular', monospace; font-size: 14px; font-weight: 700; fill: #38bdf8; }
+    .badge { font-family: 'JetBrains Mono', 'SFMono-Regular', monospace; font-size: 13px; font-weight: 800; fill: #0f172a; }
+  </style>
+  <defs>
+    <marker id="arrow-blue" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 9 5 L 0 9 z" fill="#38bdf8"/>
+    </marker>
+    <marker id="arrow-green" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 9 5 L 0 9 z" fill="#10b981"/>
+    </marker>
+    <marker id="arrow-rose" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 9 5 L 0 9 z" fill="#f43f5e"/>
+    </marker>
+    <marker id="arrow-amber" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 9 5 L 0 9 z" fill="#f59e0b"/>
+    </marker>
+    <marker id="arrow-purple" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 9 5 L 0 9 z" fill="#a855f7"/>
+    </marker>
+  </defs>
+
+  <rect width="1200" height="540" rx="22" class="bg"/>
+  <text x="42" y="52" class="title">피처 스토어(Feast): 학습·서빙 통일과 미래 누수 차단</text>
+
+  <!-- Left Panel: Dual Store -->
+  <rect x="40" y="84" width="545" height="416" class="panel"/>
+  <text x="70" y="128" class="sec">1. 단일 피처 정의로 학습·서빙 불일치 제거</text>
+
+  <rect x="70" y="232" width="175" height="110" class="card-blue"/>
+  <text x="157" y="280" text-anchor="middle" class="node-title" fill="#38bdf8">Feast 피처 정의</text>
+  <text x="157" y="308" text-anchor="middle" class="node-sub">동일 계산식 1회 작성</text>
+
+  <path d="M 245 265 L 315 205" stroke="#38bdf8" stroke-width="3.5" marker-end="url(#arrow-blue)"/>
+  <path d="M 245 310 L 315 370" stroke="#10b981" stroke-width="3.5" marker-end="url(#arrow-green)"/>
+
+  <rect x="325" y="152" width="230" height="106" class="card-purple"/>
+  <text x="440" y="198" text-anchor="middle" class="node-title" fill="#c084fc">오프라인 저장소</text>
+  <text x="440" y="226" text-anchor="middle" class="node-sub">대규모 학습 데이터셋 생성</text>
+
+  <rect x="325" y="318" width="230" height="106" class="card-green"/>
+  <text x="440" y="364" text-anchor="middle" class="node-title" fill="#34d399">온라인 저장소 (ms)</text>
+  <text x="440" y="392" text-anchor="middle" class="node-sub">실시간 차량·로봇 제어</text>
+
+  <!-- Right Panel: Point-in-Time Join -->
+  <rect x="615" y="84" width="545" height="416" class="panel"/>
+  <text x="645" y="128" class="sec">2. 시점 기준 조회 (Point-in-Time Join)</text>
+
+  <line x1="665" y1="295" x2="1115" y2="295" stroke="#64748b" stroke-width="4" marker-end="url(#arrow-blue)"/>
+
+  <!-- T1 -->
+  <circle cx="725" cy="295" r="12" fill="#10b981"/>
+  <text x="725" y="340" text-anchor="middle" class="node-title" fill="#34d399">10:00 센서값</text>
+  <text x="725" y="366" text-anchor="middle" class="node-sub">과거 정상 수집</text>
+
+  <!-- T2 -->
+  <circle cx="890" cy="295" r="14" fill="#38bdf8" stroke="#f8fafc" stroke-width="3"/>
+  <rect x="805" y="176" width="170" height="68" class="card-blue"/>
+  <text x="890" y="206" text-anchor="middle" class="node-title" fill="#38bdf8">★ 10:05 예측 시점</text>
+  <text x="890" y="230" text-anchor="middle" class="node-sub">설비 이상 판별</text>
+
+  <!-- T3 -->
+  <circle cx="1055" cy="295" r="12" fill="#f43f5e"/>
+  <text x="1055" y="340" text-anchor="middle" class="node-title" fill="#fb7185">10:10 고장 알람</text>
+  <text x="1055" y="366" text-anchor="middle" class="node-sub">미래 시점 데이터</text>
+
+  <path d="M 735 280 Q 810 245 874 282" fill="none" stroke="#10b981" stroke-width="3.5" marker-end="url(#arrow-green)"/>
+  <path d="M 1045 280 Q 970 245 906 282" fill="none" stroke="#f43f5e" stroke-width="3.5" stroke-dasharray="6,5" marker-end="url(#arrow-rose)"/>
+
+  <rect x="650" y="410" width="220" height="54" rx="10" fill="#064e3b" stroke="#10b981"/>
+  <text x="760" y="443" text-anchor="middle" class="node-sub" fill="#6ee7b7">정상: 과거 시점 피처만 결합</text>
+
+  <rect x="895" y="410" width="230" height="54" rx="10" fill="#2a1820" stroke="#f43f5e"/>
+  <text x="1010" y="443" text-anchor="middle" class="node-sub" fill="#fda4af">차단: 미래 정보 누수 방지</text>
+</svg>
