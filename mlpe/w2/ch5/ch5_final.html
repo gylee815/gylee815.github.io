@@ -136,6 +136,9 @@
   .handson-link b { color: var(--accent); margin-right: .35rem; }
   .handson-link a { display: inline-block; margin: .15rem .3rem .15rem 0; padding: .15rem .7rem; border: 1px solid var(--accent); border-radius: 999px; color: var(--accent); text-decoration: none; font-weight: 600; font-size: .85rem; }
   .handson-link a:hover { background: var(--accent); color: var(--bg); }
+  .code-block-wrap.output-block pre { background: transparent; border: 1px dashed var(--border); border-left: 3px solid var(--border); }
+  .code-block-wrap.output-block pre code { color: var(--text-muted); }
+  .output-tag { position: absolute; top: 6px; right: 10px; font-size: 11px; color: var(--text-muted); padding: 1px 8px; border-radius: 999px; background: var(--bg-alt); border: 1px solid var(--border); pointer-events: none; }
 
 </style>
 </head>
@@ -146,8 +149,8 @@
   <p class="chapter-nav"><a href="../ch4/ch4_final.html">← 이전 장: CH4. 신뢰할 수 있는 ML 시스템 설계</a> <a href="../ch4_ch5_handson/ch4_ch5_handson_final.html">🛠 실습편: CH4 + CH5 핸즈온 따라 하기 →</a></p>
   <div class="badge-row"><span class="badge">초보자용</span><span class="badge">이론 · 그림 · 예시</span><span class="badge">핸즈온 연결</span></div>
 </div>
-<details class="glossary" open>
-  <summary>핵심 용어 사전 (누르면 접기/펼치기) — 처음 보는 용어가 있다면 여기서 먼저 확인하세요</summary>
+<details class="glossary">
+  <summary>핵심 용어 사전 (눌러서 펼치기) — 처음 보는 용어가 있다면 여기서 먼저 확인하세요</summary>
   <div class="glossary-body"><dl class="glossary-grid">
 <div class="glossary-cat">오케스트레이션과 KFP</div>
 <div class="gterm"><dt>오케스트레이션(orchestration)</dt><dd>여러 작업의 순서·의존성·실행을 자동으로 조율하는 일<div class="gex">예) 주방장이 조리 담당들의 차례를 정해 주는 것</div></dd></div>
@@ -2215,27 +2218,19 @@ def perform_inference(
 </blockquote>
 
 <h5>[원본과 정정본 비교]</h5>
-<ul>
-<li><strong>본문 소스 표기 (개행 깨짐)</strong>:
-  ```yaml</li>
-<li>name: input_data
-    type: Dataset  outputs:</li>
-<li>
-<p>name: data_output
-    type: Dataset<br />
-  ```</p>
-</li>
-<li>
-<p><strong>정정된 표준 YAML 표기</strong>:
-  ```yaml</p>
-</li>
-<li>name: input_data
-    type: Dataset
-  outputs:</li>
-<li>name: data_output
-    type: Dataset
-  ```</li>
-</ul>
+<p><strong>본문 소스 표기 (개행 깨짐)</strong>:</p>
+<pre><code class="language-yaml">- name: input_data
+  type: Dataset  outputs:
+- name: data_output
+  type: Dataset
+</code></pre>
+<p><strong>정정된 표준 YAML 표기</strong>:</p>
+<pre><code class="language-yaml">- name: input_data
+  type: Dataset
+outputs:
+- name: data_output
+  type: Dataset
+</code></pre>
 <p>아래는 정정을 반영한 <code>Listing 5.8</code>의 전체 컴포넌트 정의 파일입니다.</p>
 <pre><code class="language-yaml"># Listing 5.8 Inference component definition file 추론 컴포넌트 정의 파일 (정정본)
 name: Model Inference
@@ -3868,7 +3863,7 @@ compiler.Compiler().compile(
 <h3>실행 진행과 결과 파일이 담는 것</h3>
 <p>KFP 실행 화면에서 실행(run)을 열면 작업이 그래프로 보이고, 순서는 <code>read-data-from-minio</code> → <code>retrieve-features-from-feast</code> → <code>model-inference</code> → <code>write-data-to-minio</code> 입니다. 각 노드의 <strong>Logs</strong> 탭에는 컴포넌트가 출력한 로그가 남습니다. 예를 들어 <code>retrieve-features-from-feast</code> 는 <code>Feature store initialized</code> 를 출력합니다. 소요 시간은 이미지를 처음 내려받는지 여부에 따라 달라집니다. 처음 실행하면 컨테이너 이미지를 레지스트리에서 내려받느라 오래 걸리고, 이미 받아 둔 노드에서는 빨라질 수 있습니다.</p>
 <p>실행이 끝나면 <code>write_data</code> 컴포넌트가 지정한 버킷(<code>inference-datasets</code>)에 결과 Parquet 파일을 씁니다. 이 파일의 행 수는 입력 엔티티 목록의 행 수와 같아야 하고, 이 책의 예제 데이터라면 30,162행입니다. 열 수는 원-핫 인코딩으로 펼쳐진 입력 열에 예측 열이 붙어 결정됩니다. 아래에서 그 결과 파일을 읽을 때 주의할 점을 설명합니다.</p>
-<blockquote class="fix">⚠ <b>바로잡기</b>: 한 번 실행해 본 기록에서 나온 "30,162행 × 91열, NaN 없음, 고소득 예측 22.1%, 같은 모델을 직접 불러 계산한 값과 최대 차이 0.0" 같은 수치는 <b>한 번의 실행 기록</b>일 뿐이며, 다른 환경에서 같은 값이 나온다는 보장은 없습니다. 또한 한 외부 블로그는 결과 열이 **92개**였다고 적었습니다. 91열과 92열의 차이는 데이터 전처리나 피처 구성이 달랐을 가능성이 있지만 원인은 알 수 없습니다.</blockquote>
+<blockquote class="fix">⚠ <b>바로잡기</b>: 한 번 실행해 본 기록에서 나온 "30,162행 × 91열, NaN 없음, 고소득 예측 22.1%, 같은 모델을 직접 불러 계산한 값과 최대 차이 0.0" 같은 수치는 <b>한 번의 실행 기록</b>일 뿐이며, 다른 환경에서 같은 값이 나온다는 보장은 없습니다. 또한 한 외부 블로그는 결과 열이 <b>92개</b>였다고 적었습니다. 91열과 92열의 차이는 데이터 전처리나 피처 구성이 달랐을 가능성이 있지만 원인은 알 수 없습니다.</blockquote>
 
 <h3>결과 파일을 읽을 때 주의할 것 (확정 정정 8, 9)</h3>
 <p><strong>① <code>Predicted_Income_Class</code> 는 클래스 라벨이 아닙니다.</strong></p>
@@ -4631,6 +4626,18 @@ input_data_df[&quot;Predicted_Income_Class&quot;] = predicted_classes
     wrap.className = 'code-block-wrap';
     pre.parentNode.insertBefore(wrap, pre);
     wrap.appendChild(pre);
+    // 실행 결과(출력 예시)는 복사해서 입력하는 것이 아니므로 '결과' 표시를 붙이고 복사 버튼은 달지 않는다.
+    var codeLang = pre.querySelector('code');
+    // 첫 줄이 '# [참고용]' 인 bash 블록은 설명용이므로 출력 예시와 같이 복사 버튼 없이 '입력하지 않음' 표시만 붙인다.
+    var isRef = codeLang && /^\s*# \[참고용\]/.test(codeLang.textContent);
+    if (codeLang && (codeLang.classList.contains('language-text') || isRef)) {
+      wrap.classList.add('output-block');
+      var tag = document.createElement('span');
+      tag.className = 'output-tag';
+      tag.textContent = isRef ? '참고용 (입력하지 않습니다)' : '출력 예시 (입력하지 않습니다)';
+      wrap.appendChild(tag);
+      return;
+    }
     var btn = document.createElement('button');
     btn.className = 'copy-btn';
     btn.type = 'button';
