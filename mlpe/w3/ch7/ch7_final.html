@@ -56,6 +56,7 @@
   .markdown-body h2 { margin-top: 3.5rem; padding-top: 1.5rem; border-top: 3px solid var(--accent); font-size: 1.5rem; }
   .markdown-body h2:first-child { margin-top: 0; padding-top: 0; border-top: none; }
   .markdown-body h3 { margin-top: 2.25rem; font-size: 1.18rem; }
+  .markdown-body h4 { margin-top: 1.5rem; font-size: 1.02rem; padding-left: .6rem; border-left: 3px solid var(--accent, #3457d5); }
   .markdown-body p { margin: 1rem 0; }
   .markdown-body a { color: var(--accent); }
   .markdown-body ul, .markdown-body ol { padding-left: 1.4rem; }
@@ -266,44 +267,14 @@
 <li><a href="#ch7-intro">들어가며: 데이터 준비가 중요한 이유</a></li>
 <li><a href="#ch7-analysis">7.1 데이터 분석</a></li>
 <li><a href="#ch7-lite">Kubeflow Notebooks 경량 설치: 선택적 대체 경로</a></li>
-<li><a href="#ch7-pdw">pdw.yaml: 파드 공통 설정을 주입하는 설치 묶음</a></li>
-<li><a href="#ch7-nbc">nbc.yaml: Notebook 신청서를 실행 서버로 바꾸는 설치 묶음</a></li>
-<li><a href="#ch7-lite-concepts">핵심 개념: 라벨과 설정 주입의 두 관문</a></li>
-<li><a href="#ch7-render">렌더링 참고: Kustomize와 적용 방식</a></li>
-<li><a href="#ch7-lite-guide">노트북 설치/사용 가이드</a></li>
 <li><a href="#ch7-launch">7.1.1 큐브플로 노트북 서버 실행하기</a></li>
 <li><a href="#ch7-volumes">7.1.2 워크스페이스와 데이터 볼륨</a></li>
 <li><a href="#ch7-configurations">7.1.3 설정 및 어피니티/톨러레이션</a></li>
 <li><a href="#ch7-menu">7.1.4 메뉴 커스터마이징</a></li>
-<li><a href="#ch7-image-menu">사용자에게 표시되는 이미지 커스터마이징: Listing 7.2</a></li>
-<li><a href="#ch7-affinity-menu">어피니티와 톨러레이션 그룹: Listing 7.3</a></li>
 <li><a href="#ch7-challenge">도전과제: K8s 고급 스케줄링 실습 따라해보기</a></li>
 <li><a href="#ch7-custom-image">7.1.5 큐브플로 커스텀 노트북 이미지 생성하기</a></li>
 <li><a href="#ch7-data-passing">7.2 데이터 전달</a></li>
-<li><a href="#ch7-experiment">Data passing KFP v2 실습: 큰 데이터는 값이 아니라 경로로</a></li>
-<li><a href="#ch7-experiment-concepts">핵심 개념: 실행 코드·저장 위치·타입</a></li>
-<li><a href="#ch7-results">실행 결과: 14개 run의 의미</a></li>
-<li><a href="#ch7-lab-guide">실습 가이드: 수정·컴파일·제출의 역할</a></li>
-<li><a href="#ch7-a1-python">a1_values_pipeline.py — 단순 값으로 전달하는 파이프라인 코드</a></li>
-<li><a href="#ch7-a1-yaml">a1_values_pipeline.yaml — 위 코드를 컴파일한 결과</a></li>
-<li><a href="#ch7-inspect">(선택) inspect_yaml.py: 컴파일된 YAML 점검 도구</a></li>
-<li><a href="#ch7-submit">submit.py: 제출하고 끝까지 기다리는 도구</a></li>
-<li><a href="#ch7-a2-python">a2_artifact_pipeline.py — 파일(아티팩트)로 전달하는 파이프라인 코드</a></li>
-<li><a href="#ch7-a2-yaml">a2_artifact_pipeline.yaml — 파일 전달 코드를 컴파일한 결과</a></li>
-<li><a href="#ch7-a2b-python">a2b_large_value.py — 같은 크기를 값과 파일로 보내 비교하는 코드</a></li>
-<li><a href="#ch7-a2b-value-yaml">a2b_by_value.yaml — 값으로 보내는 쪽의 컴파일 결과</a></li>
-<li><a href="#ch7-a2b-artifact-yaml">a2b_by_artifact.yaml — 파일로 보내는 쪽의 컴파일 결과</a></li>
-<li><a href="#ch7-run-commands">실행 명령 모음 (접속부터 A1~A4까지)</a></li>
-<li><a href="#ch7-check-guide">확인 가이드: 무엇을 어디서 볼지</a></li>
 <li><a href="#ch7-simple-values">7.2.1 시나리오 1: 다운스트림 컴포넌트에 단순 값 전달하기</a></li>
-<li><a href="#ch7-listing74">Listing 7.4 큐브플로 컴포넌트로 변환할 함수들</a></li>
-<li><a href="#ch7-listing75">Listing 7.5 큐브플로 컴포넌트와 파이프라인 정의</a></li>
-<li><a href="#ch7-packages">참고: 큐브플로 컴포넌트의 패키지 관리 규칙</a></li>
-<li><a href="#ch7-joke-yaml">joke_pipeline.yaml: 컴파일된 파이프라인 살펴보기</a></li>
-<li><a href="#ch7-first-command">첫 번째 command 블록: Python 환경 구성</a></li>
-<li><a href="#ch7-second-command">두 번째 command 블록: 컴포넌트 준비와 실행</a></li>
-<li><a href="#ch7-integrated-code">통합 코드의 세 부분과 각 섹션의 역할</a></li>
-<li><a href="#ch7-code-injection">Listing 7.6 KFP SDK: 코드 주입 방식으로 파일 생성</a></li>
 <li><a href="#ch7-facts">이 문서를 읽을 때 알아 둘 점</a></li>
   </ul></nav>
   <main><div class="markdown-body">
@@ -312,44 +283,14 @@
 <li><a href="#ch7-intro">들어가며: 데이터 준비가 중요한 이유</a></li>
 <li><a href="#ch7-analysis">7.1 데이터 분석</a></li>
 <li><a href="#ch7-lite">Kubeflow Notebooks 경량 설치: 선택적 대체 경로</a></li>
-<li><a href="#ch7-pdw">pdw.yaml: 파드 공통 설정을 주입하는 설치 묶음</a></li>
-<li><a href="#ch7-nbc">nbc.yaml: Notebook 신청서를 실행 서버로 바꾸는 설치 묶음</a></li>
-<li><a href="#ch7-lite-concepts">핵심 개념: 라벨과 설정 주입의 두 관문</a></li>
-<li><a href="#ch7-render">렌더링 참고: Kustomize와 적용 방식</a></li>
-<li><a href="#ch7-lite-guide">노트북 설치/사용 가이드</a></li>
 <li><a href="#ch7-launch">7.1.1 큐브플로 노트북 서버 실행하기</a></li>
 <li><a href="#ch7-volumes">7.1.2 워크스페이스와 데이터 볼륨</a></li>
 <li><a href="#ch7-configurations">7.1.3 설정 및 어피니티/톨러레이션</a></li>
 <li><a href="#ch7-menu">7.1.4 메뉴 커스터마이징</a></li>
-<li><a href="#ch7-image-menu">사용자에게 표시되는 이미지 커스터마이징: Listing 7.2</a></li>
-<li><a href="#ch7-affinity-menu">어피니티와 톨러레이션 그룹: Listing 7.3</a></li>
 <li><a href="#ch7-challenge">도전과제: K8s 고급 스케줄링 실습 따라해보기</a></li>
 <li><a href="#ch7-custom-image">7.1.5 큐브플로 커스텀 노트북 이미지 생성하기</a></li>
 <li><a href="#ch7-data-passing">7.2 데이터 전달</a></li>
-<li><a href="#ch7-experiment">Data passing KFP v2 실습: 큰 데이터는 값이 아니라 경로로</a></li>
-<li><a href="#ch7-experiment-concepts">핵심 개념: 실행 코드·저장 위치·타입</a></li>
-<li><a href="#ch7-results">실행 결과: 14개 run의 의미</a></li>
-<li><a href="#ch7-lab-guide">실습 가이드: 수정·컴파일·제출의 역할</a></li>
-<li><a href="#ch7-a1-python">a1_values_pipeline.py — 단순 값으로 전달하는 파이프라인 코드</a></li>
-<li><a href="#ch7-a1-yaml">a1_values_pipeline.yaml — 위 코드를 컴파일한 결과</a></li>
-<li><a href="#ch7-inspect">(선택) inspect_yaml.py: 컴파일된 YAML 점검 도구</a></li>
-<li><a href="#ch7-submit">submit.py: 제출하고 끝까지 기다리는 도구</a></li>
-<li><a href="#ch7-a2-python">a2_artifact_pipeline.py — 파일(아티팩트)로 전달하는 파이프라인 코드</a></li>
-<li><a href="#ch7-a2-yaml">a2_artifact_pipeline.yaml — 파일 전달 코드를 컴파일한 결과</a></li>
-<li><a href="#ch7-a2b-python">a2b_large_value.py — 같은 크기를 값과 파일로 보내 비교하는 코드</a></li>
-<li><a href="#ch7-a2b-value-yaml">a2b_by_value.yaml — 값으로 보내는 쪽의 컴파일 결과</a></li>
-<li><a href="#ch7-a2b-artifact-yaml">a2b_by_artifact.yaml — 파일로 보내는 쪽의 컴파일 결과</a></li>
-<li><a href="#ch7-run-commands">실행 명령 모음 (접속부터 A1~A4까지)</a></li>
-<li><a href="#ch7-check-guide">확인 가이드: 무엇을 어디서 볼지</a></li>
 <li><a href="#ch7-simple-values">7.2.1 시나리오 1: 다운스트림 컴포넌트에 단순 값 전달하기</a></li>
-<li><a href="#ch7-listing74">Listing 7.4 큐브플로 컴포넌트로 변환할 함수들</a></li>
-<li><a href="#ch7-listing75">Listing 7.5 큐브플로 컴포넌트와 파이프라인 정의</a></li>
-<li><a href="#ch7-packages">참고: 큐브플로 컴포넌트의 패키지 관리 규칙</a></li>
-<li><a href="#ch7-joke-yaml">joke_pipeline.yaml: 컴파일된 파이프라인 살펴보기</a></li>
-<li><a href="#ch7-first-command">첫 번째 command 블록: Python 환경 구성</a></li>
-<li><a href="#ch7-second-command">두 번째 command 블록: 컴포넌트 준비와 실행</a></li>
-<li><a href="#ch7-integrated-code">통합 코드의 세 부분과 각 섹션의 역할</a></li>
-<li><a href="#ch7-code-injection">Listing 7.6 KFP SDK: 코드 주입 방식으로 파일 생성</a></li>
 <li><a href="#ch7-facts">이 문서를 읽을 때 알아 둘 점</a></li>
   </ul></details>
   <div class="callout-summary">
@@ -411,7 +352,19 @@
 <h2 id="ch7-lite">Kubeflow Notebooks 경량 설치: 선택적 대체 경로</h2>
 <p>전체 건물 대신 작업실과 접수 창구만 만드는 방식입니다. 원문의 환경은 standalone KFP 백엔드 2.4.1만 있고 Central Dashboard·Jupyter Web App·Istio·Profile은 없습니다. notebook-controller와 PodDefault 웹훅을 설치하고 CR을 직접 작성해 서버·볼륨·설정 원리를 재현합니다. 원문이 ‘필수 실습 X’로 표시한 선택적 경로입니다.</p>
 <p>전체 UI 배포와 경량 배포의 차이는 실행 원리보다 제공되는 관리 화면·네트워크·사용자 관리 구성에 있습니다. 이 절은 설치 묶음의 목적과 핵심 필드를 설명합니다.</p>
-<h2 id="ch7-pdw">pdw.yaml: 파드 공통 설정을 주입하는 설치 묶음</h2>
+<h3 id="ch7-lite-concepts">핵심 개념: 라벨과 설정 주입의 두 관문</h3>
+<p>건물 출입 조건과 직원별 장비 지급 조건은 서로 다릅니다. 웹훅은 먼저 네임스페이스가 호출 대상인지 보고, 그 안의 파드 라벨이 PodDefault selector에 맞는지 봅니다. 원문 설치는 <code>app.kubernetes.io/part-of=kubeflow-profile</code> 라벨의 네임스페이스만 대상으로 합니다. Profile이 없는 경량 환경에서는 이 라벨을 직접 준비합니다.</p>
+<p>공식 Notebooks v1.11.0 컨트롤러는 Notebook의 루트 <code>metadata.labels</code>를 파드에 복사합니다. 따라서 <code>add-ml-env: "true"</code>가 selector와 맞으면 <code>MLFLOW_TRACKING_URI</code>·<code>KF_PIPELINES_ENDPOINT</code> 등이 주입됩니다. 주소 주입은 위치를 알려 주는 일이며 네트워크·인증 성공까지 뜻하지는 않습니다.</p>
+<p>원문 배포 기록은 PodDefault 웹훅 v2.0.0, notebook-controller·Jupyter SciPy 이미지 v1.11.0, KCD 26.03.1입니다. PodDefault 위치는 <code>applications/dashboard/upstream/poddefaults-webhooks</code>입니다. 이 버전 조합은 원문 환경의 기록이며 다른 배포판의 호환 조건은 따로 확인합니다.</p>
+<div class="mermaid-diagram"><pre class="mermaid">flowchart TD
+ A["새 파드 생성 요청"] --&gt; B{"namespaceSelector 일치"}
+ B -- "아니요" --&gt; X["이 웹훅 생략"]
+ B -- "예" --&gt; C["같은 네임스페이스 PodDefault 조회"]
+ C --&gt; D{"파드 라벨과 selector 일치"}
+ D -- "예" --&gt; E["env와 볼륨 설정 패치"]
+ D -- "아니요" --&gt; F["해당 설정 미주입"]</pre></div>
+<div class="anim-box"><b>PodDefault의 두 관문</b><p><output>1단계: 네임스페이스 라벨이 없으면 웹훅 호출 대상이 아닙니다.</output></p><button type="button" onclick="this.parentElement.querySelector('output').textContent='1단계: 네임스페이스 라벨이 없으면 웹훅 호출 대상이 아닙니다.'">네임스페이스 불일치</button><button type="button" onclick="this.parentElement.querySelector('output').textContent='2단계: 웹훅은 호출됐지만 파드 라벨이 selector와 맞지 않아 이 설정은 주입되지 않습니다.'">파드 라벨 불일치</button><button type="button" onclick="this.parentElement.querySelector('output').textContent='3단계: 두 조건이 맞는 새 파드에 환경변수와 볼륨 설정을 추가합니다. 기존 파드는 그대로입니다.'">두 조건 일치</button></div>
+<h3 id="ch7-pdw">pdw.yaml: 파드 공통 설정을 주입하는 설치 묶음</h3>
 <p>신청서 양식과 자동 작성 창구를 함께 설치하는 문서입니다. 큰 YAML의 대부분은 PodDefault가 허용하는 필드의 CRD 스키마이며, 나머지는 웹훅 운영 자원입니다.</p>
 <div class="table-wrap"><table>
 <thead>
@@ -449,7 +402,8 @@
 </table></div>
 <p>CRD는 ‘이런 종류가 있다’는 양식입니다. 실제 설정은 같은 네임스페이스의 PodDefault CR이 정합니다.</p>
 <blockquote class="fix">⚠ <b>원문 정정</b>: CRD가 특정 네임스페이스에 정의된다고 설명하면 안 됩니다. CRD는 클러스터 범위이며, PodDefault CR이 네임스페이스 범위입니다.</blockquote>
-<h2 id="ch7-nbc">nbc.yaml: Notebook 신청서를 실행 서버로 바꾸는 설치 묶음</h2>
+
+<h3 id="ch7-nbc">nbc.yaml: Notebook 신청서를 실행 서버로 바꾸는 설치 묶음</h3>
 <p>실행 담당자의 권한과 운영 설정을 묶은 문서입니다. <code>notebooks.kubeflow.org</code> CRD의 큰 부분은 파드·컨테이너·볼륨·보안·probe 필드 스키마입니다. 실제 Notebook에서 볼 핵심은 <code>spec.template.spec.containers</code>의 image·resources·volumeMounts와 volumes입니다.</p>
 <div class="table-wrap"><table>
 <thead>
@@ -490,35 +444,23 @@
 </tbody>
 </table></div>
 <p>스키마 안의 오래된 저장소 필드나 링크가 남아 있다고 현재 클러스터가 그 구현을 지원한다는 뜻은 아닙니다.</p>
-<h2 id="ch7-lite-concepts">핵심 개념: 라벨과 설정 주입의 두 관문</h2>
-<p>건물 출입 조건과 직원별 장비 지급 조건은 서로 다릅니다. 웹훅은 먼저 네임스페이스가 호출 대상인지 보고, 그 안의 파드 라벨이 PodDefault selector에 맞는지 봅니다. 원문 설치는 <code>app.kubernetes.io/part-of=kubeflow-profile</code> 라벨의 네임스페이스만 대상으로 합니다. Profile이 없는 경량 환경에서는 이 라벨을 직접 준비합니다.</p>
-<p>공식 Notebooks v1.11.0 컨트롤러는 Notebook의 루트 <code>metadata.labels</code>를 파드에 복사합니다. 따라서 <code>add-ml-env: "true"</code>가 selector와 맞으면 <code>MLFLOW_TRACKING_URI</code>·<code>KF_PIPELINES_ENDPOINT</code> 등이 주입됩니다. 주소 주입은 위치를 알려 주는 일이며 네트워크·인증 성공까지 뜻하지는 않습니다.</p>
-<p>원문 배포 기록은 PodDefault 웹훅 v2.0.0, notebook-controller·Jupyter SciPy 이미지 v1.11.0, KCD 26.03.1입니다. PodDefault 위치는 <code>applications/dashboard/upstream/poddefaults-webhooks</code>입니다. 이 버전 조합은 원문 환경의 기록이며 다른 배포판의 호환 조건은 따로 확인합니다.</p>
-<div class="mermaid-diagram"><pre class="mermaid">flowchart TD
- A["새 파드 생성 요청"] --&gt; B{"namespaceSelector 일치"}
- B -- "아니요" --&gt; X["이 웹훅 생략"]
- B -- "예" --&gt; C["같은 네임스페이스 PodDefault 조회"]
- C --&gt; D{"파드 라벨과 selector 일치"}
- D -- "예" --&gt; E["env와 볼륨 설정 패치"]
- D -- "아니요" --&gt; F["해당 설정 미주입"]</pre></div>
-<div class="anim-box"><b>PodDefault의 두 관문</b><p><output>1단계: 네임스페이스 라벨이 없으면 웹훅 호출 대상이 아닙니다.</output></p><button type="button" onclick="this.parentElement.querySelector('output').textContent='1단계: 네임스페이스 라벨이 없으면 웹훅 호출 대상이 아닙니다.'">네임스페이스 불일치</button><button type="button" onclick="this.parentElement.querySelector('output').textContent='2단계: 웹훅은 호출됐지만 파드 라벨이 selector와 맞지 않아 이 설정은 주입되지 않습니다.'">파드 라벨 불일치</button><button type="button" onclick="this.parentElement.querySelector('output').textContent='3단계: 두 조건이 맞는 새 파드에 환경변수와 볼륨 설정을 추가합니다. 기존 파드는 그대로입니다.'">두 조건 일치</button></div>
-<h2 id="ch7-render">렌더링 참고: Kustomize와 적용 방식</h2>
+<h3 id="ch7-render">렌더링 참고: Kustomize와 적용 방식</h3>
 <p>공통 양식에 환경별 옵션을 더해 최종 신청서를 만드는 과정입니다. Kustomize 5.8.3을 사용한 원문은 인증서 구성의 <code>pdw.yaml</code>과 Istio를 끈 <code>nbc.yaml</code>을 생성합니다. 큰 CRD는 client-side apply가 저장하는 last-applied annotation에 걸릴 수 있어 server-side apply가 유용합니다.</p>
 <p><code>--force-conflicts</code>는 필드 소유권 충돌을 덮어쓰는 옵션입니다. 단순히 오류를 없애는 마법의 설정으로 생각하지 말고, 다른 관리자의 변경과 충돌하는 필드인지 확인해야 합니다.</p>
-<h2 id="ch7-lite-guide">노트북 설치/사용 가이드</h2>
-<h3>1. 접속: SSH 터널과 포트 포워딩</h3>
+<h3 id="ch7-lite-guide">노트북 설치/사용 가이드</h3>
+<h4>1. 접속: SSH 터널과 포트 포워딩</h4>
 <p>원격 분석실로 이어지는 임시 직통 전화입니다. 로컬 브라우저→SSH 터널→Kubernetes Service 포트 포워딩→노트북 서버로 요청을 연결합니다. 접속 형태는 <code>http://localhost:&lt;LOCAL_PORT&gt;/notebook/&lt;NAMESPACE&gt;/&lt;NOTEBOOK_NAME&gt;/lab</code>입니다. <code>NB_PREFIX</code> 접두 경로가 맞지 않으면 404가 날 수 있습니다. 접속 계정과 서버는 <code class="var">&lt;SSH_USER&gt;</code>·<code class="var">&lt;REMOTE_HOST&gt;</code>로 바꿉니다.</p>
-<h3>2. 노트북 서버 추가</h3>
+<h4>2. 노트북 서버 추가</h4>
 <p>이름·이미지·자원·PVC를 바꿔 독립된 서버를 요청합니다. 원문은 PVC 5Gi/RWO와 Notebook을 <strong>별도 객체</strong>로 같은 YAML에 선언하고, CPU requests 500m·메모리 1Gi, limits CPU 2·메모리 4Gi를 사용합니다.</p>
 <blockquote class="fix">⚠ <b>원문 정정</b>: Notebook CR 하나가 PVC까지 자동으로 만든다고 일반화하지 않습니다. 이 경량 예제는 PVC를 별도로 선언하며, 컨트롤러는 StatefulSet·Service를 만들고 그 claim을 연결합니다. UI의 새 PVC 생성은 별도의 과정입니다.</blockquote>
 
-<h3>3. PodDefault 사용과 변경</h3>
+<h4>3. PodDefault 사용과 변경</h4>
 <p>새 네임스페이스의 대상 라벨·PodDefault·파드 라벨을 함께 맞춥니다. 원문 웹훅은 생성 요청에 작동하므로 기존 파드에는 변경이 소급 적용되지 않습니다. <code>failurePolicy: Fail</code>이면 웹훅 장애가 대상 파드 생성 실패로 이어질 수 있습니다.</p>
-<h3>4. 노트북에서 KFP와 패키지 사용</h3>
+<h4>4. 노트북에서 KFP와 패키지 사용</h4>
 <p>주입한 endpoint는 <code>kfp.Client()</code>가 접속 위치를 찾는 데 쓰입니다. 원문은 실험 2개·파이프라인 4개 조회와 MLflow/Jupyter API의 정상 응답을 보고합니다. 이는 해당 환경의 실행 기록입니다.</p>
 <blockquote class="fix">⚠ <b>원문 정정</b>: pip 설치물이 모두 워크스페이스에 남는 것은 아닙니다. 설치 위치가 PVC에 포함된 사용자 설치 경로나 가상환경이어야 유지됩니다. 의존성을 커스텀 이미지에 포함하는 방법도 있습니다.</blockquote>
 
-<h3>5. 정리</h3>
+<h4>5. 정리</h4>
 <p>Notebook을 제거해 실행 자원을 회수하고, PVC는 데이터가 필요한지 판단해 별도로 처리합니다. PVC 삭제와 실제 저장 데이터 삭제의 관계는 PV 회수 정책에 달려 있습니다.</p>
 <figure class="figure-box"><a href="assets/images/ch7-img-102.png" target="_blank" rel="noopener"><img loading="lazy" src="assets/images/ch7-img-102.png" width="1050" height="664" alt="IMG-102: JupyterLab Launcher"></a><figcaption>IMG-102: JupyterLab Launcher</figcaption></figure>
 <p><strong>무엇이 보이나요?</strong> 빈 파일 목록, Python 3 Notebook·Console, Terminal·텍스트/마크다운/Python 파일 버튼이 있습니다.
@@ -632,7 +574,7 @@ spec:
 <blockquote class="fix">⚠ <b>원문 정정</b>: 메뉴 옵션을 화면에 제공하는 소비자는 Jupyter Web App입니다. Notebook 컨트롤러가 이 화면을 직접 표시하는 것은 아닙니다.</blockquote>
 
 <p><code>value</code>는 기본 선택이고 <code>readOnly</code>는 UI에서 수정 가능 여부를 정합니다. 읽기 전용 화면은 다른 API로 CR을 만드는 권한까지 막지 않으므로 RBAC·admission 정책과 구분합니다.</p>
-<h2 id="ch7-image-menu">사용자에게 표시되는 이미지 커스터마이징: Listing 7.2</h2>
+<h3 id="ch7-image-menu">사용자에게 표시되는 이미지 커스터마이징: Listing 7.2</h3>
 <p>검토한 작업실 설계도만 목록에 두면 일관된 환경을 선택하기 쉽습니다. <code>image</code>는 Jupyter, <code>imageGroupOne</code>은 code-server, <code>imageGroupTwo</code>는 RStudio 그룹입니다. 공식 v1.9·v1.10·Notebooks v1.11 설정 파일에서 그룹별 <code>value</code>·<code>options</code> 구조를 확인할 수 있습니다.</p>
 <pre><code class="language-yaml">spawnerFormDefaults:
   image:
@@ -655,7 +597,7 @@ spec:
  C --&gt; E["생성 폼"]
  D --&gt; E
  E --&gt; F["Notebook CR"]</pre></div>
-<h2 id="ch7-affinity-menu">어피니티와 톨러레이션 그룹: Listing 7.3</h2>
+<h3 id="ch7-affinity-menu">어피니티와 톨러레이션 그룹: Listing 7.3</h3>
 <p>신청서에 작업실 종류를 선택하도록 두는 설정입니다. <code>affinityConfig.options</code>의 항목은 <code>configKey</code>·<code>displayName</code>·<code>affinity</code>로 구성되며, <code>tolerationGroup</code>은 테인트 허용 조건을 묶습니다.</p>
 <pre><code class="language-yaml">affinityConfig:
   value: small-cpu-selector
@@ -733,18 +675,66 @@ spec:
 </tbody>
 </table></div>
 <blockquote class="fix">⚠ <b>원문 정정</b>: 원문의 실패 크기는 특정 환경의 관찰입니다. 이를 모든 KFP 파라미터의 단일 상한으로 사용하지 않습니다. 100KB 실패를 별도 근거 없이 128KiB 단일 인자 한도로 확정할 수도 없습니다.</blockquote>
-<h2 id="ch7-experiment">Data passing KFP v2 실습: 큰 데이터는 값이 아니라 경로로</h2>
+
+<h3 id="ch7-experiment">실습: 큰 데이터는 값이 아니라 경로로 (KFP v2 Data passing)</h3>
 <p>같은 크기의 짐을 메모 봉투와 창고 배송으로 보내 보는 비교입니다. 목적은 입력의 작은 설정값과 전달할 큰 내용을 분리하는 데 있습니다.</p>
-<h3>실습 환경</h3>
+<h4>실습 환경</h4>
 <p>원문은 kind 클러스터, KFP 백엔드 2.4.1, SDK 2.9.0, Python 3.11, <code>ch07-data-passing</code> 실험을 사용하고 캐시를 껐습니다. 접속 주소는 <code class="var">&lt;KFP_SERVICE_URL&gt;</code>입니다. 캐시 OFF는 이전 결과 재사용을 막는 설정이며 난수 고정과는 다릅니다.</p>
-<h3>이 실습이 다루는 범위</h3>
+<h4>이 실습이 다루는 범위</h4>
 <p>A1 값 전달, A2 경로 전달, A2b 크기 비교, A3 v1→v2 수정, A4 아티팩트 타입을 살핍니다. SlicedClassificationMetrics는 제외되었습니다. 관련 주제를 다룬 이 실습은 있지만 7.2.2·7.2.3·7.3의 독립 본문은 제공된 원문에 없습니다.</p>
-<h2 id="ch7-experiment-concepts">핵심 개념: 실행 코드·저장 위치·타입</h2>
+<p>이 실습은 A1(값 전달) → A2(파일 전달) → A2b(크기 비교) → A3·A4(파일 경로와 타입) 순서로 진행됩니다. 아래에서 실험마다 <strong>코드 → 컴파일 결과 → 실행 결과</strong>를 함께 봅니다.</p>
+<h4 id="ch7-experiment-concepts">먼저 알아 둘 개념: 실행 코드·저장 위치·타입</h4>
 <p>상자의 내용과 송장은 서로 다릅니다. <code>.path</code>에 실제 내용을 쓰고, URI·타입·metadata는 내용의 위치와 성격을 설명합니다. 원문 런처의 경로는 <code>/minio/mlpipeline/v2/artifacts/&lt;PIPELINE&gt;/&lt;RUN_ID&gt;/&lt;TASK&gt;/&lt;EXECUTION_UUID&gt;/&lt;ARTIFACT_NAME&gt;</code>입니다. 이는 해당 배포 구성이지 모든 KFP의 고정 경로는 아닙니다. <code>output_jokes/jokes.txt</code>는 객체 저장소 키 접두사 구조입니다.</p>
 <p>컴파일된 YAML은 <code>deploymentSpec.executors</code>에 이미지·명령·함수 코드를 포함합니다. 실행 시 의존성 준비→<code>ephemeral_component.py</code> 생성→<code>executor_main</code> 순서로 이어집니다. SDK 2.9.0 기본 이미지는 <code>python:3.8</code>, 원문 수정 예제는 3.11, 다른 생성 출력은 3.9와 SDK 2.11.0입니다. 같은 버전의 결과로 섞어 읽지 마세요.</p>
 <p>A4의 일곱 타입은 Dataset·Model·Metrics·ClassificationMetrics·HTML·Markdown·Artifact입니다. <code>system.*</code> schemaTitle은 MLMD의 타입 이름입니다. <code>samples</code>·<code>shape</code> 같은 metadata는 파일 본문을 설명하는 작은 속성입니다.</p>
 <blockquote class="fix">⚠ <b>원문 정정</b>: Metrics 계열에 파일이 있을 수 없다는 뜻은 아닙니다. 원문 실험의 지표 로깅 메서드가 metadata를 기록했고 MinIO에 별도 파일이 없었던 결과로 한정합니다.</blockquote>
-<h2 id="ch7-results">실행 결과: 14개 run의 의미</h2>
+
+<h4 id="ch7-lab-guide">실습 파일의 역할: 수정 → 컴파일 → 제출</h4>
+<p>작업 지침을 고친 뒤 실행 주문서를 다시 만드는 과정입니다. <code>a*.py</code>를 수정하고 컴파일해 YAML을 만든 다음 제출합니다. <code>submit.py</code>는 <code>key=value</code> 파라미터를 받아 같은 파이프라인에 다른 입력을 보냅니다. 컴파일은 실행이 아니라 명세 생성입니다.</p>
+<p>이 장은 각 파일의 목적과 읽을 필드를 설명합니다. 실행 명령 전체와 환경 준비는 별도 핸즈온 절차를 따릅니다.</p>
+<h4 id="ch7-inspect">공통 도구 ① inspect_yaml.py — 컴파일된 YAML 점검 (선택)</h4>
+<p>주문서를 실제 실행 전에 읽어 보는 도구입니다. <code>yaml.safe_load_all</code>로 YAML 문서를 읽고 이름·SDK 버전·executor 명령·pip 설치·임시 파일 주입·아티팩트 schemaTitle을 보여 줍니다. 구조가 있다는 확인과 실행이 성공했다는 확인은 다릅니다.</p>
+<p>찾을 항목은 <code>deploymentSpec.executors.&lt;executor&gt;.container</code>와 그 command·args·image입니다. 임시 코드 파일 생성이 들어 있는지 보면 함수 소스가 실행 환경으로 옮겨지는 구조를 이해할 수 있습니다.</p>
+<h4 id="ch7-submit">공통 도구 ② submit.py — 제출하고 끝까지 기다리기</h4>
+<p>주문서를 접수하고 완료 상태를 확인하는 담당자입니다. 컴파일 YAML을 KFP에 제출하고 실험에 연결하며, 캐시를 끄고 종료까지 기다린 뒤 태스크 상태·로그를 표시합니다. JSON으로 해석할 수 있는 <code>key=value</code>는 해당 타입으로, 나머지는 문자열로 처리합니다. timeout과 로그 생략 옵션은 기다림·출력을 제어합니다.</p>
+<blockquote class="fix">⚠ <b>원문 정정</b>: 원문의 접이식 제목에는 <code>summit.py</code>라고 적혀 있지만 사용 설명과 파일 목록의 실제 이름은 <code>submit.py</code>입니다. 실행 파일을 찾을 때 후자를 사용합니다.</blockquote>
+
+<h3 id="ch7-a1">A1. 단순 값으로 전달하기</h3>
+<p><strong>이 실험의 질문:</strong> 작은 문자열과 정수는 값(파라미터)으로 충분한가?</p>
+<h4>코드: a1_values_pipeline.py</h4>
+<p>농담을 쓰는 사람→단어를 세는 사람→결과를 표현하는 사람의 릴레이를 코드로 연결합니다. <code>@dsl.component</code>가 함수 실행 계약을 만들고 <code>@dsl.pipeline</code>이 태스크 순서를 연결합니다. 농담 함수는 <code>pyjokes</code> 의존성과 <code>base_image</code>를 명시합니다.</p>
+<p>함수와 태스크 변수의 이름을 구분해야 합니다. 원문 예제에서 이름이 섞인 부분은 <a href="#ch7-listing75">단순 값 전달 예제</a>의 수정된 연결을 보세요.</p>
+<div class="mermaid-diagram"><pre class="mermaid">flowchart LR
+ A["generate_joke: 문자열"] --&gt; B["count_words: 정수"]
+ B --&gt; C["output_result: 결과 문자열"]</pre></div>
+<h4>컴파일 결과: a1_values_pipeline.yaml</h4>
+<p>Python으로 쓴 릴레이를 시스템용 계획표로 바꾼 결과입니다. <code>components</code>에는 STRING·NUMBER_INTEGER 같은 입력/출력 타입이, <code>deploymentSpec.executors</code>에는 이미지·명령·함수 코드가, <code>root.dag.tasks</code>에는 작업 순서와 상류 출력 참조가 있습니다. <code>executorLabel</code>은 컴포넌트와 실행자를 연결합니다.</p>
+<p>긴 YAML을 위에서 아래로 모두 외우기보다 태스크 연결→입출력 계약→필요한 실행자 순서로 읽으세요. <code>.output</code>이 어떤 다음 입력으로 전달되는지 찾으면 값 흐름이 보입니다.</p>
+<h3 id="ch7-a2">A2. 파일(아티팩트)로 전달하기</h3>
+<p><strong>이 실험의 질문:</strong> 파일(여러 줄의 농담)은 어떻게 다음 단계로 넘기는가?</p>
+<h4>코드: a2_artifact_pipeline.py</h4>
+<p>큰 상자를 창고에 보내는 버전입니다. <code>Output[Artifact]</code>의 <code>.path</code>에 디렉터리를 만들고 <code>jokes.txt</code>를 씁니다. 하류는 <code>Input[Artifact]</code>로 받은 경로에서 파일을 읽습니다. 원문 기본 농담 수는42이며 연결된 chapter_7 예제 기본값은3이라고 설명합니다. 기본값이 다른 사례를 같은 입력으로 보지 마세요.</p>
+<p>읽을 핵심은 <code>.path</code>에 <strong>내용이 실제로 존재하는가</strong>, 그 디렉터리 내부 파일까지 업로드·다운로드되는가입니다. URI 문자열만 다음 함수에 넘기는 것과 달리 런처가 아티팩트 내용을 준비합니다.</p>
+<h4>컴파일 결과: a2_artifact_pipeline.yaml</h4>
+<p>큰 상자의 송장과 작은 주문 메모가 함께 있는 명세입니다. <code>num_jokes</code>는 작은 값 파라미터이고 jokes 파일은 아티팩트입니다. <code>artifactType.schemaTitle</code>, 아티팩트 출력과 하류 입력 참조, DAG를 읽으면 값 전달 YAML과 차이가 드러납니다.</p>
+<p>이름·타입·연결이 선언되어 있어도 파일 본문이 만들어졌는지는 실행 로그와 저장소를 봐야 합니다. 선언과 실제 결과를 구분하세요.</p>
+<h3 id="ch7-a2b">A2b. 같은 크기를 값과 파일로 보내 비교하기</h3>
+<p><strong>이 실험의 질문:</strong> 같은 크기의 내용을 값으로 보내면 어디서 실패하고, 파일로 보내면 왜 되는가?</p>
+<h4>코드: a2b_large_value.py</h4>
+<p>같은 크기의 짐을 두 배송 방식으로 보내 보는 비교입니다. 한 경로는 <code>"x" * (size_kb * 1024)</code>를 문자열 반환값으로 넘기고 다른 경로는 같은 내용을 아티팩트 파일에 씁니다. 작은 크기 설정값은 그대로 파라미터입니다.</p>
+<p><code>size_kb</code>라는 이름과 달리 실제 길이는1024 단위입니다. 정밀한 크기 계산은 KiB로 읽으세요. 실패가 Python 메모리 때문인지, 명령 인자·객체 크기·메시지 경로 때문인지 비교하는 목적입니다.</p>
+<h4>컴파일 결과 ①: a2b_by_value.yaml (값으로 보내는 쪽)</h4>
+<p>짧은 주문 조건과 긴 내용을 같은 값 전달 구조에 담은 명세입니다. <code>size_kb</code>는 NUMBER_INTEGER 입력이고 생성 문자열은 STRING 출력이며 하류 파라미터와 연결됩니다. 긴 내용이 런타임·메타데이터 경로에 들어가는 구조를 파일 전달 버전과 비교합니다.</p>
+<p>작은 정수 파라미터가 정상 전달된다고 그 정수가 지시한 큰 문자열도 같은 경로에서 전달될 수 있는 것은 아닙니다. 조건의 크기와 데이터 본문의 크기를 구분하세요.</p>
+<h4>컴파일 결과 ②: a2b_by_artifact.yaml (파일로 보내는 쪽)</h4>
+<p>주문 조건은 메모로, 큰 내용은 상자로 보내는 명세입니다. <code>size_kb</code>는 값 입력으로 남고 생성 내용은 <code>comp-make-file</code>의 아티팩트 출력에 기록됩니다. 하류의 아티팩트 입력 연결을 따라가면 긴 문자열이 파라미터가 아닌 저장소를 경유한다는 차이가 보입니다.</p>
+<h3 id="ch7-a3a4">A3·A4. 파일 경로 계약과 아티팩트 타입</h3>
+<p>송장 위치와 실제 파일 위치가 같아야 합니다. <code>np.save(path, array)</code>는 <code>.npy</code>를 붙일 수 있어 지정 <code>.path</code>와 어긋날 수 있습니다. 다음 형태는 경로 계약을 보존하는 핵심 부분입니다.</p>
+<pre><code class="language-python">with open(output.path, &quot;wb&quot;) as file_handle:
+    np.save(file_handle, array)
+</code></pre>
+<p>A3은 원문 형태와 이 수정본을 비교했고, A4는 일곱 아티팩트 타입·metadata를 확인했습니다. 타입 선언은 내용 검사의 대체물이 아니며 입력 아티팩트는 원본을 바꾸지 않고 읽는 것이 권장됩니다.</p>
+<h3 id="ch7-results">실행 결과: 14개 run의 의미</h3>
 <figure class="figure-box"><a href="assets/images/ch7-img-113.png" target="_blank" rel="noopener"><img loading="lazy" src="assets/images/ch7-img-113.png" width="1858" height="939" alt="IMG-113: KFP 실험 실행 목록"></a><figcaption>IMG-113: KFP 실험 실행 목록</figcaption></figure>
 <p><strong>무엇이 보이나요?</strong> 14개 실행과 성공·실패 아이콘이 있습니다. 값 100kb·1000kb·10000kb와 a3-book-asis는 실패, 아티팩트 200000kb는 50초에 성공했습니다.
 <strong>왜 중요한가요?</strong> 같은 내용 크기라도 전달 경로와 출력 파일 계약에 따라 결과가 달라집니다.
@@ -814,45 +804,7 @@ spec:
 <blockquote class="fix">⚠ <b>원문 정정</b>: 1024바이트 단위를 KB로, 200000KiB를 정확한 200MB로 읽지 않습니다. 이 코드는 KiB 단위입니다. 또한 4MiB 오류는 해당 MLMD gRPC 경로에서 보고된 값이며 모든 KFP 파라미터의 상한이 아닙니다. 이미지의 오류 원인은 위 결과 표와 해당 실행 로그를 함께 보세요.</blockquote>
 
 <div class="anim-box"><b>큰 내용의 전달 방식 바꾸기</b><p><output>값 모드: 작은 설정과 집계는 파라미터로 연결합니다.</output></p><button type="button" onclick="this.parentElement.querySelector('output').textContent='값 모드: 작은 설정과 집계는 파라미터로 연결합니다.'">작은 값</button><button type="button" onclick="this.parentElement.querySelector('output').textContent='큰 값 모드: 원문 환경에서 명령 인자, annotation, gRPC의 서로 다른 경로가 크기별로 실패했습니다. 보편적 상한은 아닙니다.'">큰 값</button><button type="button" onclick="this.parentElement.querySelector('output').textContent='아티팩트 모드: 파일은 저장소로 보내고 URI와 metadata를 연결합니다. 원문에서는 200000KiB 파일도 성공했습니다.'">파일로 전환</button></div>
-<h2 id="ch7-lab-guide">실습 가이드: 수정·컴파일·제출의 역할</h2>
-<p>작업 지침을 고친 뒤 실행 주문서를 다시 만드는 과정입니다. <code>a*.py</code>를 수정하고 컴파일해 YAML을 만든 다음 제출합니다. <code>submit.py</code>는 <code>key=value</code> 파라미터를 받아 같은 파이프라인에 다른 입력을 보냅니다. 컴파일은 실행이 아니라 명세 생성입니다.</p>
-<p>이 장은 각 파일의 목적과 읽을 필드를 설명합니다. 실행 명령 전체와 환경 준비는 별도 핸즈온 절차를 따릅니다.</p>
-<h2 id="ch7-a1-python">a1_values_pipeline.py — 단순 값으로 전달하는 파이프라인 코드</h2>
-<p>농담을 쓰는 사람→단어를 세는 사람→결과를 표현하는 사람의 릴레이를 코드로 연결합니다. <code>@dsl.component</code>가 함수 실행 계약을 만들고 <code>@dsl.pipeline</code>이 태스크 순서를 연결합니다. 농담 함수는 <code>pyjokes</code> 의존성과 <code>base_image</code>를 명시합니다.</p>
-<p>함수와 태스크 변수의 이름을 구분해야 합니다. 원문 예제에서 이름이 섞인 부분은 <a href="#ch7-listing75">단순 값 전달 예제</a>의 수정된 연결을 보세요.</p>
-<div class="mermaid-diagram"><pre class="mermaid">flowchart LR
- A["generate_joke: 문자열"] --&gt; B["count_words: 정수"]
- B --&gt; C["output_result: 결과 문자열"]</pre></div>
-<h2 id="ch7-a1-yaml">a1_values_pipeline.yaml — 위 코드를 컴파일한 결과</h2>
-<p>Python으로 쓴 릴레이를 시스템용 계획표로 바꾼 결과입니다. <code>components</code>에는 STRING·NUMBER_INTEGER 같은 입력/출력 타입이, <code>deploymentSpec.executors</code>에는 이미지·명령·함수 코드가, <code>root.dag.tasks</code>에는 작업 순서와 상류 출력 참조가 있습니다. <code>executorLabel</code>은 컴포넌트와 실행자를 연결합니다.</p>
-<p>긴 YAML을 위에서 아래로 모두 외우기보다 태스크 연결→입출력 계약→필요한 실행자 순서로 읽으세요. <code>.output</code>이 어떤 다음 입력으로 전달되는지 찾으면 값 흐름이 보입니다.</p>
-<h2 id="ch7-inspect">(선택) inspect_yaml.py: 컴파일된 YAML 점검 도구</h2>
-<p>주문서를 실제 실행 전에 읽어 보는 도구입니다. <code>yaml.safe_load_all</code>로 YAML 문서를 읽고 이름·SDK 버전·executor 명령·pip 설치·임시 파일 주입·아티팩트 schemaTitle을 보여 줍니다. 구조가 있다는 확인과 실행이 성공했다는 확인은 다릅니다.</p>
-<p>찾을 항목은 <code>deploymentSpec.executors.&lt;executor&gt;.container</code>와 그 command·args·image입니다. 임시 코드 파일 생성이 들어 있는지 보면 함수 소스가 실행 환경으로 옮겨지는 구조를 이해할 수 있습니다.</p>
-<h2 id="ch7-submit">submit.py: 제출하고 끝까지 기다리는 도구</h2>
-<p>주문서를 접수하고 완료 상태를 확인하는 담당자입니다. 컴파일 YAML을 KFP에 제출하고 실험에 연결하며, 캐시를 끄고 종료까지 기다린 뒤 태스크 상태·로그를 표시합니다. JSON으로 해석할 수 있는 <code>key=value</code>는 해당 타입으로, 나머지는 문자열로 처리합니다. timeout과 로그 생략 옵션은 기다림·출력을 제어합니다.</p>
-<blockquote class="fix">⚠ <b>원문 정정</b>: 원문의 접이식 제목에는 <code>summit.py</code>라고 적혀 있지만 사용 설명과 파일 목록의 실제 이름은 <code>submit.py</code>입니다. 실행 파일을 찾을 때 후자를 사용합니다.</blockquote>
-<h2 id="ch7-a2-python">a2_artifact_pipeline.py — 파일(아티팩트)로 전달하는 파이프라인 코드</h2>
-<p>큰 상자를 창고에 보내는 버전입니다. <code>Output[Artifact]</code>의 <code>.path</code>에 디렉터리를 만들고 <code>jokes.txt</code>를 씁니다. 하류는 <code>Input[Artifact]</code>로 받은 경로에서 파일을 읽습니다. 원문 기본 농담 수는42이며 연결된 chapter_7 예제 기본값은3이라고 설명합니다. 기본값이 다른 사례를 같은 입력으로 보지 마세요.</p>
-<p>읽을 핵심은 <code>.path</code>에 <strong>내용이 실제로 존재하는가</strong>, 그 디렉터리 내부 파일까지 업로드·다운로드되는가입니다. URI 문자열만 다음 함수에 넘기는 것과 달리 런처가 아티팩트 내용을 준비합니다.</p>
-<h2 id="ch7-a2-yaml">a2_artifact_pipeline.yaml — 파일 전달 코드를 컴파일한 결과</h2>
-<p>큰 상자의 송장과 작은 주문 메모가 함께 있는 명세입니다. <code>num_jokes</code>는 작은 값 파라미터이고 jokes 파일은 아티팩트입니다. <code>artifactType.schemaTitle</code>, 아티팩트 출력과 하류 입력 참조, DAG를 읽으면 값 전달 YAML과 차이가 드러납니다.</p>
-<p>이름·타입·연결이 선언되어 있어도 파일 본문이 만들어졌는지는 실행 로그와 저장소를 봐야 합니다. 선언과 실제 결과를 구분하세요.</p>
-<h2 id="ch7-a2b-python">a2b_large_value.py — 같은 크기를 값과 파일로 보내 비교하는 코드</h2>
-<p>같은 크기의 짐을 두 배송 방식으로 보내 보는 비교입니다. 한 경로는 <code>"x" * (size_kb * 1024)</code>를 문자열 반환값으로 넘기고 다른 경로는 같은 내용을 아티팩트 파일에 씁니다. 작은 크기 설정값은 그대로 파라미터입니다.</p>
-<p><code>size_kb</code>라는 이름과 달리 실제 길이는1024 단위입니다. 정밀한 크기 계산은 KiB로 읽으세요. 실패가 Python 메모리 때문인지, 명령 인자·객체 크기·메시지 경로 때문인지 비교하는 목적입니다.</p>
-<h2 id="ch7-a2b-value-yaml">a2b_by_value.yaml — 값으로 보내는 쪽의 컴파일 결과</h2>
-<p>짧은 주문 조건과 긴 내용을 같은 값 전달 구조에 담은 명세입니다. <code>size_kb</code>는 NUMBER_INTEGER 입력이고 생성 문자열은 STRING 출력이며 하류 파라미터와 연결됩니다. 긴 내용이 런타임·메타데이터 경로에 들어가는 구조를 파일 전달 버전과 비교합니다.</p>
-<p>작은 정수 파라미터가 정상 전달된다고 그 정수가 지시한 큰 문자열도 같은 경로에서 전달될 수 있는 것은 아닙니다. 조건의 크기와 데이터 본문의 크기를 구분하세요.</p>
-<h2 id="ch7-a2b-artifact-yaml">a2b_by_artifact.yaml — 파일로 보내는 쪽의 컴파일 결과</h2>
-<p>주문 조건은 메모로, 큰 내용은 상자로 보내는 명세입니다. <code>size_kb</code>는 값 입력으로 남고 생성 내용은 <code>comp-make-file</code>의 아티팩트 출력에 기록됩니다. 하류의 아티팩트 입력 연결을 따라가면 긴 문자열이 파라미터가 아닌 저장소를 경유한다는 차이가 보입니다.</p>
-<h3>A3 v1→v2와 A4 타입의 읽는 법</h3>
-<p>송장 위치와 실제 파일 위치가 같아야 합니다. <code>np.save(path, array)</code>는 <code>.npy</code>를 붙일 수 있어 지정 <code>.path</code>와 어긋날 수 있습니다. 다음 형태는 경로 계약을 보존하는 핵심 부분입니다.</p>
-<pre><code class="language-python">with open(output.path, &quot;wb&quot;) as file_handle:
-    np.save(file_handle, array)
-</code></pre>
-<p>A3은 원문 형태와 이 수정본을 비교했고, A4는 일곱 아티팩트 타입·metadata를 확인했습니다. 타입 선언은 내용 검사의 대체물이 아니며 입력 아티팩트는 원본을 바꾸지 않고 읽는 것이 권장됩니다.</p>
-<h2 id="ch7-run-commands">실행 명령 모음 (접속부터 A1~A4까지)</h2>
+<h3 id="ch7-run-commands">실행 명령 모음 (접속부터 A1~A4까지)</h3>
 <p>준비된 지침·주문서·점검 도구를 확인한 뒤 순서대로 비교하는 과정입니다. 파일 목록은 Python 소스·컴파일 YAML·<code>inspect_yaml.py</code>·<code>submit.py</code>, A3의 원문/수정 YAML, A4 타입 예제가 준비됐는지 보여 줍니다.</p>
 <div class="table-wrap"><table>
 <thead>
@@ -889,7 +841,7 @@ spec:
 </tbody>
 </table></div>
 <p>경로·실행기는 <code class="var">&lt;PROJECT_DIR&gt;</code>·<code class="var">&lt;PYTHON_EXECUTABLE&gt;</code>, 접속은 <code class="var">&lt;SSH_USER&gt;</code>·<code class="var">&lt;REMOTE_HOST&gt;</code>, KFP 주소는 <code class="var">&lt;KFP_SERVICE_URL&gt;</code>로 바꿉니다. 파일 목록 출력은 실행할 명령이 아닙니다. 이론 설명의 명령 목적과 별도 핸즈온 실행 절차를 구분하세요.</p>
-<h2 id="ch7-check-guide">확인 가이드: 무엇을 어디서 볼지</h2>
+<h3 id="ch7-check-guide">확인 가이드: 무엇을 어디서 볼지</h3>
 <p>원인이 다른 문에 걸렸다면 점검 위치도 달라집니다. <code>FINAL=</code>·태스크 상태·로그는 종료 원인, YAML은 선언, 저장소는 실제 내용, MLMD는 타입·계보를 보여 줍니다.</p>
 <div class="table-wrap"><table>
 <thead>
@@ -937,7 +889,7 @@ spec:
 </tr>
 </tbody>
 </table></div>
-<h3>실습 뒤 정리할 것</h3>
+<h4>실습 뒤 정리할 것</h4>
 <p>원문은14개 run·완료 파드·200MB로 이름 붙인 저장물이 남아 있다고 기록합니다. 실행 메타데이터·파드·객체 저장물은 별도 자원입니다. 보존할 실험 기록과 삭제할 파일을 구분해 정리하며, 완료 파드 제거만으로 모든 아티팩트가 삭제된다고 생각하지 마세요.</p>
 <h2 id="ch7-simple-values">7.2.1 시나리오 1: 다운스트림 컴포넌트에 단순 값 전달하기</h2>
 <p>세 사람이 쪽지를 순서대로 건네는 모습을 떠올려 보세요. 첫 사람은 농담을 쓰고, 둘째는 단어 수를 세고, 셋째는 결과 문장을 만듭니다. 다운스트림은 이처럼 앞 단계의 결과를 받아 일하는 뒤 단계입니다. 여기서는 문자열 → 정수 → 문자열을 전달합니다.</p>
@@ -946,7 +898,7 @@ spec:
   A["generate_joke: 농담 문자열"] --&gt;|"str"| B["count_words: 단어 수 계산"]
   B --&gt;|"int"| C["output_result: 결과 문장"]
   C --&gt; D["Word count: 정수"]</pre></div>
-<h2 id="ch7-listing74">Listing 7.4 큐브플로 컴포넌트로 변환할 함수들</h2>
+<h3 id="ch7-listing74">Listing 7.4 큐브플로 컴포넌트로 변환할 함수들</h3>
 <p>먼저 세 작업을 보통의 Python 함수로 표현합니다. 타입 힌트는 쪽지에 붙인 ‘문자열’ 또는 ‘정수’ 표지와 같습니다. 입력과 반환값의 종류를 명시하여 함수의 계약을 드러냅니다.</p>
 <pre><code class="language-python">def generate_joke() -&gt; str:
     import pyjokes
@@ -959,7 +911,7 @@ def output_result(count: int) -&gt; str:
     return f&quot;Word count: {count}&quot;
 </code></pre>
 <p><code>get_joke()</code>는 호출 한 번에 농담 문자열 하나를 반환합니다. <code>split()</code>은 공백 기준으로 나누므로 여기의 단어 수는 언어학적 분석 결과가 아니라 공백으로 구분된 항목 수입니다. 마지막 함수는 메시지를 반환하며, 별도의 <code>print()</code>가 없으므로 표준 출력에 메시지를 찍는 함수와 구별해야 합니다.</p>
-<h2 id="ch7-listing75">Listing 7.5 큐브플로 컴포넌트와 파이프라인 정의</h2>
+<h3 id="ch7-listing75">Listing 7.5 큐브플로 컴포넌트와 파이프라인 정의</h3>
 <p>작업자가 들고 다닐 작업 안내서를 붙이는 것이 <code>@dsl.component</code>라면, 작업 순서표를 만드는 것이 <code>@dsl.pipeline</code>입니다. 데코레이터는 함수 정의에 추가 동작을 붙이는 Python 문법입니다. 아래 정의를 컴파일하면 실행 환경과 연결 관계를 담은 YAML 파일이 만들어집니다.</p>
 <pre><code class="language-python">from kfp import compiler, dsl
 
@@ -994,7 +946,8 @@ compiler.Compiler().compile(
 <blockquote class="fix">⚠ <b>원문 정정</b>: 런타임에 필요한 의존성을 함수 내부에서 가져오는 규칙은 이 경량 Python 컴포넌트의 코드 추출 방식에 해당합니다. 컴파일러와 데코레이터를 위한 import까지 함수 안으로 옮길 필요는 없습니다. 또한 @dsl.component는 컴포넌트를, @dsl.pipeline은 파이프라인을 만듭니다.</blockquote>
 
 <blockquote class="fix">⚠ <b>원문 정정</b>: 함수와 작업 변수에 같은 output_result 이름을 쓰면 지역 변수 가림 때문에 UnboundLocalError가 날 수 있습니다. count_word와 count_word_op처럼 정의와 호출 이름이 다르면 NameError가 납니다. 여기서는 함수 이름을 일치시키고 작업 변수를 joke_task, count_task, result_task로 구분했습니다.</blockquote>
-<h2 id="ch7-packages">참고: 큐브플로 컴포넌트의 패키지 관리 규칙</h2>
+
+<h3 id="ch7-packages">참고: 큐브플로 컴포넌트의 패키지 관리 규칙</h3>
 <p>작업장에 도구를 공급하는 방법은 미리 비치하기, 시작할 때 배송받기, 작업 중 직접 사오기입니다. 컴포넌트의 패키지도 각각 이미지에 포함하기, <code>packages_to_install</code>로 설치하기, 함수에서 설치 명령 실행하기에 대응합니다.</p>
 <div class="table-wrap"><table>
 <thead>
@@ -1026,11 +979,11 @@ compiler.Compiler().compile(
 <blockquote class="fix">⚠ <b>원문 정정</b>: 원문의 ‘Python 3.5 이상’과 ‘현재 Python에 대응하는 기본 이미지’ 설명은 이 실습의 SDK 2.9.0에 맞지 않습니다. 해당 SDK의 Python 요구 범위는 3.8 이상 3.13 미만이며, 경량 컴포넌트 기본 base_image는 고정된 python:3.8입니다. 다른 SDK 버전에서는 해당 버전의 요구 조건을 확인하세요. 원문의 pyjokeys는 pyjokes의 오기입니다.</blockquote>
 
 <p>앞 예제에서 <code>python:3.11</code>을 명시한 이유는 기본값에 기대지 않고 작업 환경을 분명히 하기 위해서입니다. 뒤에 보는 원문 저장소 YAML에는 <code>python:3.9</code>, <code>kfp==2.11.0</code>이 나타납니다. 이는 SDK 2.9.0으로 수행한 앞의 데이터 크기 실험과 구별해야 할 별도 산출물입니다.</p>
-<h2 id="ch7-joke-yaml">joke_pipeline.yaml: 컴파일된 파이프라인 살펴보기</h2>
+<h3 id="ch7-joke-yaml">joke_pipeline.yaml: 컴파일된 파이프라인 살펴보기</h3>
 <p>작업 계약서, 작업장 설비표, 작업 순서표를 따로 읽으면 복잡한 문서를 이해하기 쉽습니다. KFP YAML에서도 <code>components</code>, <code>deploymentSpec</code>, <code>root.dag.tasks</code>를 이 세 역할로 나누어 보세요.</p>
 <blockquote class="fix">⚠ <b>원문 정정</b>: 원문의 접이식 제목에 적힌 joke_pipelinee.yaml은 파일명 오기입니다. 연결된 공개 저장소의 실제 파일명과 앞의 컴파일 출력은 joke_pipeline.yaml입니다.</blockquote>
 
-<h3>components: 입력과 출력의 계약</h3>
+<h4>components: 입력과 출력의 계약</h4>
 <p><code>comp-count-words</code>의 문자열 입력은 <code>STRING</code>, 정수 출력은 <code>NUMBER_INTEGER</code>로 표현됩니다. 다음은 핵심 구조를 읽기 위한 발췌이며 이 조각만으로 전체 파이프라인을 제출하는 예제는 아닙니다.</p>
 <pre><code class="language-yaml">components:
   comp-count-words:
@@ -1044,7 +997,7 @@ compiler.Compiler().compile(
         Output:
           parameterType: NUMBER_INTEGER
 </code></pre>
-<h3>deploymentSpec: 실행자의 컨테이너 설정</h3>
+<h4>deploymentSpec: 실행자의 컨테이너 설정</h4>
 <p>실행자는 계약서대로 일을 수행하는 담당자입니다. <code>executorLabel</code>이 실행자 이름을 연결하고, <code>container.image</code>는 기본 이미지, <code>command</code>는 시작 명령, <code>args</code>는 그 명령에 넘기는 인자를 지정합니다.</p>
 <pre><code class="language-yaml">deploymentSpec:
   executors:
@@ -1058,10 +1011,10 @@ compiler.Compiler().compile(
         - count_words
 </code></pre>
 <p><code>'{{$}}'</code>는 KFP 실행 시 입력·출력 정보를 채우는 자리입니다. 화면의 문자열을 실제 농담으로 직접 바꾸는 방식이 아닙니다. <code>--function_to_execute</code>는 임시 모듈에서 어떤 함수를 부를지 지정합니다.</p>
-<h3>root.dag.tasks: 작업 사이의 연결</h3>
+<h4>root.dag.tasks: 작업 사이의 연결</h4>
 <p>작업 정의는 어떤 컴포넌트를 사용하고 어느 선행 작업의 출력을 입력으로 받을지 정합니다. <code>generate-joke</code> 출력 → <code>count-words</code> 입력 → <code>output-result</code> 입력이 이 예제의 DAG입니다. DAG는 순환이 없는 방향 그래프이므로 작업이 자기 결과를 기다리는 고리를 만들지 않습니다.</p>
 <p>원문 파일 전체는 <a href="https://github.com/practical-mlops/object-detection-project/blob/main/chapter_7/joke_pipeline.yaml">joke_pipeline.yaml</a>에서 볼 수 있습니다. 컴파일 버전에 따라 세부 필드와 생성된 명령 문자열이 달라질 수 있으므로 작성한 Python 정의와 함께 비교하세요.</p>
-<h2 id="ch7-first-command">첫 번째 command 블록: Python 환경 구성</h2>
+<h3 id="ch7-first-command">첫 번째 command 블록: Python 환경 구성</h3>
 <p>작업을 시작하기 전에 도구가 있는지 확인하고 없는 도구를 준비하는 단계입니다. 생성된 셸 명령은 pip를 찾고 KFP 실행에 필요한 패키지를 설치한 다음 다음 명령으로 제어를 넘깁니다. 아래는 역할을 읽기 쉽게 정리한 셸 발췌입니다.</p>
 <pre><code class="language-sh">if ! command -v pip &gt;/dev/null 2&gt;&amp;1; then
   python3 -m ensurepip || python3 -m ensurepip --user || exit 1
@@ -1075,7 +1028,8 @@ PIP_DISABLE_PIP_VERSION_CHECK=1 python3 -m pip install \
 <p><code>--quiet</code>는 출력을 줄이고 <code>--no-warn-script-location</code>은 설치된 실행 파일의 경로 경고를 줄입니다. <code>--no-deps</code>는 의존 패키지 자동 설치를 생략하므로 일반적인 수동 설치 명령에 무심코 복사하지 마세요. <code>typing-extensions</code> 뒤 조건은 Python 버전에 따라 설치 여부를 결정하는 환경 마커입니다.</p>
 <p><code>sh -c</code>에서 <code>$0</code>과 <code>$@</code>는 생성된 명령 배열의 다음 요소를 이어 실행하는 데 쓰입니다. 이 발췌만 터미널에 실행하면 다음 단계가 없으므로 완성된 실행 절차가 되지 않습니다.</p>
 <blockquote class="fix">⚠ <b>원문 정정</b>: 원문 첫 command 블록의 줄바꿈과 YAML 목록 표기가 흐트러져 있습니다. 셸 조건문과 명령의 역할을 나누어 읽어야 하며, 그대로 복사할 실행 명령으로 취급하면 안 됩니다. 예제의 kfp==2.11.0은 앞의 SDK 2.9.0 실험과 다른 버전입니다.</blockquote>
-<h2 id="ch7-second-command">두 번째 command 블록: 컴포넌트 준비와 실행</h2>
+
+<h3 id="ch7-second-command">두 번째 command 블록: 컴포넌트 준비와 실행</h3>
 <p>배송된 작업 안내서를 임시 책상에 펼쳐 놓고 담당자를 부르는 단계입니다. 여기서 임시 디렉터리를 만들고 함수 소스 문자열을 Python 파일로 기록한 후 KFP 런타임을 호출합니다.</p>
 <pre><code class="language-sh">program_path=$(mktemp -d)
 printf &quot;%s&quot; &quot;$0&quot; &gt; &quot;$program_path/ephemeral_component.py&quot;
@@ -1084,20 +1038,20 @@ _KFP_RUNTIME=true python3 -m kfp.dsl.executor_main \
   &quot;$@&quot;
 </code></pre>
 <p>이 블록 역시 생성된 <code>sh -ec</code> 명령 배열 안에서 동작하는 발췌입니다. <code>$0</code>에 함수 소스가, <code>$@</code>에 실행 인자가 전달됩니다. <code>mktemp -d</code>는 임시 디렉터리를 만들며 <code>--component_module_path</code>는 실행자가 읽을 모듈 위치를 가리킵니다. 임시 코드 파일은 입력 데이터셋이나 영구 아티팩트 저장소와 다른 용도입니다.</p>
-<h3>실제 Python 구현</h3>
+<h4>실제 Python 구현</h4>
 <p>작업의 핵심은 아래의 짧은 함수입니다. Python 정의에서는 <code>@dsl.component</code>를 붙이지만 임시 실행 모듈에는 추출된 함수와 필요한 import가 들어갑니다. 데코레이터를 붙이는 작성 단계와 함수가 호출되는 실행 단계를 구별하세요.</p>
 <pre><code class="language-python">def count_words(input: str) -&gt; int:
     return len(input.split())
 </code></pre>
 <p>런타임은 실행 입력을 읽어 문자열 인자를 만들고, 반환된 정수를 출력 파라미터로 기록합니다. 함수가 작아도 주변 명령이 긴 이유는 이 준비와 결과 기록을 함께 담당하기 때문입니다.</p>
-<h2 id="ch7-integrated-code">통합 코드의 세 부분과 각 섹션의 역할</h2>
-<h3>입력·출력 명세를 포함한 컴포넌트 정의</h3>
+<h3 id="ch7-integrated-code">통합 코드의 세 부분과 각 섹션의 역할</h3>
+<h4>입력·출력 명세를 포함한 컴포넌트 정의</h4>
 <p>이 부분은 접수 창구의 양식입니다. 입력 이름·타입, 출력 이름·타입, 연결할 실행자를 선언합니다. 문자열을 받는 함수에 다른 종류의 출력을 연결하지 않도록 계약을 드러냅니다.</p>
-<h3>컨테이너 설정·명령어·Python 구현을 담은 배포 명세</h3>
+<h4>컨테이너 설정·명령어·Python 구현을 담은 배포 명세</h4>
 <p>이 부분은 작업실의 설비와 작업 안내서입니다. 이미지, 설치 명령, 임시 모듈 소스, 함수 선택 인자를 담습니다. 패키지 설치 실패는 이 준비 단계에서, 함수 계산 실패는 실제 구현에서 발생할 수 있습니다.</p>
-<h3>연결 방식을 나타내는 파이프라인 DAG 작업 정의</h3>
+<h4>연결 방식을 나타내는 파이프라인 DAG 작업 정의</h4>
 <p>이 부분은 전달 순서표입니다. 작업 이름과 컴포넌트 참조, 선행 작업 출력의 연결을 정합니다. 인터페이스와 실행 환경이 맞더라도 연결할 출력 이름을 틀리면 의도한 흐름이 되지 않습니다.</p>
-<h3>각 섹션은 고유한 역할을 담당합니다</h3>
+<h4>각 섹션은 고유한 역할을 담당합니다</h4>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -1129,9 +1083,9 @@ _KFP_RUNTIME=true python3 -m kfp.dsl.executor_main \
   T["DAG 작업: 순서와 데이터 연결"] --&gt;|"componentRef"| C
   I["앞 작업 출력"] --&gt; T
   E --&gt; O["반환값을 출력 파라미터로 기록"]</pre></div>
-<h2 id="ch7-code-injection">Listing 7.6 KFP SDK: 코드 주입 방식으로 파일 생성</h2>
+<h3 id="ch7-code-injection">Listing 7.6 KFP SDK: 코드 주입 방식으로 파일 생성</h3>
 <p>배송 상자에 작업 안내서와 재료를 함께 넣을 수 있지만 안내서와 재료는 다른 물건입니다. 코드 주입은 실행할 함수 소스를 컨테이너에 전달하는 방법이며, 데이터 전달은 그 함수의 입력과 출력을 작업 사이에서 연결하는 방법입니다.</p>
-<h3>Listing 7.6의 배포 명세 읽기</h3>
+<h4>Listing 7.6의 배포 명세 읽기</h4>
 <p>원문의 긴 YAML은 <code>deploymentSpec.executors.exec-count-words.container</code> 아래에서 환경 준비 명령, 임시 파일 생성 명령, 함수 소스를 한데 보여 줍니다. 핵심은 다음 순서입니다.</p>
 <ol>
 <li>Python 이미지에서 필요한 런타임을 준비합니다.</li>
@@ -1148,10 +1102,10 @@ _KFP_RUNTIME=true python3 -m kfp.dsl.executor_main \
   O --&gt; D["뒤 작업의 입력"]</pre></div>
 <blockquote class="fix">⚠ <b>원문 정정</b>: ‘큐브플로가 데이터를 전달하는 방식은 코드 인젝션’이라는 설명은 코드 배송과 데이터 이동을 혼동합니다. 경량 컴포넌트의 함수 소스가 임시 모듈로 전달되는 것이 코드 주입입니다. 단순 값은 파라미터 직렬화와 출력 기록으로, 큰 파일은 아티팩트 저장소와 경로·URI 연결로 전달합니다.</blockquote>
 
-<h3>출력값을 캡처하는 런타임과 헬퍼 함수</h3>
+<h4>출력값을 캡처하는 런타임과 헬퍼 함수</h4>
 <p>직렬화는 계산 결과에 배송 가능한 표준 포장을 씌우는 일입니다. 정수나 문자열을 실행 시스템이 읽을 형식으로 기록한 뒤, 다음 작업에서 그 형식을 다시 Python 값으로 읽습니다. 출력 이름과 타입에 관한 계약은 컴파일된 명세에 있고, 실제 값 기록은 런타임이 담당합니다.</p>
 <p>원문의 ‘나머지 코드는 모두 주입된 코드’라는 표현보다는 함수 소스, 실행 명령, 별도로 설치되는 KFP 런타임을 구별하는 편이 정확합니다. YAML 안에서 출력 처리용 헬퍼가 모두 함수 옆에 펼쳐져 있어야 하는 것은 아닙니다. SDK 버전에 따라 런타임 패키지가 그 역할을 맡습니다.</p>
-<h3>단순 값에서 대용량 데이터로</h3>
+<h4>단순 값에서 대용량 데이터로</h4>
 <p>짧은 농담이나 계산된 단어 수는 파라미터로 연결하기 좋습니다. 수백 GiB 데이터셋은 값 자체를 명령이나 실행 메타데이터에 넣는 대신 저장소에 두고 아티팩트로 연결하는 방향을 고려하세요. URI는 데이터의 주소이며 모든 작업에 같은 로컬 경로가 있다는 뜻은 아닙니다.</p>
 <p>원문은 큰 데이터셋을 다음 절에서 다루겠다고 예고하며 끝납니다. 이 문서에 주어진 본문 범위는 7.2.1까지입니다. 앞의 <a href="#ch7-experiment">데이터 전달 실험</a>에서 파라미터와 아티팩트의 차이, 환경에 따른 크기 제한을 함께 살펴볼 수 있습니다.</p>
 <h2 id="ch7-facts">이 문서를 읽을 때 알아 둘 점</h2>
